@@ -128,7 +128,6 @@
 import TutorialDataService from "../services/TutorialDataService";
 import citiesJson from "../data/cities_of_turkey.json";
 
-import xlsx from "xlsx";
 // import { Base64 } from "js-base64";
 export default {
   name: "add-tutorial",
@@ -308,7 +307,7 @@ export default {
   },
   methods: {
     getHeader(sheet) {
-      const XLSX = xlsx;
+      const XLSX = require("xlsx");
       const headers = [];
       const range = XLSX.utils.decode_range(sheet["!ref"]); // worksheet['!ref'] Is the valid range of the worksheet
       let C;
@@ -359,8 +358,8 @@ export default {
       fileReader.onload = (ev) => {
         try {
           const data = ev.target.result;
+          const XLSX = require("xlsx");
 
-          const XLSX = xlsx;
           const workbook = XLSX.read(data, {
             type: "binary", //string
           });
