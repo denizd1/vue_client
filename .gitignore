@@ -1,2 +1,4 @@
 node_modules
 build/
+#Electron-builder output
+/dist_electron
