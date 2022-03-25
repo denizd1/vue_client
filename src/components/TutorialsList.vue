@@ -151,6 +151,12 @@ export default {
     currentUser() {
       return this.$store.state.auth.user;
     },
+    isUser() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes("ROLE_USER");
+      }
+      return false;
+    },
     isAdmin() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes("ROLE_ADMIN");
@@ -173,14 +179,16 @@ export default {
         },
         { text: "Yöntem", value: "yontem", sortable: false },
         { text: "Alt Yöntem", value: "alt_yontem", sortable: false },
-        { text: "Durum", value: "status", sortable: false },
       ];
       if (this.isAdmin || this.isModerator) {
-        headers.push({
-          text: "Güncelle/Sil",
-          value: "actions",
-          sortable: false,
-        });
+        headers.push(
+          {
+            text: "Güncelle/Sil",
+            value: "actions",
+            sortable: false,
+          },
+          { text: "Durum", value: "status", sortable: false }
+        );
       }
       return headers;
     },
@@ -241,6 +249,9 @@ export default {
       if (pageSize) {
         params["size"] = pageSize;
       }
+      if (this.isUser) {
+        params["status"] = "user";
+      }
 
       return params;
     },
@@ -251,6 +262,7 @@ export default {
           il: searchTitle,
           page: this.page - 1,
           size: this.pageSize,
+          status: this.isUser ? "user" : null,
         };
       } else {
         params = this.getRequestParams(
@@ -259,6 +271,20 @@ export default {
           this.pageSize
         );
       }
+
+      // if (this.isUser) {
+      //   var tut = tutorials.filter((tutorial) => tutorial.published === true);
+      //   this.tutorials = tut.map(this.getDisplayTutorial);
+      //   console.log(tut.length);
+      //   this.totalPages = Math.ceil(
+      //     this.tutorials.length / this.page ? +this.page : 3
+      //   );
+      //   this.tutorialCount = this.tutorials.length;
+      // } else {
+      //   this.tutorials = tutorials.map(this.getDisplayTutorial);
+      //   this.totalPages = totalPages;
+      //   this.tutorialCount = totalItems;
+      // }
 
       TutorialDataService.getAll(params)
         .then((response) => {
