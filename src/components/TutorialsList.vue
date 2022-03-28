@@ -148,9 +148,6 @@ export default {
         return this.$route.query.tab;
       },
     },
-    currentUser() {
-      return this.$store.state.auth.user;
-    },
     isUser() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes("ROLE_USER");
@@ -249,8 +246,8 @@ export default {
       if (pageSize) {
         params["size"] = pageSize;
       }
-      if (this.isUser) {
-        params["status"] = "user";
+      if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
+        params["userStatus"] = "user";
       }
 
       return params;
@@ -262,7 +259,7 @@ export default {
           il: searchTitle,
           page: this.page - 1,
           size: this.pageSize,
-          status: this.isUser ? "user" : null,
+          userStatus: this.isUser ? "user" : null,
         };
       } else {
         params = this.getRequestParams(

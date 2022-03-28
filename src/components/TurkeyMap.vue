@@ -207,6 +207,9 @@ export default {
     };
   },
   methods: {
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
     isUser() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes("ROLE_USER");
@@ -227,7 +230,11 @@ export default {
       params["il"] = city;
       params["ilce"] = district;
       params["yontem"] = selectedMethod;
-      params["status"] = this.isUser ? "user" : null;
+      params["userStatus"] = this.$store.state.auth.user.roles.includes(
+        "ROLE_USER"
+      )
+        ? "user"
+        : null;
       TutorialDataService.findAllgetAll(params)
         .then((response) => {
           this.responseData = response.data;
