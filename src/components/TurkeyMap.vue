@@ -230,8 +230,11 @@ export default {
       params["il"] = city;
       params["ilce"] = district;
       params["yontem"] = selectedMethod;
-      params["userStatus"] = this.isUser ? "user" : null;
-      console.log(this.currentUser.roles);
+      params["userStatus"] = this.$store.state.auth.user.roles.includes(
+        "ROLE_USER"
+      )
+        ? "user"
+        : null;
       TutorialDataService.findAllgetAll(params)
         .then((response) => {
           this.responseData = response.data;
@@ -261,17 +264,17 @@ export default {
       this.scaleService(val);
     },
     triggerExternalplot(currentTutorial) {
-      var params = ProfilePlotter(currentTutorial);
-      if (params.polyline !== null) {
-        this.polyline.push(params.polyline);
+      var plotParams = ProfilePlotter(currentTutorial);
+      if (plotParams.polyline !== null) {
+        this.polyline.push(plotParams.polyline);
       }
-      if (params.markerLatlong !== null) {
+      if (plotParams.markerLatlong !== null) {
         this.markers.push({
-          id: params.id,
-          latlng: params.markerLatlong,
-          text: params.text,
+          id: plotParams.id,
+          latlng: plotParams.markerLatlong,
+          text: plotParams.text,
         });
-        if (params.yontem == "Sismik Yöntemler") {
+        if (plotParams.yontem == "Sismik Yöntemler") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/seismic.png"),
             iconUrl: require("../assets/seismic.png"),
@@ -279,7 +282,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
+        if (plotParams.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/battery.png"),
             iconUrl: require("../assets/battery.png"),
@@ -287,7 +290,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (params.yontem == "Kuyu Ölçüleri") {
+        if (plotParams.yontem == "Kuyu Ölçüleri") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/drilling-rig.png"),
             iconUrl: require("../assets/drilling-rig.png"),
@@ -295,7 +298,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (params.altyontem == "Gravite") {
+        if (plotParams.altyontem == "Gravite") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/gravity.png"),
             iconUrl: require("../assets/gravity.png"),
@@ -303,7 +306,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (params.altyontem == "Manyetik") {
+        if (plotParams.altyontem == "Manyetik") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/magnetic-field.png"),
             iconUrl: require("../assets/magnetic-field.png"),
@@ -311,7 +314,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (params.altyontem == "Radyometri") {
+        if (plotParams.altyontem == "Radyometri") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/radiation-detector.png"),
             iconUrl: require("../assets/radiation-detector.png"),

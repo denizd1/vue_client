@@ -151,12 +151,6 @@ export default {
     currentUser() {
       return this.$store.state.auth.user;
     },
-    isUser() {
-      if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes("ROLE_USER");
-      }
-      return false;
-    },
     isAdmin() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes("ROLE_ADMIN");
@@ -249,7 +243,7 @@ export default {
       if (pageSize) {
         params["size"] = pageSize;
       }
-      if (this.isUser) {
+      if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
         params["userStatus"] = "user";
       }
 
