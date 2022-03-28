@@ -250,7 +250,7 @@ export default {
         params["size"] = pageSize;
       }
       if (this.isUser) {
-        params["status"] = "user";
+        params["userStatus"] = "user";
       }
 
       return params;
