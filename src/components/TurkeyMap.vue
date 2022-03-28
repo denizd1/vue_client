@@ -207,6 +207,12 @@ export default {
     };
   },
   methods: {
+    isUser() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes("ROLE_USER");
+      }
+      return false;
+    },
     handlePopupClick(val) {
       let routeData = this.$router.resolve({
         name: "tutorial",
@@ -221,6 +227,7 @@ export default {
       params["il"] = city;
       params["ilce"] = district;
       params["yontem"] = selectedMethod;
+      params["status"] = this.isUser ? "user" : null;
       TutorialDataService.findAllgetAll(params)
         .then((response) => {
           this.responseData = response.data;

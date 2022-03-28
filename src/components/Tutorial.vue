@@ -39,12 +39,22 @@ export default {
         });
     },
   },
-  beforeRouteEnter(to, from, next) {
+  async beforeRouteEnter(to, from, next) {
+    let fetchTutorial = await TutorialDataService.get(to.params.id);
     next((vm) => {
-      if (vm.$store.state.auth.user) {
-        vm.getTutorial(vm.$route.params.id);
-      } else {
-        next({ name: "login" });
+      var thisPerson = vm.$store.state.auth.user;
+      var thisUser = thisPerson.roles.includes("ROLE_USER");
+      var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
+      var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
+
+      if (thisPerson) {
+        if (thisAdmin || thisMod) {
+          vm.getTutorial(vm.$route.params.id);
+        } else if (thisUser && fetchTutorial.data.published === true) {
+          vm.getTutorial(vm.$route.params.id);
+        } else {
+          next({ name: "login" });
+        }
       }
     });
   },
