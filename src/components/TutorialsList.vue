@@ -148,6 +148,9 @@ export default {
         return this.$route.query.tab;
       },
     },
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
     isUser() {
       if (this.currentUser && this.currentUser.roles) {
         return this.currentUser.roles.includes("ROLE_USER");
@@ -269,20 +272,6 @@ export default {
         );
       }
 
-      // if (this.isUser) {
-      //   var tut = tutorials.filter((tutorial) => tutorial.published === true);
-      //   this.tutorials = tut.map(this.getDisplayTutorial);
-      //   console.log(tut.length);
-      //   this.totalPages = Math.ceil(
-      //     this.tutorials.length / this.page ? +this.page : 3
-      //   );
-      //   this.tutorialCount = this.tutorials.length;
-      // } else {
-      //   this.tutorials = tutorials.map(this.getDisplayTutorial);
-      //   this.totalPages = totalPages;
-      //   this.tutorialCount = totalItems;
-      // }
-
       TutorialDataService.getAll(params)
         .then((response) => {
           const { tutorials, totalPages, totalItems } = response.data;
@@ -298,17 +287,6 @@ export default {
     refreshList() {
       this.retrieveTutorials();
     },
-
-    // searchTitle() {
-    //   TutorialDataService.findByTitle(this.title)
-    //     .then((response) => {
-    //       this.tutorials = response.data.map(this.getDisplayTutorial);
-    //       console.log(response.data);
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
-    // },
 
     editTutorial(id) {
       this.$router.push({ name: "tutorial-edit", params: { id: id } });
