@@ -179,6 +179,8 @@ export default {
         },
         { text: "Yöntem", value: "yontem", sortable: false },
         { text: "Alt Yöntem", value: "alt_yontem", sortable: false },
+        { text: "İl", value: "il", sortable: false },
+        { text: "İlçe", value: "ilce", sortable: false },
       ];
       if (this.isAdmin || this.isModerator) {
         headers.push(
@@ -326,6 +328,8 @@ export default {
         nokta_adi: tutorial.nokta_adi, //.substr(0, 20), //+ "...",
         yontem: tutorial.yontem, //.substr(0, 20) + "...",
         alt_yontem: tutorial.alt_yontem, //.substr(0, 10), //+ "...",
+        il: tutorial.il, //.substr(0, 10), //+ "...",
+        ilce: tutorial.ilce, //.substr(0, 10), //+ "...",
         status: tutorial.published ? "Yayında" : "Beklemede",
       };
     },
