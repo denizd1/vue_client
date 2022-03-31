@@ -207,15 +207,6 @@ export default {
     };
   },
   methods: {
-    currentUser() {
-      return this.$store.state.auth.user;
-    },
-    isUser() {
-      if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes("ROLE_USER");
-      }
-      return false;
-    },
     handlePopupClick(val) {
       let routeData = this.$router.resolve({
         name: "tutorial",

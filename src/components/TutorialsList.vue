@@ -173,6 +173,8 @@ export default {
         },
         { text: "Yöntem", value: "yontem", sortable: false },
         { text: "Alt Yöntem", value: "alt_yontem", sortable: false },
+        { text: "İl", value: "il", sortable: false },
+        { text: "İlçe", value: "ilce", sortable: false },
       ];
       if (this.isAdmin || this.isModerator) {
         headers.push(
@@ -256,7 +258,7 @@ export default {
           il: searchTitle,
           page: this.page - 1,
           size: this.pageSize,
-          status: this.isUser ? "user" : null,
+          userStatus: this.isUser ? "user" : null,
         };
       } else {
         params = this.getRequestParams(
@@ -265,20 +267,6 @@ export default {
           this.pageSize
         );
       }
-
-      // if (this.isUser) {
-      //   var tut = tutorials.filter((tutorial) => tutorial.published === true);
-      //   this.tutorials = tut.map(this.getDisplayTutorial);
-      //   console.log(tut.length);
-      //   this.totalPages = Math.ceil(
-      //     this.tutorials.length / this.page ? +this.page : 3
-      //   );
-      //   this.tutorialCount = this.tutorials.length;
-      // } else {
-      //   this.tutorials = tutorials.map(this.getDisplayTutorial);
-      //   this.totalPages = totalPages;
-      //   this.tutorialCount = totalItems;
-      // }
 
       TutorialDataService.getAll(params)
         .then((response) => {
@@ -295,17 +283,6 @@ export default {
     refreshList() {
       this.retrieveTutorials();
     },
-
-    // searchTitle() {
-    //   TutorialDataService.findByTitle(this.title)
-    //     .then((response) => {
-    //       this.tutorials = response.data.map(this.getDisplayTutorial);
-    //       console.log(response.data);
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
-    // },
 
     editTutorial(id) {
       this.$router.push({ name: "tutorial-edit", params: { id: id } });
@@ -345,6 +322,8 @@ export default {
         nokta_adi: tutorial.nokta_adi, //.substr(0, 20), //+ "...",
         yontem: tutorial.yontem, //.substr(0, 20) + "...",
         alt_yontem: tutorial.alt_yontem, //.substr(0, 10), //+ "...",
+        il: tutorial.il, //.substr(0, 10), //+ "...",
+        ilce: tutorial.ilce, //.substr(0, 10), //+ "...",
         status: tutorial.published ? "Yayında" : "Beklemede",
       };
     },
