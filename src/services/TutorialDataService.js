@@ -1,36 +1,36 @@
-import http from "../http-common";
+import api from "./api";
 
 class TutorialDataService {
   getAll(params) {
-    return http.get("/tutorials", { params });
+    return api.get("/tutorials", { params });
   }
 
   findAllgetAll(params) {
-    return http.get("/tutorials/getall", { params });
+    return api.get("/tutorials/getall", { params });
   }
 
   get(id) {
-    return http.get(`/tutorials/${id}`);
+    return api.get(`/tutorials/${id}`);
   }
 
   create(data) {
-    return http.post("/tutorials", data);
+    return api.post("/tutorials", data);
   }
 
   update(id, data) {
-    return http.put(`/tutorials/${id}`, data);
+    return api.put(`/tutorials/${id}`, data);
   }
 
   delete(id) {
-    return http.delete(`/tutorials/${id}`);
+    return api.delete(`/tutorials/${id}`);
   }
 
   deleteAll() {
-    return http.delete(`/tutorials`);
+    return api.delete(`/tutorials`);
   }
 
   findByTitle(title) {
-    return http.get(`/tutorials?title=${title}`);
+    return api.get(`/tutorials?title=${title}`);
   }
 }
 
