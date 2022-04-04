@@ -44,7 +44,6 @@ import axios from "axios";
 axios.get("/api/getcsrftoken").then(
   (response) => {
     axios.defaults.headers.common["X-CSRF-TOKEN"] = response.data.csrfToken;
-    console.log(response.data.csrfToken);
   },
   (err) => {
     console.log(err);
