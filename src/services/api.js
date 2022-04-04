@@ -7,4 +7,12 @@ const instance = axios.create({
   },
 });
 
+instance.get("/getcsrftoken").then(
+  (response) => {
+    instance.defaults.headers["X-CSRF-TOKEN"] = response.data.csrfToken;
+  },
+  (err) => {
+    console.log(err);
+  }
+);
 export default instance;

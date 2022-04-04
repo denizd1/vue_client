@@ -39,17 +39,6 @@
 <script>
 import EventBus from "./common/EventBus";
 import LeftNav from "./components/LeftNav.vue";
-import axios from "axios";
-
-axios.get("/api/getcsrftoken").then(
-  (response) => {
-    axios.defaults.headers.common["X-CSRF-TOKEN"] = response.data.csrfToken;
-  },
-  (err) => {
-    console.log(err);
-  }
-);
-
 export default {
   components: {
     LeftNav,
