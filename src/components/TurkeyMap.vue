@@ -94,7 +94,7 @@ import {
   LControl,
 } from "vue2-leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
-import http from "../http-common";
+import api from "../services/api";
 import { Icon, icon } from "leaflet";
 import { bus } from "../main";
 // import * as L from "leaflet";
@@ -328,7 +328,7 @@ export default {
     //asenkron geojson servisi. (checkbox change)
     async scaleService(val) {
       this.loading = true;
-      const response = await http.get(`/getGeoJson${val}`);
+      const response = await api.get(`/getGeoJson${val}`);
 
       const data = await response.data;
 
