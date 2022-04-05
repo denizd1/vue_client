@@ -84,23 +84,43 @@
       </v-tab-item>
       <v-tab-item :key="2" value="importExcel">
         <div class="mt-3 mr-3 ml-3">
-          <label for="formFile" class="form-label"
-            >Yüklemek için xls ya da xlsx uzantılı bir Excel dosyası
-            seçin.</label
-          >
-          <input
-            class="form-control"
-            type="file"
-            id="formFile"
+          <v-file-input
+            v-model="filestoImport"
+            color="deep-purple accent-4"
+            counter
+            label="Dosya Seçimi"
+            multiple
+            placeholder="Yüklemek için xls ya da xlsx uzantılı bir Excel dosyası
+            seçin."
+            prepend-icon="mdi-paperclip"
+            outlined
+            :show-size="1000"
             @change="importExcel"
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-          />
+          >
+            <template v-slot:selection="{ index, text }">
+              <v-chip
+                v-if="index < 2"
+                color="deep-purple accent-4"
+                dark
+                label
+                small
+              >
+                {{ text }}
+              </v-chip>
+
+              <span
+                v-else-if="index === 2"
+                class="text-overline grey--text text--darken-3 mx-2"
+              >
+                +{{ files.length - 2 }} File(s)
+              </span>
+            </template>
+          </v-file-input>
         </div>
         <div class="mt-3 mr-3 ml-3" v-show="show">
           {{ message }}
         </div>
-        <!-- <input type="file" @change="importExcel" accept=".csv" /> -->
-        <!-- accept=".csv" -->
         <v-btn color="primary" class="mt-3 mr-3 ml-3" @click="dataImporter"
           >Excel Import</v-btn
         >
@@ -259,6 +279,7 @@ export default {
           ],
         },
       ],
+      filestoImport: [],
       cities: citiesJson,
       activePicker: null,
       date: null,
@@ -340,7 +361,7 @@ export default {
      */
     importExcel(e) {
       this.excelDatalist = [];
-      const files = e.target.files;
+      const files = e;
 
       if (!files.length) {
         this.show = false;
@@ -352,8 +373,7 @@ export default {
       } else {
         this.show = false;
       }
-
-      const fileReader = new FileReader();
+      var fileReader = new FileReader();
 
       fileReader.onload = (ev) => {
         try {
@@ -370,7 +390,7 @@ export default {
           const excellist = []; // Clear received data
 
           // Edit data
-          console.log(XLSX.utils.sheet_to_json(workbook.Sheets[wsname]));
+          // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[wsname]));
           for (var j = 0; j < ws.length; j++) {
             console.log(ws[j][j]);
             const objects = {};
@@ -382,9 +402,8 @@ export default {
             excellist.push(objects);
           }
           this.excelDatalist = excellist;
-          // console.log(value);
 
-          console.log("headers", headers);
+          // console.log("headers", headers);
           // Get header2-2
         } catch (e) {
           return alert("Read failure!");
@@ -419,7 +438,6 @@ export default {
     },
     dataImporter() {
       var arr = this.excelDatalist;
-      console.log(arr);
 
       for (let i = 0; i < arr.length; i++) {
         var data = {};
@@ -527,7 +545,7 @@ export default {
       TutorialDataService.create(data)
         .then((response) => {
           this.tutorial.id = response.data.id;
-          console.log(response.data);
+          // console.log(response.data);
           this.submitted = true;
         })
         .catch((e) => {
