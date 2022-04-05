@@ -4,61 +4,65 @@
       <v-expansion-panel>
         <v-expansion-panel-header> Proje Detayları </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <table class="table table-hover table-sm">
-            <tbody>
-              <tr v-for="(val, key, index) in currentTutorial" :key="index">
-                <td
-                  v-if="
-                    val &&
-                    index !== 0 &&
-                    index !== Object.keys(currentTutorial).length - 1 &&
-                    index !== Object.keys(currentTutorial).length - 2
-                  "
-                >
-                  {{ headers[index] }}
-                </td>
-                <td
-                  v-if="
-                    val &&
-                    index !== 0 &&
-                    index !== Object.keys(currentTutorial).length - 1 &&
-                    index !== Object.keys(currentTutorial).length - 2
-                  "
-                >
-                  {{ val }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <v-simple-table>
+            <template v-slot:default>
+              <tbody>
+                <tr v-for="(val, key, index) in currentTutorial" :key="index">
+                  <td
+                    v-if="
+                      val &&
+                      index !== 0 &&
+                      index !== Object.keys(currentTutorial).length - 1 &&
+                      index !== Object.keys(currentTutorial).length - 2
+                    "
+                  >
+                    {{ headers[index] }}
+                  </td>
+                  <td
+                    v-if="
+                      val &&
+                      index !== 0 &&
+                      index !== Object.keys(currentTutorial).length - 1 &&
+                      index !== Object.keys(currentTutorial).length - 2
+                    "
+                  >
+                    {{ val }}
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <table v-else class="table table-hover table-sm">
-      <tbody v-if="currentTutorial">
-        <tr v-for="(val, key, index) in currentTutorial" :key="index">
-          <td
-            v-if="
-              val &&
-              index !== 0 &&
-              index !== Object.keys(currentTutorial).length - 1 &&
-              index !== Object.keys(currentTutorial).length - 2
-            "
-          >
-            {{ headers[index] }}
-          </td>
-          <td
-            v-if="
-              val &&
-              index !== 0 &&
-              index !== Object.keys(currentTutorial).length - 1 &&
-              index !== Object.keys(currentTutorial).length - 2
-            "
-          >
-            {{ val }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <v-simple-table v-else>
+      <template v-slot:default>
+        <tbody v-if="currentTutorial">
+          <tr v-for="(val, key, index) in currentTutorial" :key="index">
+            <td
+              v-if="
+                val &&
+                index !== 0 &&
+                index !== Object.keys(currentTutorial).length - 1 &&
+                index !== Object.keys(currentTutorial).length - 2
+              "
+            >
+              {{ headers[index] }}
+            </td>
+            <td
+              v-if="
+                val &&
+                index !== 0 &&
+                index !== Object.keys(currentTutorial).length - 1 &&
+                index !== Object.keys(currentTutorial).length - 2
+              "
+            >
+              {{ val }}
+            </td>
+          </tr>
+        </tbody>
+      </template>
+    </v-simple-table>
   </div>
 </template>
 
