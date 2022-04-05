@@ -255,22 +255,22 @@ export default {
       this.scaleService(val);
     },
     triggerExternalplot(currentTutorial) {
-      var plotParams = ProfilePlotter(currentTutorial);
-      if (plotParams.polyline !== null) {
-        this.polyline.push(plotParams.polyline);
+      var params = ProfilePlotter(currentTutorial);
+      if (params.polyline !== null) {
+        this.polyline.push(params.polyline);
         this.markers.push({
           id: params.id,
           latlng: params.center,
           text: params.text,
         });
       }
-      if (plotParams.markerLatlong !== null) {
+      if (params.markerLatlong !== null) {
         this.markers.push({
-          id: plotParams.id,
-          latlng: plotParams.markerLatlong,
-          text: plotParams.text,
+          id: params.id,
+          latlng: params.markerLatlong,
+          text: params.text,
         });
-        if (plotParams.yontem == "Sismik Yöntemler") {
+        if (params.yontem == "Sismik Yöntemler") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/seismic.png"),
             iconUrl: require("../assets/seismic.png"),
@@ -278,7 +278,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (plotParams.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
+        if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/battery.png"),
             iconUrl: require("../assets/battery.png"),
@@ -286,7 +286,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (plotParams.yontem == "Kuyu Ölçüleri") {
+        if (params.yontem == "Kuyu Ölçüleri") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/drilling-rig.png"),
             iconUrl: require("../assets/drilling-rig.png"),
@@ -294,7 +294,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (plotParams.altyontem == "Gravite") {
+        if (params.altyontem == "Gravite") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/gravity.png"),
             iconUrl: require("../assets/gravity.png"),
@@ -302,7 +302,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (plotParams.altyontem == "Manyetik") {
+        if (params.altyontem == "Manyetik") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/magnetic-field.png"),
             iconUrl: require("../assets/magnetic-field.png"),
@@ -310,7 +310,7 @@ export default {
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
-        if (plotParams.altyontem == "Radyometri") {
+        if (params.altyontem == "Radyometri") {
           Icon.Default.mergeOptions({
             iconRetinaUrl: require("../assets/radiation-detector.png"),
             iconUrl: require("../assets/radiation-detector.png"),
