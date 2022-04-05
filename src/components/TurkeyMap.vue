@@ -258,6 +258,11 @@ export default {
       var params = ProfilePlotter(currentTutorial);
       if (params.polyline !== null) {
         this.polyline.push(params.polyline);
+        this.markers.push({
+          id: params.id,
+          latlng: params.center,
+          text: params.text,
+        });
       }
       if (params.markerLatlong !== null) {
         this.markers.push({
