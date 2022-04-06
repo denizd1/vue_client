@@ -35,6 +35,9 @@
           Kaydol
         </v-btn>
       </div>
+      <v-alert v-if="message" class="mt-3" dense border="left" type="warning">
+        {{ message }}
+      </v-alert>
     </v-form>
     <div style="z-index: 99" v-else>
       <v-card-title class="justify-center"> Kaydınız Tamamlandı! </v-card-title>
@@ -51,6 +54,7 @@ export default {
     return {
       valid: true,
       submitted: false,
+      message: "",
       user: new User("", "", ""),
       nameRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
       passwordRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
@@ -75,14 +79,20 @@ export default {
     validate() {
       if (this.$refs.form.validate()) {
         this.$store.dispatch("auth/register", this.user).then(
-          () => {
+          (data) => {
+            this.message = data.message;
             this.submitted = true;
             setTimeout(() => {
               this.$router.push("/login");
             }, 2000);
           },
           (error) => {
-            console.log(error);
+            this.message =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
           }
         );
       }

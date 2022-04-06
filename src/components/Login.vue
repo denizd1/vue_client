@@ -30,6 +30,9 @@
           Giriş Yap
         </v-btn>
       </div>
+      <v-alert v-if="message" class="mt-3" dense border="left" type="warning">
+        {{ message }}
+      </v-alert>
     </v-form>
   </v-card>
 </template>
@@ -42,6 +45,7 @@ export default {
   data() {
     return {
       valid: true,
+      message: "",
       user: new User("", ""),
       nameRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
       passwordRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
@@ -59,14 +63,21 @@ export default {
   },
   methods: {
     validate() {
-      if (this.$refs.form.validate()) {
+      if (!this.$refs.form.validate()) {
+        return;
+      } else {
         if (this.user.username && this.user.password) {
           this.$store.dispatch("auth/login", this.user).then(
             () => {
               this.$router.push("/tutorials-list");
             },
             (error) => {
-              console.log(error);
+              this.message =
+                (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+                error.message ||
+                error.toString();
             }
           );
         }
