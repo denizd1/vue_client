@@ -118,8 +118,36 @@
             </template>
           </v-file-input>
         </div>
-        <div class="mt-3 mr-3 ml-3" v-show="show">
-          {{ message }}
+        <div class="text-center">
+          <v-dialog v-model="dialog" width="600">
+            <v-card>
+              <v-card-title class="grey lighten-2">
+                Bu nokta(lar) veritabanında bulunmaktadir!
+              </v-card-title>
+
+              <v-card-text>
+                <!-- <div style="white-space: pre">{{ message }}</div> -->
+                <v-list-item>
+                  <v-list-item-content
+                    ><v-list-item-title
+                      :key="index"
+                      v-for="(item, index) in message"
+                      >{{ item.err }}</v-list-item-title
+                    >
+                  </v-list-item-content>
+                </v-list-item>
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" text @click="dialog = false">
+                  Kapat
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </div>
         <v-btn color="primary" class="mt-3 mr-3 ml-3" @click="dataImporter"
           >Excel Import</v-btn
@@ -130,11 +158,11 @@
   <v-col cols="4" align="center" class="mx-auto" v-else>
     <v-card style="z-index: 99">
       <v-card-title class="justify-center">
-        Proje(ler) Başarıyla Eklendi!
+        Nokta(lar) Başarıyla Eklendi!
       </v-card-title>
 
       <v-card-subtitle>
-        Yeni bir proje eklemek için 'Ekle' butonuna basın.
+        Yeni bir dosya yüklemek için 'Ekle' butonuna basın.
       </v-card-subtitle>
 
       <v-card-actions class="justify-center">
@@ -289,8 +317,8 @@ export default {
       fillDistrict: [],
       excelDatalist: {},
       select: { yontemAdi: "" },
-      message: "",
-      show: false,
+      message: [],
+      dialog: false,
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -363,15 +391,10 @@ export default {
       this.excelDatalist = [];
       const files = e;
 
-      if (!files.length) {
-        this.show = false;
-      } else if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
-        this.show = true;
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
         this.message =
           "Yalnızca xls ya da xlsx uzantılı dosya yukleyebilirsiniz!";
         return;
-      } else {
-        this.show = false;
       }
       var fileReader = new FileReader();
 
@@ -392,7 +415,6 @@ export default {
           // Edit data
           // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[wsname]));
           for (var j = 0; j < ws.length; j++) {
-            console.log(ws[j][j]);
             const objects = {};
             for (let index = 0; index < this.fileHeader.length; index++) {
               objects[this.fileHeader[index]] = ws[j][headers[index]]
@@ -451,8 +473,16 @@ export default {
             this.tutorial.id = response.data.id;
             this.submitted = true;
           })
-          .catch((e) => {
-            console.log(e);
+          .catch((error) => {
+            this.message.push({
+              err:
+                (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+                error.message ||
+                error.toString(),
+            });
+            this.dialog = true;
           });
       }
       this.excelDatalist = [];
