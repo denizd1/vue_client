@@ -75,6 +75,9 @@
           </v-expansion-panel>
         </v-expansion-panels>
       </l-control>
+      <l-control :position="'bottomright'">
+        <datato-geo-json></datato-geo-json>
+      </l-control>
     </l-map>
   </v-col>
 </template>
@@ -103,6 +106,7 @@ import citiesLatLongjson from "../data/cities_of_turkey.json";
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 delete Icon.Default.prototype._getIconUrl;
+import DatatoGeoJson from "../components/DatatoGeoJson.vue";
 
 function onEachFeature(feature, layer) {
   var v = this;
@@ -146,6 +150,7 @@ export default {
     LGeoJson,
     LControlScale,
     LControl,
+    DatatoGeoJson,
     "v-marker-cluster": Vue2LeafletMarkerCluster,
     "v-marker": LMarker,
     "v-icondefault": LIconDefault,
@@ -340,6 +345,7 @@ export default {
       this.citiesGeojson = data;
       this.geojson = data;
       this.showGeojson = true;
+      console.log(this.geojson);
       if (val === 0 && this.selectedCityparam) {
         setTimeout(() => {
           this.map._layers[this.selectedCityparam]._path.classList.add(
@@ -420,6 +426,10 @@ export default {
     });
     bus.$on("hideGeojson", (data) => {
       this.showGeojson = data;
+    });
+    bus.$on("plotGeojson", (data) => {
+      this.geojson = data;
+      this.showGeojson = true;
     });
   },
 };
