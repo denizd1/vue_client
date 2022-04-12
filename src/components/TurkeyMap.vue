@@ -110,6 +110,27 @@ import DatatoGeoJson from "../components/DatatoGeoJson.vue";
 
 function onEachFeature(feature, layer) {
   var v = this;
+  if (feature.properties.mytag === "datdat") {
+    let params = {};
+    console.log(v.geojson.features[0].geometry.coordinates[0]);
+    params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
+    layer.on({
+      click: function () {
+        TutorialDataService.findAllGeo(params)
+          .then((response) => {
+            console.log(response.data);
+            for (let i = 0; i < response.data.length; i++) {
+              //profileplotter.js ile nokta ve profilleri cizmek icin
+              v.triggerExternalplot(response.data[i]);
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      },
+    });
+  }
+
   if (feature.properties.mytag && feature.properties.mytag == "Cities") {
     layer._leaflet_id = feature.properties.name;
     layer.on("click", function (e) {
@@ -345,7 +366,8 @@ export default {
       this.citiesGeojson = data;
       this.geojson = data;
       this.showGeojson = true;
-      console.log(this.geojson);
+      this.$refs.map.setCenter([39.9208, 32.8541]);
+      this.$refs.map.setZoom(6);
       if (val === 0 && this.selectedCityparam) {
         setTimeout(() => {
           this.map._layers[this.selectedCityparam]._path.classList.add(
@@ -356,13 +378,13 @@ export default {
       this.loading = false;
     },
   },
-  watch: {
-    geojson: function () {
-      this.$refs.map.setCenter([39.9208, 32.8541]);
-      this.$refs.map.setZoom(6);
-    },
-    deep: true,
-  },
+  // watch: {
+  //   geojson: function () {
+  //     this.$refs.map.setCenter([39.9208, 32.8541]);
+  //     this.$refs.map.setZoom(6);
+  //   },
+  //   deep: true,
+  // },
   computed: {
     styleFunction() {
       return () => {
@@ -427,7 +449,9 @@ export default {
     bus.$on("hideGeojson", (data) => {
       this.showGeojson = data;
     });
-    bus.$on("plotGeojson", (data) => {
+    bus.$on("plotGeojson", (data, center) => {
+      this.$refs.map.setCenter(center);
+      this.$refs.map.setZoom(12);
       this.geojson = data;
       this.showGeojson = true;
     });

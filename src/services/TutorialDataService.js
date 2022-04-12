@@ -8,6 +8,9 @@ class TutorialDataService {
   findAllgetAll(params) {
     return api.get("/tutorials/getall", { params });
   }
+  findAllGeo(params) {
+    return api.get("/tutorials/findAllGeo", { params });
+  }
 
   get(id) {
     return api.get(`/tutorials/${id}`);
