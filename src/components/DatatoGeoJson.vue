@@ -41,7 +41,7 @@
             </template>
           </v-file-input>
           <v-row>
-            <v-col cols="6">
+            <!-- <v-col cols="6">
               <v-select
                 item-text="zone"
                 :items="zones"
@@ -49,7 +49,7 @@
                 placeholder="Zone Seçiniz"
                 @change="selectedZone = $event"
               ></v-select>
-            </v-col>
+            </v-col> -->
             <v-col cols="6">
               <v-select
                 item-text="datum"
@@ -85,7 +85,7 @@
 import { bus } from "../main";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
-
+import centerofmass from "@turf/center-of-mass";
 export default {
   name: "DatatoGeoJson",
   data() {
@@ -95,8 +95,6 @@ export default {
       geoJson: null,
       dialog: false,
       datums: ["WGS 84", "ED 50"],
-      zones: [35, 36, 37, 38],
-      selectedZone: null,
       selectedDatum: null,
       message: "",
     };
@@ -122,14 +120,18 @@ export default {
               },
             ],
           };
-          console.log(this.geoJson);
-          bus.$emit("plotGeojson", this.geoJson);
+
+          var centerOfMass = centerofmass(this.geoJson);
+          bus.$emit("plotGeojson", this.geoJson, [
+            centerOfMass.geometry.coordinates[1],
+            centerOfMass.geometry.coordinates[0],
+          ]);
         }
       },
     },
   },
   methods: {
-    converter(arr, zone, datum) {
+    converter(arr, datum) {
       var utm = null;
       if (datum === "WGS 84") {
         utm = new utmObj("WGS 84");
@@ -137,7 +139,7 @@ export default {
       if (datum === "ED 50") {
         utm = new utmObj("ED50");
       }
-      var point = utm.convertUtmToLatLng(arr[0], arr[1], zone, "N");
+      var point = utm.convertUtmToLatLng(arr[0], arr[1], arr[2], "N");
 
       return latLng(point.lat, point.lng);
     },
@@ -146,7 +148,6 @@ export default {
       while (arr.length > 0) {
         const chunk = this.converter(
           arr.splice(0, chunkSize),
-          this.selectedZone,
           this.selectedDatum
         );
         res.push([chunk.lng, chunk.lat]);
@@ -167,7 +168,7 @@ export default {
                   e.target.result.split("\n").map((line) => line.split("\t")) +
                   "]"
               ),
-              2
+              3
             );
           };
           reader.readAsBinaryString(file);

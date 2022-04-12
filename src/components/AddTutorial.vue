@@ -175,6 +175,8 @@
 <script>
 import TutorialDataService from "../services/TutorialDataService";
 import citiesJson from "../data/cities_of_turkey.json";
+import { latLng } from "leaflet";
+import * as utmObj from "utm-latlng";
 
 // import { Base64 } from "js-base64";
 export default {
@@ -458,16 +460,36 @@ export default {
     save(date) {
       this.$refs.menu.save(date);
     },
+    converter(x, y, zone, datum) {
+      var utm = null;
+      if (datum === "WGS_84") {
+        utm = new utmObj("WGS 84");
+      }
+      if (datum === "ED_50") {
+        utm = new utmObj("ED50");
+      }
+      var point = utm.convertUtmToLatLng(x, y, zone, "N");
+
+      return latLng(point.lat, point.lng);
+    },
     dataImporter() {
       var arr = this.excelDatalist;
 
       for (let i = 0; i < arr.length; i++) {
-        var data = {};
+        let data = {};
         Object.entries(this.excelDatalist[i]).forEach(([key, value]) => {
           var val = value ? this.replaceVal(value) : null;
 
           data[key] = val; // key - value
         });
+        var latlon = this.converter(
+          data["x"],
+          data["y"],
+          data["zone"],
+          data["datum"]
+        );
+        data["lat"] = latlon.lng;
+        data["lon"] = latlon.lat;
         TutorialDataService.create(data)
           .then((response) => {
             this.tutorial.id = response.data.id;
