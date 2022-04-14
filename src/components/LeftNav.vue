@@ -338,16 +338,20 @@ export default {
       // Check if given route is true, if it is then hide Nav.
       if (this.$route.query.tab === "mapView") {
         this.showNavelement = true;
-      } else {
-        this.showNavelement = false;
-      }
-      if (!/tutorials-list/.test(window.location.href)) {
-        this.showNavmethod = false;
-        this.showNavcity = false;
-      } else {
         this.showNavmethod = true;
         this.showNavcity = true;
+      } else {
+        this.showNavelement = false;
+        this.showNavmethod = false;
+        this.showNavcity = false;
       }
+      // if (!/tutorials-list/.test(window.location.href)) {
+      //   this.showNavmethod = false;
+      //   this.showNavcity = false;
+      // } else {
+      //   this.showNavmethod = true;
+      //   this.showNavcity = true;
+      // }
     },
   },
 };
