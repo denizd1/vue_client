@@ -111,14 +111,16 @@ import DatatoGeoJson from "../components/DatatoGeoJson.vue";
 function onEachFeature(feature, layer) {
   var v = this;
   if (feature.properties.mytag === "datdat") {
-    let params = {};
-    console.log(v.geojson.features[0].geometry.coordinates[0]);
-    params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
     layer.on({
       click: function () {
+        let params = {};
+        params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
+        params["yontem"] = v.methodarr;
+        console.log(v.methodarr);
+        v.polyline = [];
+        v.markers = [];
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            console.log(response.data);
             for (let i = 0; i < response.data.length; i++) {
               //profileplotter.js ile nokta ve profilleri cizmek icin
               v.triggerExternalplot(response.data[i]);
@@ -203,6 +205,7 @@ export default {
 
       methodarr: [],
       selectedCityparam: null,
+      selectedDistrict: null,
       selectedJsonparam: null,
       legend: [
         {
@@ -241,33 +244,43 @@ export default {
       window.open(routeData.href, "_blank");
     },
     dataService(city, district, selectedMethod) {
-      let params = {};
       this.polyline = [];
       this.markers = [];
-      params["il"] = city;
-      params["ilce"] = district;
-      params["yontem"] = selectedMethod;
-      params["userStatus"] = this.$store.state.auth.user.roles.includes(
-        "ROLE_USER"
-      )
-        ? "user"
-        : null;
-      TutorialDataService.findAllgetAll(params)
-        .then((response) => {
-          this.responseData = response.data;
+      if (city || district || selectedMethod.length != 0) {
+        let params = {};
+        this.polyline = [];
+        this.markers = [];
 
-          this.citiesLatLongjson.filter((elem) => {
-            if (city === elem.il) {
-              for (let i = 0; i < this.responseData.length; i++) {
-                //profileplotter.js ile nokta ve profilleri cizmek icin
-                this.triggerExternalplot(this.responseData[i]);
-              }
+        params["il"] = city;
+        params["ilce"] = district;
+        params["yontem"] = selectedMethod;
+        params["userStatus"] = this.$store.state.auth.user.roles.includes(
+          "ROLE_USER"
+        )
+          ? "user"
+          : null;
+        TutorialDataService.findAllgetAll(params)
+          .then((response) => {
+            this.responseData = response.data;
+
+            for (let i = 0; i < this.responseData.length; i++) {
+              //profileplotter.js ile nokta ve profilleri cizmek icin
+              this.triggerExternalplot(this.responseData[i]);
             }
+
+            // this.citiesLatLongjson.filter((elem) => {
+            //   if (city === elem.il) {
+            //     for (let i = 0; i < this.responseData.length; i++) {
+            //       //profileplotter.js ile nokta ve profilleri cizmek icin
+            //       this.triggerExternalplot(this.responseData[i]);
+            //     }
+            //   }
+            // });
+          })
+          .catch((e) => {
+            console.log(e);
           });
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+      }
     },
     zoomUpdate(zoom) {
       this.currentZoom = zoom;
@@ -277,6 +290,8 @@ export default {
     },
     //farkli olceklerde parsel geojsonlari ve sehir geojsoni getirmek icin (checkbox change)
     changeScale(val) {
+      this.polyline = [];
+      this.markers = [];
       this.selectedJsonparam = val;
       this.scaleService(val);
     },
@@ -298,48 +313,48 @@ export default {
         });
         if (params.yontem == "Sismik Yöntemler") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require("../assets/seismic.png"),
-            iconUrl: require("../assets/seismic.png"),
+            iconRetinaUrl: require(`@/assets/seismic.png`),
+            iconUrl: require(`@/assets/seismic.png`),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
         if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require("../assets/battery.png"),
-            iconUrl: require("../assets/battery.png"),
+            iconRetinaUrl: require(`@/assets/battery.png`),
+            iconUrl: require(`@/assets/battery.png`),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
         if (params.yontem == "Kuyu Ölçüleri") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require("../assets/drilling-rig.png"),
-            iconUrl: require("../assets/drilling-rig.png"),
+            iconRetinaUrl: require(`@/assets/drilling-rig.png`),
+            iconUrl: require(`@/assets/drilling-rig.png`),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
         if (params.altyontem == "Gravite") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require("../assets/gravity.png"),
-            iconUrl: require("../assets/gravity.png"),
+            iconRetinaUrl: require(`@/assets/gravity.png`),
+            iconUrl: require(`@/assets/gravity.png`),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
         if (params.altyontem == "Manyetik") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require("../assets/magnetic-field.png"),
-            iconUrl: require("../assets/magnetic-field.png"),
+            iconRetinaUrl: require(`@/assets/magnetic-field.png`),
+            iconUrl: require(`@/assets/magnetic-field.png`),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
           this.generateIcon(iconUrl, shadowUrl);
         }
         if (params.altyontem == "Radyometri") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require("../assets/radiation-detector.png"),
-            iconUrl: require("../assets/radiation-detector.png"),
+            iconRetinaUrl: require(`@/assets/radiation-detector.png`),
+            iconUrl: require(`@/assets/radiation-detector.png`),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
           this.generateIcon(iconUrl, shadowUrl);
@@ -374,17 +389,41 @@ export default {
             "selected"
           );
         }, 100);
+        this.dataService(
+          this.selectedCityparam,
+          this.selectedDistrict,
+          this.methodarr
+        );
       }
       this.loading = false;
     },
   },
-  // watch: {
-  //   geojson: function () {
-  //     this.$refs.map.setCenter([39.9208, 32.8541]);
-  //     this.$refs.map.setZoom(6);
-  //   },
-  //   deep: true,
-  // },
+  watch: {
+    methodarr: function () {
+      if (
+        this.geojson &&
+        this.geojson.features[0].properties.mytag === "datdat"
+      ) {
+        let params = {};
+        params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
+        params["yontem"] = this.methodarr;
+        console.log(this.methodarr);
+        this.polyline = [];
+        this.markers = [];
+        TutorialDataService.findAllGeo(params)
+          .then((response) => {
+            for (let i = 0; i < response.data.length; i++) {
+              //profileplotter.js ile nokta ve profilleri cizmek icin
+              this.triggerExternalplot(response.data[i]);
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      }
+    },
+    deep: true,
+  },
   computed: {
     styleFunction() {
       return () => {
@@ -413,6 +452,8 @@ export default {
     bus.$on("cityChanged", (city) => {
       this.selectedCityparam = city;
       this.methodarr = [];
+      this.polyline = [];
+      this.markers = [];
       if (this.$refs.map) {
         this.scaleService(0);
         setTimeout(() => {
@@ -423,6 +464,9 @@ export default {
       }
     });
     bus.$on("districtChanged", (city, district) => {
+      this.polyline = [];
+      this.markers = [];
+      this.selectedDistrict = district;
       if (this.$refs.map) {
         this.scaleService(0);
         setTimeout(() => {

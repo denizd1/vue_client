@@ -13,7 +13,9 @@
                       val &&
                       index !== 0 &&
                       index !== Object.keys(currentTutorial).length - 1 &&
-                      index !== Object.keys(currentTutorial).length - 2
+                      index !== Object.keys(currentTutorial).length - 2 &&
+                      index !== Object.keys(currentTutorial).length - 3 &&
+                      index !== Object.keys(currentTutorial).length - 4
                     "
                   >
                     {{ headers[index] }}
@@ -23,7 +25,9 @@
                       val &&
                       index !== 0 &&
                       index !== Object.keys(currentTutorial).length - 1 &&
-                      index !== Object.keys(currentTutorial).length - 2
+                      index !== Object.keys(currentTutorial).length - 2 &&
+                      index !== Object.keys(currentTutorial).length - 3 &&
+                      index !== Object.keys(currentTutorial).length - 4
                     "
                   >
                     {{ val }}
@@ -44,7 +48,9 @@
                 val &&
                 index !== 0 &&
                 index !== Object.keys(currentTutorial).length - 1 &&
-                index !== Object.keys(currentTutorial).length - 2
+                index !== Object.keys(currentTutorial).length - 2 &&
+                index !== Object.keys(currentTutorial).length - 3 &&
+                index !== Object.keys(currentTutorial).length - 4
               "
             >
               {{ headers[index] }}
@@ -54,7 +60,9 @@
                 val &&
                 index !== 0 &&
                 index !== Object.keys(currentTutorial).length - 1 &&
-                index !== Object.keys(currentTutorial).length - 2
+                index !== Object.keys(currentTutorial).length - 2 &&
+                index !== Object.keys(currentTutorial).length - 3 &&
+                index !== Object.keys(currentTutorial).length - 4
               "
             >
               {{ val }}
