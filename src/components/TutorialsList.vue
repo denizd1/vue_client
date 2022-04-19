@@ -124,6 +124,7 @@ export default {
       selectedCity: null,
       selectedDistrict: null,
       componentKey: 0,
+      areaJson: null,
     };
   },
   components: {
@@ -267,6 +268,9 @@ export default {
           this.pageSize
         );
       }
+      if (this.areaJson != null) {
+        params["areaJson"] = this.areaJson;
+      }
 
       TutorialDataService.getAll(params)
         .then((response) => {
@@ -328,9 +332,12 @@ export default {
       };
     },
   },
-  // mounted() {
-  //   this.retrieveTutorials();
-  // },
+  mounted() {
+    bus.$on("areaJson", (data) => {
+      this.areaJson = data;
+      this.retrieveTutorials();
+    });
+  },
 };
 </script>
 

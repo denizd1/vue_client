@@ -4,8 +4,11 @@
       <detail-table :currentTutorial="currentTutorial"></detail-table>
     </v-col>
 
-    <v-col cols="12" md="8" style="z-index: 4">
+    <v-col cols="12" md="8" style="z-index: 4" class="text-right">
       <map-view :currentTutorial="currentTutorial"></map-view>
+      <v-btn class="mt-3" depressed color="primary" @click="exportExcel">
+        Excel Olarak İndir
+      </v-btn>
     </v-col>
   </v-row>
 </template>
@@ -37,6 +40,16 @@ export default {
         .catch((e) => {
           console.log(e);
         });
+    },
+    exportExcel() {
+      const XLSX = require("xlsx");
+      const fileName = this.currentTutorial.nokta_adi + ".xlsx";
+      const ws = XLSX.utils.json_to_sheet(
+        JSON.parse(JSON.stringify([this.currentTutorial]))
+      );
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, this.currentTutorial.nokta_adi);
+      XLSX.writeFile(wb, fileName);
     },
   },
   async beforeRouteEnter(to, from, next) {
