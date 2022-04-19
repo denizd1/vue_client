@@ -116,6 +116,11 @@ function onEachFeature(feature, layer) {
         let params = {};
         params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = v.methodarr;
+        params["userStatus"] = v.$store.state.auth.user.roles.includes(
+          "ROLE_USER"
+        )
+          ? "user"
+          : null;
         console.log(v.methodarr);
         v.polyline = [];
         v.markers = [];
@@ -129,6 +134,7 @@ function onEachFeature(feature, layer) {
           .catch((e) => {
             console.log(e);
           });
+        bus.$emit("areaJson", v.geojson.features[0].geometry.coordinates[0]);
       },
     });
   }
