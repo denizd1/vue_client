@@ -155,8 +155,9 @@ export default {
       return res;
     },
     importData() {
-      if (this.selectedZone === null || this.selectedDatum === null) {
-        this.message = "Zone ve Datum seçiniz";
+      bus.$emit("clearMap");
+      if (this.selectedDatum === null) {
+        this.message = "Datum Seçiniz";
         return;
       } else {
         this.filestoImport.forEach((file) => {

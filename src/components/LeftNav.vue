@@ -329,6 +329,15 @@ export default {
     EventBus.on("logout", () => {
       this.logOut();
     });
+
+    bus.$on("clearNav", () => {
+      this.methodSelect.filter((item) => {
+        item.checked = false;
+      });
+      this.scaleControls.filter((item) => {
+        item.checked = false;
+      });
+    });
   },
   beforeDestroy() {
     EventBus.remove("logout");

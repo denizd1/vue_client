@@ -98,7 +98,7 @@
         </v-row>
       </v-tab-item>
       <v-tab-item :key="2" value="mapView" :eager="true" style="z-index: 5">
-        <turkey-map @searchParam="getSelectedcity"></turkey-map>
+        <turkey-map></turkey-map>
       </v-tab-item>
     </v-tabs-items>
   </v-col>
@@ -339,6 +339,18 @@ export default {
     },
   },
   mounted() {
+    bus.$on("searchParam", (data, flag) => {
+      this.getSelectedcity(data, flag);
+      this.areaJson = null;
+    });
+    bus.$on("clearMap", () => {
+      this.tutorials = [];
+      this.searchTitle = "";
+      this.selectedCity = null;
+      this.selectedDistrict = null;
+      bus.$emit("clearAll");
+      bus.$emit("clearNav");
+    });
     bus.$on("areaJson", (data) => {
       this.areaJson = data;
       this.retrieveTutorials();
