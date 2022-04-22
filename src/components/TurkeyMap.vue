@@ -18,7 +18,7 @@
             v-if="withTooltip != null"
             :lat-lng="withTooltip"
           /> -->
-      <v-marker-cluster>
+      <v-marker-cluster ref="clusterRef">
         <v-marker
           v-for="marker in markers"
           :key="marker.id"
@@ -121,7 +121,6 @@ function onEachFeature(feature, layer) {
         )
           ? "user"
           : null;
-        console.log(v.methodarr);
         v.polyline = [];
         v.markers = [];
         TutorialDataService.findAllGeo(params)
@@ -150,11 +149,11 @@ function onEachFeature(feature, layer) {
         .forEach((el) => el.classList.remove("selected"));
       e.originalEvent.target.classList.add("selected");
       e.originalEvent.target.classList.remove("pseudoClass");
-      v.$emit("searchParam", this.feature.properties.name);
+      bus.$emit("searchParam", this.feature.properties.name);
       v.selectedCityparam = this.feature.properties.name;
 
       v.dataService(this.feature.properties.name, null, v.methodarr);
-      v.$emit("searchParam", this.feature.properties.name, "il");
+      bus.$emit("searchParam", this.feature.properties.name, "il");
     });
     layer.on("mouseover", function (e) {
       document
@@ -395,11 +394,13 @@ export default {
             "selected"
           );
         }, 100);
-        this.dataService(
-          this.selectedCityparam,
-          this.selectedDistrict,
-          this.methodarr
-        );
+        // if (this.markers.length == 0 && this.polyline.length == 0) {
+        //   this.dataService(
+        //     this.selectedCityparam,
+        //     this.selectedDistrict,
+        //     this.methodarr
+        //   );
+        // }
       }
       this.loading = false;
     },
@@ -413,7 +414,6 @@ export default {
         let params = {};
         params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = this.methodarr;
-        console.log(this.methodarr);
         this.polyline = [];
         this.markers = [];
         TutorialDataService.findAllGeo(params)
@@ -457,6 +457,7 @@ export default {
     });
     bus.$on("cityChanged", (city) => {
       this.selectedCityparam = city;
+      this.geojson = null;
       this.methodarr = [];
       this.polyline = [];
       this.markers = [];
@@ -465,11 +466,12 @@ export default {
         setTimeout(() => {
           this.map._layers[city]._path.classList.add("selected");
           this.dataService(city, null, this.methodarr);
-          this.$emit("searchParam", city, "il");
+          bus.$emit("searchParam", city, "il");
         }, 100);
       }
     });
     bus.$on("districtChanged", (city, district) => {
+      this.geojson = null;
       this.polyline = [];
       this.markers = [];
       this.selectedDistrict = district;
@@ -478,7 +480,7 @@ export default {
         setTimeout(() => {
           this.map._layers[city]._path.classList.add("selected");
           this.dataService(city, district, this.methodarr);
-          this.$emit("searchParam", district, "ilce");
+          bus.$emit("searchParam", district, "ilce");
         }, 100);
       }
     });
@@ -504,6 +506,13 @@ export default {
       this.$refs.map.setZoom(12);
       this.geojson = data;
       this.showGeojson = true;
+    });
+    bus.$on("clearAll", () => {
+      this.polyline = [];
+      this.markers = [];
+      this.showGeojson = false;
+      this.geojson = null;
+      this.$refs.clusterRef.mapObject.refreshClusters();
     });
   },
 };
