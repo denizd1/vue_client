@@ -10,6 +10,8 @@
             val !== null &&
             key !== 'id' &&
             key !== 'published' &&
+            key !== 'lat' &&
+            key !== 'lon' &&
             key !== 'createdAt' &&
             key !== 'updatedAt'
           "
@@ -151,22 +153,6 @@ export default {
     };
   },
   methods: {
-    // filterCurrenttutorial() {
-    //   return _.omitBy(
-    //     this.modifyTutorial,
-    //     (v) => _.isUndefined(v) || _.isNull(v) || v === ""
-    //   );
-    // },
-    // renameKeys(obj) {
-    //   var keys = Object.keys(obj);
-    //   var newObj = {};
-    //   for (let index = 0; index < keys.length; index++) {
-    //     newObj[this.headers[index]] = obj[keys[index]]
-    //       ? obj[keys[index]]
-    //       : null;
-    //   }
-    //   return newObj;
-    // },
     getTutorial(id) {
       TutorialDataService.get(id)
         .then((response) => {
@@ -180,10 +166,6 @@ export default {
 
     updatePublished(status) {
       var data = {
-        id: this.currentTutorial.id,
-        title: this.currentTutorial.title,
-        description: this.currentTutorial.description,
-        details: this.currentTutorial.details,
         published: status,
       };
 
@@ -222,16 +204,17 @@ export default {
   mounted() {
     this.getTutorial(this.$route.params.id);
   },
-  // beforeRouteEnter(to, from, next) {
-  //   next((vm) => {
-  //     if (vm.$store.state.auth.user) {
-  //       vm.getTutorial(vm.$route.params.id);
-  //       vm.notNullcurrentTutorial = vm.filterCurrenttutorial();
-  //     } else {
-  //       next({ name: "login" });
-  //     }
-  //   });
-  // },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      var admin = vm.$store.state.auth.user.roles.includes("ROLE_ADMIN");
+      var mod = vm.$store.state.auth.user.roles.includes("ROLE_MODERATOR");
+      if (admin || mod) {
+        vm.getTutorial(vm.$route.params.id);
+      } else {
+        next({ name: "login" });
+      }
+    });
+  },
 };
 </script>
 
