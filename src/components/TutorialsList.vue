@@ -43,7 +43,7 @@
                 ></v-select>
               </v-col>
 
-              <v-col cols="12" sm="9">
+              <v-col cols="8" sm="9">
                 <v-pagination
                   v-model="page"
                   :length="totalPages"
@@ -184,7 +184,7 @@ export default {
             value: "actions",
             sortable: false,
           },
-          { text: "Durum", value: "status", sortable: false }
+          { text: "Durum", value: "status", sortable: false, align: "end" }
         );
       }
       return headers;

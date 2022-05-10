@@ -9,7 +9,9 @@
       ></v-img>
     </header> -->
     <v-main>
-      <router-view />
+      <v-container fluid>
+        <router-view />
+      </v-container>
       <vue-particles
         class="particle-bg"
         color="#dedede"
