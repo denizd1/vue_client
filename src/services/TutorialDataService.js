@@ -16,6 +16,10 @@ class TutorialDataService {
     return api.get(`/tutorials/${id}`);
   }
 
+  getAllunPublished(params) {
+    return api.get("/tutorials/unpublished", { params });
+  }
+
   create(data) {
     return api.post("/tutorials", data);
   }
