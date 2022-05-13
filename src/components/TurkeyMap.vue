@@ -464,7 +464,6 @@ export default {
       if (this.$refs.map) {
         this.scaleService(0);
         setTimeout(() => {
-          this.map._layers[city]._path.classList.add("selected");
           this.dataService(city, null, this.methodarr);
           bus.$emit("searchParam", city, "il");
         }, 100);
