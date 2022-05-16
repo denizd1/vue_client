@@ -103,10 +103,16 @@ import { bus } from "../main";
 // import * as L from "leaflet";
 
 import citiesLatLongjson from "../data/cities_of_turkey.json";
-import iconUrl from "leaflet/dist/images/marker-icon.png";
+// import iconUrl from "leaflet/dist/images/marker-icon.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 delete Icon.Default.prototype._getIconUrl;
 import DatatoGeoJson from "../components/DatatoGeoJson.vue";
+import seismicIcon from "../assets/seismic.png";
+import emIcon from "../assets/battery.png";
+import magIcon from "../assets/magnetic-field.png";
+import welllogIcon from "../assets/drilling-rig.png";
+import gravIcon from "../assets/gravity.png";
+import radioIcon from "../assets/radiation-detector.png";
 
 function onEachFeature(feature, layer) {
   var v = this;
@@ -318,51 +324,51 @@ export default {
         });
         if (params.yontem == "Sismik Yöntemler") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require(`@/assets/seismic.png`),
-            iconUrl: require(`@/assets/seismic.png`),
+            iconRetinaUrl: seismicIcon,
+            iconUrl: seismicIcon,
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
-          this.generateIcon(iconUrl, shadowUrl);
+          this.generateIcon(seismicIcon, shadowUrl);
         }
         if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require(`@/assets/battery.png`),
-            iconUrl: require(`@/assets/battery.png`),
+            iconRetinaUrl: emIcon,
+            iconUrl: emIcon,
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
-          this.generateIcon(iconUrl, shadowUrl);
+          this.generateIcon(emIcon, shadowUrl);
         }
         if (params.yontem == "Kuyu Ölçüleri") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require(`@/assets/drilling-rig.png`),
-            iconUrl: require(`@/assets/drilling-rig.png`),
+            iconRetinaUrl: welllogIcon,
+            iconUrl: welllogIcon,
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
-          this.generateIcon(iconUrl, shadowUrl);
+          this.generateIcon(welllogIcon, shadowUrl);
         }
         if (params.altyontem == "Gravite") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require(`@/assets/gravity.png`),
-            iconUrl: require(`@/assets/gravity.png`),
+            iconRetinaUrl: gravIcon,
+            iconUrl: gravIcon,
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
-          this.generateIcon(iconUrl, shadowUrl);
+          this.generateIcon(gravIcon, shadowUrl);
         }
         if (params.altyontem == "Manyetik") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require(`@/assets/magnetic-field.png`),
-            iconUrl: require(`@/assets/magnetic-field.png`),
+            iconRetinaUrl: magIcon,
+            iconUrl: magIcon,
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
-          this.generateIcon(iconUrl, shadowUrl);
+          this.generateIcon(magIcon, shadowUrl);
         }
         if (params.altyontem == "Radyometri") {
           Icon.Default.mergeOptions({
-            iconRetinaUrl: require(`@/assets/radiation-detector.png`),
-            iconUrl: require(`@/assets/radiation-detector.png`),
+            iconRetinaUrl: radioIcon,
+            iconUrl: radioIcon,
             shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
           });
-          this.generateIcon(iconUrl, shadowUrl);
+          this.generateIcon(radioIcon, shadowUrl);
         }
       }
     },
