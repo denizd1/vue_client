@@ -1,35 +1,17 @@
 <template>
   <div>
-    <v-expansion-panels v-if="isMobile && currentTutorial">
+    <v-expansion-panels v-if="isMobile && newData">
       <v-expansion-panel>
         <v-expansion-panel-header> Proje Detayları </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-simple-table>
             <template v-slot:default>
-              <tbody>
-                <tr v-for="(val, key, index) in currentTutorial" :key="index">
-                  <td
-                    v-if="
-                      val &&
-                      index !== 0 &&
-                      index !== Object.keys(currentTutorial).length - 1 &&
-                      index !== Object.keys(currentTutorial).length - 2 &&
-                      index !== Object.keys(currentTutorial).length - 3 &&
-                      index !== Object.keys(currentTutorial).length - 4
-                    "
-                  >
+              <tbody v-if="newData">
+                <tr v-for="(val, key, index) in newData" :key="index">
+                  <td v-if="val !== null">
                     {{ headers[index] }}
                   </td>
-                  <td
-                    v-if="
-                      val &&
-                      index !== 0 &&
-                      index !== Object.keys(currentTutorial).length - 1 &&
-                      index !== Object.keys(currentTutorial).length - 2 &&
-                      index !== Object.keys(currentTutorial).length - 3 &&
-                      index !== Object.keys(currentTutorial).length - 4
-                    "
-                  >
+                  <td v-if="val !== null">
                     {{ val }}
                   </td>
                 </tr>
@@ -41,30 +23,12 @@
     </v-expansion-panels>
     <v-simple-table v-else>
       <template v-slot:default>
-        <tbody v-if="currentTutorial">
-          <tr v-for="(val, key, index) in currentTutorial" :key="index">
-            <td
-              v-if="
-                val &&
-                index !== 0 &&
-                index !== Object.keys(currentTutorial).length - 1 &&
-                index !== Object.keys(currentTutorial).length - 2 &&
-                index !== Object.keys(currentTutorial).length - 3 &&
-                index !== Object.keys(currentTutorial).length - 4
-              "
-            >
+        <tbody v-if="newData">
+          <tr v-for="(val, key, index) in newData" :key="index">
+            <td v-if="val !== null">
               {{ headers[index] }}
             </td>
-            <td
-              v-if="
-                val &&
-                index !== 0 &&
-                index !== Object.keys(currentTutorial).length - 1 &&
-                index !== Object.keys(currentTutorial).length - 2 &&
-                index !== Object.keys(currentTutorial).length - 3 &&
-                index !== Object.keys(currentTutorial).length - 4
-              "
-            >
+            <td v-if="val !== null">
               {{ val }}
             </td>
           </tr>
@@ -81,9 +45,9 @@ export default {
   data() {
     return {
       isMobile: false,
+      newData: null,
 
       headers: [
-        "",
         "Nokta/Kuyu/Profil Adı",
         "Yöntem",
         "Alt Yöntem",
@@ -160,8 +124,6 @@ export default {
         "A4",
         "Ölçü Karne No",
         "Dış Loop Boyutu",
-        "",
-        "",
       ],
     };
   },
@@ -175,6 +137,19 @@ export default {
     this.onResize();
 
     window.addEventListener("resize", this.onResize, { passive: true });
+  },
+  beforeMount() {
+    this.newData = Object.fromEntries(
+      Object.entries(this.currentTutorial).filter(
+        ([key]) =>
+          !key.includes("id") &&
+          !key.includes("updatedAt") &&
+          !key.includes("createdAt") &&
+          !key.includes("published") &&
+          !key.includes("lat") &&
+          !key.includes("lon")
+      )
+    );
   },
   methods: {
     onResize() {

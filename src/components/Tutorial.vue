@@ -32,15 +32,15 @@ export default {
   },
 
   methods: {
-    getTutorial(id) {
-      TutorialDataService.get(id)
-        .then((response) => {
-          this.currentTutorial = response.data;
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
+    // getTutorial(id) {
+    //   TutorialDataService.get(id)
+    //     .then((response) => {
+    //       this.currentTutorial = response.data;
+    //     })
+    //     .catch((e) => {
+    //       console.log(e);
+    //     });
+    // },
     exportExcel() {
       const XLSX = require("xlsx");
       const fileName = this.currentTutorial.nokta_adi + ".xlsx";
@@ -54,31 +54,22 @@ export default {
   },
   async beforeRouteEnter(to, from, next) {
     let fetchTutorial = await TutorialDataService.get(to.params.id);
+
     next((vm) => {
       var thisPerson = vm.$store.state.auth.user;
-      var thisUser = thisPerson.roles.includes("ROLE_USER");
-      var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
-      var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
-
       if (thisPerson) {
+        var thisUser = thisPerson.roles.includes("ROLE_USER");
+        var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
+        var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
         if (thisAdmin || thisMod) {
-          vm.getTutorial(vm.$route.params.id);
+          vm.currentTutorial = fetchTutorial.data;
         } else if (thisUser && fetchTutorial.data.published === true) {
-          vm.getTutorial(vm.$route.params.id);
-        } else {
-          next({ name: "login" });
+          vm.currentTutorial = fetchTutorial.data;
         }
+      } else {
+        next({ name: "login" });
       }
     });
   },
 };
 </script>
-
-<style>
-.edit-form {
-  max-width: 300px;
-  margin: auto;
-  position: relative;
-  z-index: 99;
-}
-</style>

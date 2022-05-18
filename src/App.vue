@@ -12,29 +12,29 @@
       <v-container fluid>
         <router-view />
       </v-container>
-      <vue-particles
-        class="particle-bg"
-        color="#dedede"
-        :particleOpacity="0.7"
-        :particlesNumber="300"
-        shapeType="circle"
-        :particleSize="4"
-        linesColor="#dedede"
-        :linesWidth="1"
-        :lineLinked="true"
-        :lineOpacity="0.4"
-        :linesDistance="150"
-        :moveSpeed="3"
-        :hoverEffect="false"
-        :clickEffect="false"
-      >
-      </vue-particles>
     </v-main>
     <v-footer absolute padless app color="transparent">
       <v-col class="text-center" cols="12">
         Her Hakkı Saklıdır © MTA {{ new Date().getFullYear() }}
       </v-col>
     </v-footer>
+    <vue-particles
+      class="particle-bg"
+      color="#dedede"
+      :particleOpacity="0.7"
+      :particlesNumber="300"
+      shapeType="circle"
+      :particleSize="4"
+      linesColor="#dedede"
+      :linesWidth="1"
+      :lineLinked="true"
+      :lineOpacity="0.4"
+      :linesDistance="150"
+      :moveSpeed="3"
+      :hoverEffect="false"
+      :clickEffect="false"
+    >
+    </vue-particles>
   </v-app>
 </template>
 

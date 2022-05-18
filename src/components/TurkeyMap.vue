@@ -199,7 +199,6 @@ export default {
       colorScale: ["e7d090", "e9ae7b", "de7062"],
       citiesLatLongjson: citiesLatLongjson,
       zoom: 6,
-      loading: false,
       center: [39.9208, 32.8541],
       url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
       attribution:
@@ -301,8 +300,8 @@ export default {
     },
     //farkli olceklerde parsel geojsonlari ve sehir geojsoni getirmek icin (checkbox change)
     changeScale(val) {
-      this.polyline = [];
-      this.markers = [];
+      // this.polyline = [];
+      // this.markers = [];
       this.selectedJsonparam = val;
       this.scaleService(val);
     },
@@ -384,7 +383,6 @@ export default {
     },
     //asenkron geojson servisi. (checkbox change)
     async scaleService(val) {
-      this.loading = true;
       const response = await api.get(`/getGeoJson${val}`);
 
       const data = await response.data;
@@ -394,7 +392,7 @@ export default {
       this.showGeojson = true;
       this.$refs.map.setCenter([39.9208, 32.8541]);
       this.$refs.map.setZoom(6);
-      if (val === 0 && this.selectedCityparam) {
+      if (val === 0 && this.selectedCityparam != null) {
         setTimeout(() => {
           this.map._layers[this.selectedCityparam]._path.classList.add(
             "selected"
@@ -408,7 +406,6 @@ export default {
         //   );
         // }
       }
-      this.loading = false;
     },
   },
   watch: {
@@ -463,7 +460,7 @@ export default {
     });
     bus.$on("cityChanged", (city) => {
       this.selectedCityparam = city;
-      this.geojson = null;
+      // this.geojson = null;
       this.methodarr = [];
       this.polyline = [];
       this.markers = [];
@@ -476,7 +473,7 @@ export default {
       }
     });
     bus.$on("districtChanged", (city, district) => {
-      this.geojson = null;
+      // this.geojson = null;
       this.polyline = [];
       this.markers = [];
       this.selectedDistrict = district;
