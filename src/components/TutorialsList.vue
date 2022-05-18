@@ -77,9 +77,6 @@
                   v-slot:[`item.actions`]="{ item }"
                 >
                   <v-icon
-                    v-bind:style="[
-                      isModerator ? { left: '25%' } : { left: 'auto' },
-                    ]"
                     small
                     class="mr-2"
                     @click.stop.prevent="editTutorial(item.id)"
@@ -179,16 +176,33 @@ export default {
           sortable: false,
         },
         { text: "Yöntem", value: "yontem", sortable: false },
-        { text: "Alt Yöntem", value: "alt_yontem", sortable: false },
+        {
+          text: "Alt Yöntem",
+          value: "alt_yontem",
+          sortable: false,
+        },
         { text: "İl", value: "il", sortable: false },
-        { text: "İlçe", value: "ilce", sortable: false },
       ];
+      if (this.isUser) {
+        headers.push({
+          text: "İlçe",
+          value: "ilce",
+          sortable: false,
+          align: "end",
+        });
+      }
       if (this.isAdmin || this.isModerator) {
         headers.push(
+          {
+            text: "İlçe",
+            value: "ilce",
+            sortable: false,
+          },
           {
             text: "Güncelle/Sil",
             value: "actions",
             sortable: false,
+            align: "center",
           },
           { text: "Durum", value: "status", sortable: false, align: "end" }
         );

@@ -1,20 +1,12 @@
 <template>
-  <v-col v-if="currentTutorial" class="edit-form mx-auto py-3" cols="4">
+  <v-col v-if="newData" class="edit-form mx-auto py-3" cols="4">
     <p class="headline">Çalışmayı Düzenle</p>
 
     <v-form ref="form" lazy-validation>
-      <template v-for="(val, key, index) in currentTutorial">
+      <template v-for="(val, key, index) in newData">
         <v-text-field
           class="pb-2"
-          v-if="
-            val !== null &&
-            key !== 'id' &&
-            key !== 'published' &&
-            key !== 'lat' &&
-            key !== 'lon' &&
-            key !== 'createdAt' &&
-            key !== 'updatedAt'
-          "
+          v-if="val !== null"
           v-model="currentTutorial[key]"
           :key="index"
           :label="headers[index]"
@@ -67,9 +59,9 @@ export default {
   data() {
     return {
       currentTutorial: null,
+      newData: null,
       message: "",
       headers: [
-        "id",
         "Nokta/Kuyu/Profil Adı",
         "Yöntem",
         "Alt Yöntem",
@@ -146,24 +138,10 @@ export default {
         "A4",
         "Ölçü Karne No",
         "Dış Loop Boyutu",
-        "published",
-        "createdAt",
-        "updatedAt",
       ],
     };
   },
   methods: {
-    getTutorial(id) {
-      TutorialDataService.get(id)
-        .then((response) => {
-          this.currentTutorial = response.data;
-          console.log(response.data);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
-
     updatePublished(status) {
       var data = {
         published: status,
@@ -180,6 +158,7 @@ export default {
     },
 
     updateTutorial() {
+      console.log(this.currentTutorial);
       TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
         .then((response) => {
           console.log(response.data);
@@ -201,18 +180,30 @@ export default {
         });
     },
   },
-  mounted() {
-    this.getTutorial(this.$route.params.id);
-  },
-  beforeRouteEnter(to, from, next) {
+
+  async beforeRouteEnter(to, from, next) {
+    let fetchTutorial = await TutorialDataService.get(to.params.id);
+
     next((vm) => {
-      var admin = vm.$store.state.auth.user.roles.includes("ROLE_ADMIN");
-      var mod = vm.$store.state.auth.user.roles.includes("ROLE_MODERATOR");
-      if (admin || mod) {
-        vm.getTutorial(vm.$route.params.id);
-      } else {
-        next({ name: "login" });
-      }
+      var thisPerson = vm.$store.state.auth.user;
+      if (thisPerson) {
+        var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
+        var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
+        if (thisAdmin || thisMod) {
+          vm.currentTutorial = fetchTutorial.data;
+          vm.newData = Object.fromEntries(
+            Object.entries(vm.currentTutorial).filter(
+              ([key]) =>
+                !key.includes("id") &&
+                !key.includes("updatedAt") &&
+                !key.includes("createdAt") &&
+                !key.includes("published") &&
+                !key.includes("lat") &&
+                !key.includes("lon")
+            )
+          );
+        } else next({ name: "login" });
+      } else next({ name: "login" });
     });
   },
 };

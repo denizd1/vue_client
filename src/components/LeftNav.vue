@@ -251,36 +251,45 @@ export default {
   },
   methods: {
     handleCityChange(event) {
-      this.methodSelect.filter((item) => {
-        item.checked = false;
-      });
+      for (let i = 0; i < this.methodSelect.length; i++) {
+        this.methodSelect[i].checked = false;
+      }
       bus.$emit("cityChanged", event);
       this.citytoEmit = event;
-      this.scaleControls.filter((item) => {
-        if (item.name === "iller") {
-          item.checked = true;
+
+      for (let i = 0; i < this.scaleControls.length; i++) {
+        if (
+          this.scaleControls[i].name === "iller" &&
+          this.scaleControls[i].checked != true
+        ) {
+          this.scaleControls[i].checked = true;
         } else {
-          item.checked = false;
+          this.scaleControls[i].checked = false;
         }
-      });
-      this.cities.filter((elem) => {
-        if (elem.il === event) {
-          this.fillDistrict = elem.ilceleri;
+      }
+
+      for (let i = 0; i < this.cities.length; i++) {
+        if (this.cities[i].il === event) {
+          this.fillDistrict = this.cities[i].ilceleri;
         }
-      });
+      }
       // var self = this;
       // self.district_id = event;
     },
     handleDistrictChange(event) {
       this.districtToEmit = event;
       bus.$emit("districtChanged", this.citytoEmit, event);
-      this.scaleControls.filter((item) => {
-        if (item.name === "iller") {
-          item.checked = true;
+
+      for (let i = 0; i < this.scaleControls.length; i++) {
+        if (
+          this.scaleControls[i].name === "iller" &&
+          this.scaleControls[i].checked != true
+        ) {
+          this.scaleControls[i].checked = true;
         } else {
-          item.checked = false;
+          this.scaleControls[i].checked = false;
         }
-      });
+      }
     },
     logOut() {
       this.$store.dispatch("auth/logout");
