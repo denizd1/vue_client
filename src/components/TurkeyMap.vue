@@ -155,24 +155,24 @@ function onEachFeature(feature, layer) {
         .forEach((el) => el.classList.remove("selected"));
       e.originalEvent.target.classList.add("selected");
       e.originalEvent.target.classList.remove("pseudoClass");
-      bus.$emit("searchParam", this.feature.properties.name);
-      v.selectedCityparam = this.feature.properties.name;
+      bus.$emit("searchParam", feature.properties.name);
+      v.selectedCityparam = feature.properties.name;
 
-      v.dataService(this.feature.properties.name, null, v.methodarr);
-      bus.$emit("searchParam", this.feature.properties.name, "il");
+      v.dataService(feature.properties.name, null, v.methodarr);
+      bus.$emit("searchParam", feature.properties.name, "il");
     });
-    layer.on("mouseover", function (e) {
-      document
-        .querySelectorAll(".pseudoClass")
-        .forEach((el) => el.classList.remove("pseudoClass"));
-      e.originalEvent.target.classList.add("pseudoClass");
-    });
-    layer.on("mouseout", function (e) {
-      document
-        .querySelectorAll(".pseudoClass")
-        .forEach((el) => el.classList.remove("pseudoClass"));
-      e.originalEvent.target.classList.add("pseudoClass");
-    });
+    // layer.on("mouseover", function (e) {
+    //   document
+    //     .querySelectorAll(".pseudoClass")
+    //     .forEach((el) => el.classList.remove("pseudoClass"));
+    //   e.originalEvent.target.classList.add("pseudoClass");
+    // });
+    // layer.on("mouseout", function (e) {
+    //   document
+    //     .querySelectorAll(".pseudoClass")
+    //     .forEach((el) => el.classList.remove("pseudoClass"));
+    //   e.originalEvent.target.classList.add("pseudoClass");
+    // });
   }
 }
 export default {

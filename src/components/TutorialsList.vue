@@ -1,5 +1,18 @@
 <template>
   <v-col>
+    <v-overlay v-if="loading">
+      <v-layout align-center justify-center column fill-height>
+        <v-flex row align-center>
+          <v-progress-circular
+            :size="100"
+            :width="7"
+            color="red"
+            indeterminate
+          ></v-progress-circular>
+        </v-flex>
+      </v-layout>
+    </v-overlay>
+
     <v-tabs centered v-model="tab" style="position: relative; z-index: 4">
       <v-tab href="#listView">Liste Görünümü</v-tab>
       <v-tab @click="reloadMap()" href="#mapView">Harita Görünümü</v-tab>
@@ -91,6 +104,9 @@
                 </template>
               </v-data-table>
             </v-card>
+            <v-btn class="mt-3" depressed color="primary" @click="exportExcel">
+              Excel Olarak İndir
+            </v-btn>
           </v-col>
         </v-row>
       </v-tab-item>
@@ -122,6 +138,7 @@ export default {
       selectedDistrict: null,
       componentKey: 0,
       areaJson: null,
+      loading: false,
     };
   },
   components: {
@@ -350,6 +367,47 @@ export default {
         ilce: tutorial.ilce, //.substr(0, 10), //+ "...",
         status: tutorial.published ? "Yayında" : "Beklemede",
       };
+    },
+    exportExcel() {
+      this.loading = true;
+      let xlsx = require("json-as-xlsx");
+      let excelParams = {};
+
+      if (this.selectedCity != null) {
+        excelParams["il"] = this.selectedCity;
+      }
+      if (this.selectedDistrict != null) {
+        excelParams["ilce"] = this.selectedDistrict;
+      }
+
+      if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
+        excelParams["userStatus"] = "user";
+      }
+      TutorialDataService.findAllgetAll(excelParams)
+        .then((response) => {
+          let keys = Object.keys(response.data[0]);
+          let keysArr = [];
+          for (let i = 0; i < keys.length; i++) {
+            keysArr.push({ label: keys[i], value: keys[i] });
+          }
+          let data = [
+            {
+              sheet: "noktalar",
+              columns: keysArr,
+              content: response.data,
+            },
+          ];
+          let settings = {
+            fileName: "noktalar", // Name of the resulting spreadsheet
+            extraLength: 3, // A bigger number means that columns will be wider
+            //writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
+          };
+          xlsx(data, settings);
+          this.loading = false;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
   },
   mounted() {
