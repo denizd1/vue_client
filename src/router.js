@@ -1,7 +1,7 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import Login from './components/Login.vue';
-import Register from './components/Register.vue';
+import Vue from "vue";
+import Router from "vue-router";
+import Login from "./components/Login.vue";
+import Register from "./components/Register.vue";
 // import store from '@/store/index.js';
 Vue.use(Router);
 
@@ -12,42 +12,95 @@ export const router = new Router({
       path: "/tutorials-list",
       alias: "/tutorials-list",
       name: "tutorials-list",
-      component: () => import("./components/TutorialsList")
+      meta: {
+        breadCrumb: [
+          {
+            text: "Çalismalar",
+          },
+        ],
+      },
+      component: () => import("./components/TutorialsList"),
     },
     {
       path: "/tutorials/edit/:id",
       name: "tutorial-edit",
-      component: () => import("./components/TutorialEdit")
+      meta: {
+        breadCrumb() {
+          return [
+            {
+              text: "Çalismalar",
+              to: { name: "tutorials-list" },
+            },
+            {
+              text: "Düzenle",
+            },
+          ];
+        },
+      },
+      component: () => import("./components/TutorialEdit"),
     },
     {
       path: "/tutorials/:id",
       name: "tutorial",
-      component: () => import("./components/Tutorial")
+      meta: {
+        breadCrumb() {
+          return [
+            {
+              text: "Çalismalar",
+              to: { name: "tutorials-list" },
+            },
+            {
+              text: "Çalışma",
+            },
+          ];
+        },
+      },
+      component: () => import("./components/Tutorial"),
     },
     {
       path: "/add",
       name: "add",
-      component: () => import("./components/AddTutorial")
+      meta: {
+        breadCrumb() {
+          return [
+            {
+              text: "Çalısmalar",
+              to: { name: "tutorials-list" },
+            },
+            {
+              text: "Ekle",
+            },
+          ];
+        },
+      },
+      component: () => import("./components/AddTutorial"),
     },
     {
-      path: '/',
-      name: 'home',
-      component: Login
+      path: "/",
+      name: "home",
+      component: Login,
     },
     {
-      path: '/login',
-      name:'login',
-      component: Login
+      path: "/login",
+      name: "login",
+      component: Login,
     },
     {
-      path: '/register',
-      component: Register
+      path: "/register",
+      component: Register,
     },
     {
-      path: '/profile',
-      name: 'profile',
+      path: "/profile",
+      name: "profile",
+      meta: {
+        breadCrumb: [
+          {
+            text: "Profil",
+          },
+        ],
+      },
       // lazy-loaded
-      component: () => import('./components/Profile')
-    }
-  ]
+      component: () => import("./components/Profile"),
+    },
+  ],
 });

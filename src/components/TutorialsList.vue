@@ -104,7 +104,12 @@
                 </template>
               </v-data-table>
             </v-card>
-            <v-btn class="mt-3" depressed color="primary" @click="exportExcel">
+            <v-btn
+              class="mt-3"
+              depressed
+              color="primary"
+              @click="exportExcel(searchTitle)"
+            >
               Excel Olarak İndir
             </v-btn>
           </v-col>
@@ -362,46 +367,69 @@ export default {
         status: tutorial.published ? "Yayında" : "Beklemede",
       };
     },
-    exportExcel() {
-      this.loading = true;
+    jsontoExcel(response) {
       let xlsx = require("json-as-xlsx");
+      let keys = Object.keys(response[0]);
+      let keysArr = [];
+      for (let i = 0; i < keys.length; i++) {
+        keysArr.push({ label: keys[i], value: keys[i] });
+      }
+      let data = [
+        {
+          sheet: "noktalar",
+          columns: keysArr,
+          content: response,
+        },
+      ];
+      let settings = {
+        fileName: "noktalar", // Name of the resulting spreadsheet
+        extraLength: 3, // A bigger number means that columns will be wider
+        //writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
+      };
+      return xlsx(data, settings);
+    },
+    exportExcel(searchTitle) {
+      this.loading = true;
+
       let excelParams = {};
-
-      if (this.selectedCity != null) {
-        excelParams["il"] = this.selectedCity;
-      }
-      if (this.selectedDistrict != null) {
-        excelParams["ilce"] = this.selectedDistrict;
-      }
-
       if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
         excelParams["userStatus"] = "user";
       }
-      TutorialDataService.findAllgetAll(excelParams)
-        .then((response) => {
-          let keys = Object.keys(response.data[0]);
-          let keysArr = [];
-          for (let i = 0; i < keys.length; i++) {
-            keysArr.push({ label: keys[i], value: keys[i] });
+      if (this.areaJson == null) {
+        if (searchTitle) {
+          excelParams["il"] = searchTitle;
+        } else {
+          if (this.selectedCity != null) {
+            searchTitle = this.selectedCity;
+            this.searchTitle = this.selectedCity;
+            excelParams["il"] = searchTitle;
           }
-          let data = [
-            {
-              sheet: "noktalar",
-              columns: keysArr,
-              content: response.data,
-            },
-          ];
-          let settings = {
-            fileName: "noktalar", // Name of the resulting spreadsheet
-            extraLength: 3, // A bigger number means that columns will be wider
-            //writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
-          };
-          xlsx(data, settings);
-          this.loading = false;
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+          if (this.selectedDistrict != null) {
+            searchTitle = this.selectedDistrict;
+            this.searchTitle = this.selectedDistrict;
+            excelParams["ilce"] = searchTitle;
+          }
+        }
+        TutorialDataService.findAllgetAll(excelParams)
+          .then((response) => {
+            this.jsontoExcel(response.data);
+            this.loading = false;
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      }
+      if (this.areaJson != null) {
+        excelParams["geojson"] = this.areaJson;
+        TutorialDataService.findAllGeo(excelParams)
+          .then((response) => {
+            this.jsontoExcel(response.data);
+            this.loading = false;
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      }
     },
   },
   mounted() {
