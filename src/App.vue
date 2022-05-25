@@ -10,6 +10,7 @@
     </header> -->
     <v-main>
       <v-container fluid>
+        <bread-crumb></bread-crumb>
         <router-view />
       </v-container>
     </v-main>
@@ -41,9 +42,11 @@
 <script>
 import EventBus from "./common/EventBus";
 import LeftNav from "./components/LeftNav.vue";
+import BreadCrumb from "./components/BreadCrumb.vue";
 export default {
   components: {
     LeftNav,
+    BreadCrumb,
   },
   computed: {
     currentUser() {
