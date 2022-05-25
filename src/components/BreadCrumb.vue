@@ -1,6 +1,6 @@
 <template>
   <v-breadcrumbs
-    style="position: relative; z-index: 5"
+    style="position: relative; z-index: 4"
     :items="breadCrumbs"
     divider="/"
   >

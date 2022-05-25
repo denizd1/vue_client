@@ -15,7 +15,7 @@
       </v-container>
     </v-main>
     <v-footer absolute padless app color="transparent">
-      <v-col class="text-center" cols="12">
+      <v-col transparent class="text-center" cols="12">
         Her Hakkı Saklıdır © MTA {{ new Date().getFullYear() }}
       </v-col>
     </v-footer>
@@ -48,23 +48,23 @@ export default {
     LeftNav,
     BreadCrumb,
   },
-  computed: {
-    currentUser() {
-      return this.$store.state.auth.user;
-    },
-    isUseradmin() {
-      if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes("ROLE_ADMIN");
-      }
-      return false;
-    },
-    isUsermoderator() {
-      if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes("ROLE_MODERATOR");
-      }
-      return false;
-    },
-  },
+  // computed: {
+  //   currentUser() {
+  //     return this.$store.state.auth.user;
+  //   },
+  //   isUseradmin() {
+  //     if (this.currentUser && this.currentUser.roles) {
+  //       return this.currentUser.roles.includes("ROLE_ADMIN");
+  //     }
+  //     return false;
+  //   },
+  //   isUsermoderator() {
+  //     if (this.currentUser && this.currentUser.roles) {
+  //       return this.currentUser.roles.includes("ROLE_MODERATOR");
+  //     }
+  //     return false;
+  //   },
+  // },
   methods: {
     logOut() {
       this.$store.dispatch("auth/logout");

@@ -1,6 +1,6 @@
 <template>
   <v-col cols="12" align="center" class="contentsize mx-auto" v-if="!submitted">
-    <v-tabs centered v-model="tab">
+    <v-tabs background-color="transparent" centered v-model="tab">
       <v-tab href="#addManual">Proje Oluştur</v-tab>
       <v-tab href="#importExcel">Excel Import</v-tab>
     </v-tabs>
