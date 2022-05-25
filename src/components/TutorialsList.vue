@@ -13,7 +13,12 @@
       </v-layout>
     </v-overlay>
 
-    <v-tabs centered v-model="tab" style="position: relative; z-index: 4">
+    <v-tabs
+      background-color="transparent"
+      centered
+      v-model="tab"
+      style="position: relative; z-index: 4"
+    >
       <v-tab href="#listView">Liste Görünümü</v-tab>
       <v-tab @click="reloadMap()" href="#mapView">Harita Görünümü</v-tab>
     </v-tabs>
@@ -192,7 +197,7 @@ export default {
     headers() {
       const headers = [
         {
-          text: "Nokta/Kuyu/Profil Adı",
+          text: "Nokta / Kuyu / Profil Adı",
           value: "nokta_adi",
           align: "start",
           sortable: false,
