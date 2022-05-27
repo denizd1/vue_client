@@ -1,180 +1,79 @@
 <template>
-  <v-col cols="12" align="center" class="contentsize mx-auto" v-if="!submitted">
-    <v-tabs background-color="transparent" centered v-model="tab">
-      <v-tab href="#addManual">Proje Oluştur</v-tab>
-      <v-tab href="#importExcel">Excel Import</v-tab>
-    </v-tabs>
-    <v-tabs-items v-model="tab">
-      <v-tab-item :key="1" value="addManual">
-        <v-form class="mr-3 ml-3" ref="form" lazy-validation>
-          <v-select
-            item-text="yontemAdi"
-            placeholder="Bir jeofizik yöntem seçiniz"
-            :items="methodSubmethod"
-            single-line
-            @change="handleChange"
-          >
-          </v-select>
-          <v-select
-            v-if="fillSubMethod.length"
-            item-text="altYontemler"
-            :items="fillSubMethod"
-            placeholder="Bir alt yöntem seçiniz"
-            single-line
-          ></v-select>
+  <div>
+    <v-overlay v-if="loading">
+      <v-layout align-center justify-center column fill-height>
+        <v-flex row align-center>
+          <v-progress-circular
+            :size="100"
+            :width="7"
+            color="red"
+            indeterminate
+          ></v-progress-circular>
+        </v-flex>
+      </v-layout>
+    </v-overlay>
 
-          <v-select
-            item-text="il"
-            :items="cities"
-            single-line
-            placeholder="İl Seçiniz"
-            @change="handleCityChange"
-          ></v-select>
-
-          <v-select
-            v-if="fillDistrict.length"
-            item-text="ilceleri"
-            :items="fillDistrict"
-            single-line
-            placeholder="İlçe seçiniz"
-          ></v-select>
-
-          <v-text-field
-            v-model="tutorial.title"
-            :rules="[(v) => !!v || 'Bu alan boş bırakılamaz']"
-            label="Nokta Adı"
-            required
-          ></v-text-field>
-
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="date"
-                label="Çalışma Tarihi"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="date"
-              :active-picker.sync="activePicker"
-              :max="
-                new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-                  .toISOString()
-                  .substr(0, 10)
-              "
-              min="1950-01-01"
-              locale="tr"
-              @change="save"
-            ></v-date-picker>
-          </v-menu>
-          <v-btn color="primary" class="mt-3" @click="saveTutorial"
-            >Kaydet</v-btn
-          >
-        </v-form>
-      </v-tab-item>
-      <v-tab-item :key="2" value="importExcel">
-        <div class="mt-3 mr-3 ml-3">
-          <v-file-input
-            v-model="filestoImport"
-            color="deep-purple accent-4"
-            counter
-            label="Dosya Seçimi"
-            multiple
-            placeholder="Yüklemek için xls ya da xlsx uzantılı bir Excel dosyası
+    <v-col
+      cols="12"
+      align="center"
+      class="contentsize mx-auto"
+      v-if="!submitted"
+    >
+      <v-tabs background-color="transparent" centered v-model="tab">
+        <v-tab href="#importExcel">Excel Import</v-tab>
+      </v-tabs>
+      <v-tabs-items v-model="tab">
+        <v-tab-item :key="1" value="importExcel">
+          <div class="mt-3 mr-3 ml-3">
+            <v-file-input
+              v-model="filestoImport"
+              counter
+              clearable="true"
+              label="Dosya Seçimi"
+              multiple
+              placeholder="Yüklemek için xls ya da xlsx uzantılı bir Excel dosyası
             seçin."
-            prepend-icon="mdi-paperclip"
-            outlined
-            :show-size="1000"
-            @change="importExcel"
-            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              prepend-icon="mdi-paperclip"
+              outlined
+              :show-size="1000"
+              @change="importExcel"
+              accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+            >
+            </v-file-input>
+          </div>
+          <div class="mt-3 mr-3 ml-3" v-show="show">
+            {{ message }}
+          </div>
+          <v-btn color="primary" class="mt-3 mr-3 ml-3" @click="dataImporter"
+            >Excel Import</v-btn
           >
-            <template v-slot:selection="{ index, text }">
-              <v-chip
-                v-if="index < 2"
-                color="deep-purple accent-4"
-                dark
-                label
-                small
-              >
-                {{ text }}
-              </v-chip>
+        </v-tab-item>
+      </v-tabs-items>
+    </v-col>
+    <v-col cols="4" align="center" class="mx-auto" v-else>
+      <v-card style="z-index: 5">
+        <v-card-title v-if="showSubmit" class="justify-center">
+          Nokta(lar) Başarıyla Eklendi!
+        </v-card-title>
 
-              <span
-                v-else-if="index === 2"
-                class="text-overline grey--text text--darken-3 mx-2"
-              >
-                +{{ files.length - 2 }} File(s)
-              </span>
-            </template>
-          </v-file-input>
-        </div>
-        <div class="text-center">
-          <v-dialog v-model="dialog" width="600">
-            <v-card>
-              <v-card-title class="grey lighten-2">
-                Bu nokta(lar) veritabanında bulunmaktadir!
-              </v-card-title>
+        <v-card-subtitle v-if="showSubmit">
+          Yeni bir dosya yüklemek için 'Ekle' butonuna basın.
+        </v-card-subtitle>
+        <v-card-subtitle v-if="dialog">
+          Eklediğiniz dosyalardaki bazı noktalar, veritabanında bulunmaktadır.
+          Lütfen kontrol ediniz.
+        </v-card-subtitle>
 
-              <v-card-text>
-                <!-- <div style="white-space: pre">{{ message }}</div> -->
-                <v-list-item>
-                  <v-list-item-content
-                    ><v-list-item-title
-                      :key="index"
-                      v-for="(item, index) in message"
-                      >{{ item.err }}</v-list-item-title
-                    >
-                  </v-list-item-content>
-                </v-list-item>
-              </v-card-text>
-
-              <v-divider></v-divider>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" text @click="dialog = false">
-                  Kapat
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </div>
-        <v-btn color="primary" class="mt-3 mr-3 ml-3" @click="dataImporter"
-          >Excel Import</v-btn
-        >
-      </v-tab-item>
-    </v-tabs-items>
-  </v-col>
-  <v-col cols="4" align="center" class="mx-auto" v-else>
-    <v-card style="z-index: 99">
-      <v-card-title class="justify-center">
-        Nokta(lar) Başarıyla Eklendi!
-      </v-card-title>
-
-      <v-card-subtitle>
-        Yeni bir dosya yüklemek için 'Ekle' butonuna basın.
-      </v-card-subtitle>
-
-      <v-card-actions class="justify-center">
-        <v-btn color="success" @click="newTutorial">Ekle</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-col>
+        <v-card-actions class="justify-center">
+          <v-btn color="success" @click="newTutorial">Ekle</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-col>
+  </div>
 </template>
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
-import citiesJson from "../data/cities_of_turkey.json";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
 
@@ -183,13 +82,6 @@ export default {
   name: "add-tutorial",
   data() {
     return {
-      tutorial: {
-        id: null,
-        title: "",
-        description: "",
-        details: "",
-        published: false,
-      },
       fileHeader: [
         "nokta_adi",
         "yontem",
@@ -268,59 +160,14 @@ export default {
         "olcu_karne_no",
         "dis_loop_boyutu",
       ],
-      methodSubmethod: [
-        {
-          yontemAdi: "Potansiyel Alan Yöntemleri",
-          altYontemler: ["Gravite", "Manyetik", "Radyometri", "Süseptibilite"],
-        },
-        {
-          yontemAdi: "Elektrik ve Elektromanyetik Yöntemler",
-          altYontemler: [
-            "Düşey Elektrik Sondajı (DES)",
-            "Geçici Elektromanyetik Yöntem (TEM)",
-            "Yapay Uçlaşma Yöntemi (IP)",
-            "Gradient Yapay Uçlaşma Yöntemi (IP)",
-            "Manyetotellürik (MT)",
-            "Audio Manyetotellürik (AMT)",
-            "Yapay Kaynaklı Audio Manyetotellürik (CSAMT)",
-            "Doğal Potansiyel (SP)",
-            "Çok Kanallı Özdirenç Yöntemi",
-          ],
-        },
-        {
-          yontemAdi: "Sismik Yöntemler",
-          altYontemler: ["2 Boyutlu Sismik Yansıma", "Yer Radarı"],
-        },
-        {
-          yontemAdi: "Kuyu Ölçüleri",
-          altYontemler: [
-            "Gamma Ray (GR)",
-            "Neutron (NEU)",
-            "Density (DEN)",
-            "Resistivity (RES)",
-            "Self Potential (SP)",
-            "Caliper (CAL)",
-            "Sıcaklık Logu (TERM)",
-            "Spektral Gamma Ray (SGR)",
-            "Çimento Logu (CBL)",
-            "Sonic Log (SON)",
-            "Casing Collor Locator (CCL)",
-            "Birleşik Log",
-          ],
-        },
-      ],
       filestoImport: [],
-      cities: citiesJson,
-      activePicker: null,
-      date: null,
-      menu: false,
       submitted: false,
-      fillSubMethod: [],
-      fillDistrict: [],
       excelDatalist: {},
-      select: { yontemAdi: "" },
-      message: [],
+      message: "",
+      show: false,
       dialog: false,
+      showSubmit: false,
+      loading: false,
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -351,12 +198,11 @@ export default {
       },
     },
   },
-  watch: {
-    menu(val) {
-      val && setTimeout(() => (this.activePicker = "YEAR"));
-    },
-  },
   methods: {
+    /**
+     *
+     * Replace file headers with database headers
+     */
     getHeader(sheet) {
       const XLSX = require("xlsx");
       const headers = [];
@@ -388,78 +234,61 @@ export default {
     },
     /**
      * Import table
+     * Check the file(s) and the file(s) format first, then read the file
      */
     importExcel(e) {
+      this.show = false;
       this.excelDatalist = [];
-      const files = e;
+      for (let i = 0; i < e.length; i++) {
+        const files = e[i];
 
-      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
-        this.message =
-          "Yalnızca xls ya da xlsx uzantılı dosya yukleyebilirsiniz!";
-        return;
-      }
-      var fileReader = new FileReader();
+        if (!/\.(xls|xlsx)$/.test(files.name.toLowerCase())) {
+          this.message =
+            "Yalnızca xls ya da xlsx uzantılı dosya yukleyebilirsiniz!";
+          this.show = true;
+          return;
+        } else {
+          this.show = false;
+        }
+        var fileReader = new FileReader();
 
-      fileReader.onload = (ev) => {
-        try {
-          const data = ev.target.result;
-          const XLSX = require("xlsx");
+        fileReader.onload = (ev) => {
+          try {
+            const data = ev.target.result;
+            const XLSX = require("xlsx");
 
-          const workbook = XLSX.read(data, {
-            type: "binary", //string
-          });
-          const wsname = workbook.SheetNames[1]; // Take the first sheet，wb.SheetNames[0] :Take the name of the first sheet in the sheets
-          const ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]); // Generate JSON table content，wb.Sheets[Sheet]    Get the data of the first sheet
-          const a = workbook.Sheets[workbook.SheetNames[1]];
-          const headers = this.getHeader(a);
-          const excellist = []; // Clear received data
+            const workbook = XLSX.read(data, {
+              type: "binary", //string
+            });
+            const wsname = workbook.SheetNames[1]; // Take the first sheet，wb.SheetNames[0] :Take the name of the first sheet in the sheets
+            const ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]); // Generate JSON table content，wb.Sheets[Sheet]    Get the data of the first sheet
+            const a = workbook.Sheets[workbook.SheetNames[1]];
+            const headers = this.getHeader(a);
 
-          // Edit data
-          // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[wsname]));
-          for (var j = 0; j < ws.length; j++) {
-            const objects = {};
-            for (let index = 0; index < this.fileHeader.length; index++) {
-              objects[this.fileHeader[index]] = ws[j][headers[index]]
-                ? ws[j][headers[index]]
-                : null;
+            // Edit data
+            // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[wsname]));
+            for (var j = 0; j < ws.length; j++) {
+              const objects = {};
+              for (let index = 0; index < this.fileHeader.length; index++) {
+                objects[this.fileHeader[index]] = ws[j][headers[index]]
+                  ? ws[j][headers[index]]
+                  : null;
+              }
+              this.excelDatalist.push(objects);
             }
-            excellist.push(objects);
-          }
-          this.excelDatalist = excellist;
 
-          // console.log("headers", headers);
-          // Get header2-2
-        } catch (e) {
-          return alert("Read failure!");
-        }
-      };
-      fileReader.readAsBinaryString(files[0]);
-      // readAsText(files[0]);
-      // readAsBinaryString(files[0])
-      // var input = document.getElementById("upload");
-      // input.value = "";
+            // console.log("headers", headers);
+            // Get header2-2
+          } catch (e) {
+            return alert("Read failure!");
+          }
+        };
+        fileReader.readAsBinaryString(files);
+      }
     },
-    handleChange(event) {
-      this.methodSubmethod.filter((elem) => {
-        if (elem.yontemAdi === event) {
-          this.fillSubMethod = elem.altYontemler;
-        }
-      });
-      // var self = this;
-      // self.district_id = event;
-    },
-    handleCityChange(event) {
-      this.cities.filter((elem) => {
-        if (elem.il === event) {
-          this.fillDistrict = elem.ilceleri;
-        }
-      });
-      // var self = this;
-      // self.district_id = event;
-    },
-    save(date) {
-      this.$refs.menu.save(date);
-    },
+    /*
+      Convert x, y to lat, lng for geometry column in database
+    */
     converter(x, y, zone, datum) {
       var utm = null;
       if (datum === "WGS_84") {
@@ -472,43 +301,52 @@ export default {
 
       return latLng(point.lat, point.lng);
     },
+    /*
+    Function for arrange the data and call the service.
+    */
     dataImporter() {
-      var arr = this.excelDatalist;
+      this.loading = true;
+      if (this.filestoImport.length === 0) {
+        this.message = "Lütfen dosya seçiniz!";
+        this.show = true;
+        return;
+      } else {
+        var arr = this.excelDatalist;
+        if (this.show === false) {
+          for (let i = 0; i < arr.length; i++) {
+            let data = {};
+            Object.entries(this.excelDatalist[i]).forEach(([key, value]) => {
+              var val = value ? this.replaceVal(value) : null;
 
-      for (let i = 0; i < arr.length; i++) {
-        let data = {};
-        Object.entries(this.excelDatalist[i]).forEach(([key, value]) => {
-          var val = value ? this.replaceVal(value) : null;
-
-          data[key] = val; // key - value
-        });
-        var latlon = this.converter(
-          data["x"],
-          data["y"],
-          data["zone"],
-          data["datum"]
-        );
-        data["lat"] = latlon.lng;
-        data["lon"] = latlon.lat;
-        TutorialDataService.create(data)
-          .then((response) => {
-            this.tutorial.id = response.data.id;
-            this.submitted = true;
-          })
-          .catch((error) => {
-            this.message.push({
-              err:
-                (error.response &&
-                  error.response.data &&
-                  error.response.data.message) ||
-                error.message ||
-                error.toString(),
+              data[key] = val; // key - value
             });
-            this.dialog = true;
-          });
+            var latlon = this.converter(
+              data["x"],
+              data["y"],
+              data["zone"],
+              data["datum"]
+            );
+            data["lat"] = latlon.lng;
+            data["lon"] = latlon.lat;
+            TutorialDataService.create(data)
+              .then(() => {
+                this.showSubmit = true;
+              })
+
+              .catch(() => {
+                this.dialog = true;
+              });
+          }
+
+          this.submitted = true;
+          this.excelDatalist = [];
+        }
       }
-      this.excelDatalist = [];
+      this.loading = false;
     },
+    /*
+      Replaces corresponding cells in excel
+    */
     replaceVal(value) {
       switch (value) {
         case "POTANSıYEL_ALAN_YONTEMLERI":
@@ -587,27 +425,15 @@ export default {
           return value;
       }
     },
-    saveTutorial() {
-      var data = {
-        title: this.tutorial.title,
-        description: this.tutorial.description,
-        details: this.tutorial.details,
-      };
-
-      TutorialDataService.create(data)
-        .then((response) => {
-          this.tutorial.id = response.data.id;
-          // console.log(response.data);
-          this.submitted = true;
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
-
+    /**
+     * To go back to import field in order to import new files
+     */
     newTutorial() {
+      this.filestoImport = [];
       this.submitted = false;
-      this.tutorial = {};
+      this.showSubmit = false;
+      this.dialog = false;
+      this.loading = false;
     },
   },
 };
