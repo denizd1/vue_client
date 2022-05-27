@@ -197,7 +197,7 @@ export default {
     headers() {
       const headers = [
         {
-          text: "Nokta / Kuyu / Profil Adı",
+          text: "Nokta/Kuyu/Profil Adı",
           value: "nokta_adi",
           align: "start",
           sortable: false,

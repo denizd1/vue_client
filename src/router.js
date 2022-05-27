@@ -15,7 +15,7 @@ export const router = new Router({
       meta: {
         breadCrumb: [
           {
-            text: "Çalismalar",
+            text: "Anasayfa",
           },
         ],
       },
@@ -28,7 +28,7 @@ export const router = new Router({
         breadCrumb() {
           return [
             {
-              text: "Çalismalar",
+              text: "Anasayfa",
               to: { name: "tutorials-list" },
             },
             {
@@ -46,7 +46,7 @@ export const router = new Router({
         breadCrumb() {
           return [
             {
-              text: "Çalismalar",
+              text: "Anasayfa",
               to: { name: "tutorials-list" },
             },
             {
@@ -64,7 +64,7 @@ export const router = new Router({
         breadCrumb() {
           return [
             {
-              text: "Çalısmalar",
+              text: "Anasayfa",
               to: { name: "tutorials-list" },
             },
             {
@@ -93,11 +93,17 @@ export const router = new Router({
       path: "/profile",
       name: "profile",
       meta: {
-        breadCrumb: [
-          {
-            text: "Profil",
-          },
-        ],
+        breadCrumb() {
+          return [
+            {
+              text: "Anasayfa",
+              to: { name: "tutorials-list" },
+            },
+            {
+              text: "Profil",
+            },
+          ];
+        },
       },
       // lazy-loaded
       component: () => import("./components/Profile"),
