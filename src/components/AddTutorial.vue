@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-overlay v-if="loading">
+    <v-overlay style="z-index: 6" v-show="loading">
       <v-layout align-center justify-center column fill-height>
         <v-flex row align-center>
           <v-progress-circular
@@ -12,47 +12,55 @@
         </v-flex>
       </v-layout>
     </v-overlay>
-
     <v-col
-      cols="12"
-      align="center"
-      class="contentsize mx-auto"
+      sm="8"
+      md="6"
+      lg="4"
+      align-center
+      justify-center
+      class="mx-auto text-center"
       v-if="!submitted"
     >
-      <v-tabs background-color="transparent" centered v-model="tab">
-        <v-tab href="#importExcel">Excel Import</v-tab>
+      <v-tabs
+        background-color="transparent"
+        align-center
+        justify-center
+        centered
+        v-model="tab"
+      >
+        <v-tab style="z-index: 5" href="#importExcel">Excel Import</v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item :key="1" value="importExcel">
-          <div class="mt-3 mr-3 ml-3">
-            <v-file-input
-              v-model="filestoImport"
-              counter
-              clearable="true"
-              label="Dosya Seçimi"
-              multiple
-              placeholder="Yüklemek için xls ya da xlsx uzantılı bir Excel dosyası
+          <v-file-input
+            style="z-index: 5"
+            class="mt-3"
+            v-model="filestoImport"
+            counter
+            clearable="true"
+            label="Dosya Seçimi"
+            multiple
+            placeholder="Yüklemek için xls ya da xlsx uzantılı bir Excel dosyası
             seçin."
-              prepend-icon="mdi-paperclip"
-              outlined
-              :show-size="1000"
-              @change="importExcel"
-              accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-            >
-            </v-file-input>
-          </div>
-          <div class="mt-3 mr-3 ml-3" v-show="show">
+            prepend-icon="mdi-paperclip"
+            outlined
+            :show-size="1000"
+            @change="importExcel"
+            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+          >
+          </v-file-input>
+          <div v-show="show">
             {{ message }}
           </div>
-          <v-btn color="primary" class="mt-3 mr-3 ml-3" @click="dataImporter"
+          <v-btn color="primary" style="z-index: 5" @click="dataImporter"
             >Excel Import</v-btn
           >
         </v-tab-item>
       </v-tabs-items>
     </v-col>
-    <v-col cols="4" align="center" class="mx-auto" v-else>
-      <v-card style="z-index: 5">
-        <v-card-title v-if="showSubmit" class="justify-center">
+    <v-col sm="8" md="6" lg="4" align-center class="mx-auto" v-else>
+      <v-card style="z-index: 5" class="text-center justify-center">
+        <v-card-title class="justify-center" v-if="showSubmit">
           Nokta(lar) Başarıyla Eklendi!
         </v-card-title>
 
@@ -61,13 +69,57 @@
         </v-card-subtitle>
         <v-card-subtitle v-if="dialog">
           Eklediğiniz dosyalardaki bazı noktalar, veritabanında bulunmaktadır.
-          Lütfen kontrol ediniz.
+          Lütfen kontrol
+          <button v-on:click="errorDialog = true">ediniz.</button>
+
+          <!-- <v-btn color="green darken-1" text @click="errorDialog = true">
+          ediniz.
+        </v-btn> -->
         </v-card-subtitle>
 
         <v-card-actions class="justify-center">
           <v-btn color="success" @click="newTutorial">Ekle</v-btn>
         </v-card-actions>
       </v-card>
+
+      <v-overlay style="z-index: 6" v-if="errorDialog">
+        <v-layout align-center justify-center column fill-height>
+          <v-flex row align-center justify-center>
+            <v-card color="#8aabaa" dark>
+              <v-card-title justify-center class="text-h5">
+                Bu nokta(lar) veritabanında bulunmaktadir!
+              </v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <!-- <div style="white-space: pre">{{ message }}</div> -->
+                <v-list
+                  style="max-height: 300px; width: 100%"
+                  class="overflow-y-auto"
+                  color="#8aabaa"
+                >
+                  <v-list-item
+                    v-for="(item, index) in errorMessage"
+                    :key="index"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.err"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" text @click="errorDialog = false">
+                  Kapat
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-flex>
+        </v-layout>
+      </v-overlay>
     </v-col>
   </div>
 </template>
@@ -168,8 +220,11 @@ export default {
       dialog: false,
       showSubmit: false,
       loading: false,
+      errorDialog: false,
+      errorMessage: [],
     };
   },
+  /*Check role before route enter */
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       var val = vm.$store.state.auth.user;
@@ -198,6 +253,7 @@ export default {
       },
     },
   },
+  /*methods*/
   methods: {
     /**
      *
@@ -305,20 +361,26 @@ export default {
     Function for arrange the data and call the service.
     */
     dataImporter() {
-      this.loading = true;
       if (this.filestoImport.length === 0) {
         this.message = "Lütfen dosya seçiniz!";
         this.show = true;
         return;
       } else {
+        this.loading = true;
         var arr = this.excelDatalist;
         if (this.show === false) {
           for (let i = 0; i < arr.length; i++) {
             let data = {};
             Object.entries(this.excelDatalist[i]).forEach(([key, value]) => {
-              var val = value ? this.replaceVal(value) : null;
+              if (key === "nokta_adi") {
+                data[key] = value.includes("_")
+                  ? value.replace(/_/g, " ")
+                  : value;
+              } else {
+                var val = value ? this.replaceVal(value) : null;
 
-              data[key] = val; // key - value
+                data[key] = val; // key - value
+              }
             });
             var latlon = this.converter(
               data["x"],
@@ -333,16 +395,22 @@ export default {
                 this.showSubmit = true;
               })
 
-              .catch(() => {
+              .catch((error) => {
                 this.dialog = true;
+                this.errorMessage.push({
+                  err:
+                    (error.response &&
+                      error.response.data &&
+                      error.response.data.message) ||
+                    error.message ||
+                    error.toString(),
+                });
               });
           }
-
           this.submitted = true;
           this.excelDatalist = [];
         }
       }
-      this.loading = false;
     },
     /*
       Replaces corresponding cells in excel
@@ -425,6 +493,7 @@ export default {
           return value;
       }
     },
+
     /**
      * To go back to import field in order to import new files
      */
@@ -434,15 +503,9 @@ export default {
       this.showSubmit = false;
       this.dialog = false;
       this.loading = false;
+      this.errorMessage = [];
+      this.errorDialog = false;
     },
   },
 };
 </script>
-
-<style>
-.contentsize {
-  max-width: 500px;
-  position: relative;
-  z-index: 4;
-}
-</style>
