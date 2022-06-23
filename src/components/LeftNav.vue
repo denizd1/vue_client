@@ -168,7 +168,7 @@
         </v-list-group>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar flat app>
+    <v-app-bar style="z-index: 6" flat app>
       <v-img
         class="mta-logo mx-auto"
         src="../assets/logo.png"

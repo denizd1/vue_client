@@ -1,6 +1,6 @@
 <template>
   <v-col>
-    <v-overlay v-if="loading">
+    <v-overlay style="z-index: 6" v-if="loading">
       <v-layout align-center justify-center column fill-height>
         <v-flex row align-center>
           <v-progress-circular
