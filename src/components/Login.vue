@@ -10,6 +10,7 @@
         v-model="user.username"
         label="Kullanıcı Adı"
         :rules="nameRules"
+        prepend-icon="mdi-account-box"
         required
       ></v-text-field>
 
@@ -17,7 +18,10 @@
         v-model="user.password"
         label="Şifre"
         :rules="passwordRules"
-        type="password"
+        prepend-icon="mdi-lock"
+        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append="showPassword = !showPassword"
         required
       ></v-text-field>
       <div class="text-center">
@@ -46,6 +50,7 @@ export default {
     return {
       valid: true,
       message: "",
+      showPassword: false,
       user: new User("", ""),
       nameRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
       passwordRules: [(v) => !!v || "Bu alan boş bırakılamaz."],

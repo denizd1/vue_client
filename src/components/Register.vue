@@ -10,19 +10,24 @@
         v-model="user.username"
         label="Kullanıcı Adı"
         :rules="nameRules"
+        prepend-icon="mdi-account-box"
         required
       ></v-text-field>
       <v-text-field
         v-model="user.email"
         :rules="emailRules"
         label="E-mail"
+        prepend-icon="mdi-mail"
         required
       ></v-text-field>
       <v-text-field
         v-model="user.password"
         label="Şifre"
         :rules="passwordRules"
-        type="password"
+        prepend-icon="mdi-lock"
+        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append="showPassword = !showPassword"
         required
       ></v-text-field>
       <div class="text-center">
@@ -55,13 +60,16 @@ export default {
       valid: true,
       submitted: false,
       message: "",
+      showPassword: false,
       user: new User("", "", ""),
       nameRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
       passwordRules: [(v) => !!v || "Bu alan boş bırakılamaz."],
       emailRules: [
         (v) => !!v || "Bu alan boş bırakılamaz.",
         (v) =>
-          /.+@.+\..+/.test(v) || "Lütfen geçerli bir email adresi giriniz.",
+          /[\w-.]+@([mta.gov]+\.+[tr]{2})/.test(v) ||
+          "Lütfen geçerli bir email adresi giriniz.",
+        // /.+@.+\..+/.test(v)
       ],
     };
   },
