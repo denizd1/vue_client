@@ -23,7 +23,7 @@
       </v-list>
 
       <v-list dense v-if="currentUser" class="pt-0">
-        <v-list-item class="px-2">
+        <!-- <v-list-item class="px-2">
           <v-avatar color="primary" size="36"
             ><span class="white--text">{{
               currentUser.username.split(".")[0].charAt(0) +
@@ -32,13 +32,29 @@
                 : "")
             }}</span></v-avatar
           >
-        </v-list-item>
+        </v-list-item> -->
         <v-list-item link :to="{ name: 'profile' }">
           <v-list-item-content>
-            <v-list-item-title class="text-h6">
-              {{ currentUser.username }}
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ currentUser.email }}</v-list-item-subtitle>
+            <v-row>
+              <v-col sm="1" lg="2"
+                ><v-avatar color="primary" size="36"
+                  ><span class="white--text">{{
+                    currentUser.username.split(".")[0].charAt(0) +
+                    (currentUser.username.split(".")[1]
+                      ? currentUser.username.split(".")[1].charAt(0)
+                      : "")
+                  }}</span></v-avatar
+                ></v-col
+              >
+              <v-col cols="10" class="mt-1"
+                ><v-list-item-title class="text-h6">
+                  {{ currentUser.username }}
+                </v-list-item-title>
+                <v-list-item-subtitle>{{
+                  currentUser.email
+                }}</v-list-item-subtitle></v-col
+              >
+            </v-row>
           </v-list-item-content>
         </v-list-item>
         <v-list-item v-if="currentUser" link :to="{ name: 'tutorials-list' }">

@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app style="background: transparent">
     <left-nav></left-nav>
     <!-- <header>
       <v-img
@@ -34,6 +34,8 @@
       :moveSpeed="3"
       :hoverEffect="false"
       :clickEffect="false"
+      style="z-index: -1"
+      :key="componentKey"
     >
     </vue-particles>
   </v-app>
@@ -43,10 +45,17 @@
 import EventBus from "./common/EventBus";
 import LeftNav from "./components/LeftNav.vue";
 import BreadCrumb from "./components/BreadCrumb.vue";
+import { bus } from "./main";
+
 export default {
   components: {
     LeftNav,
     BreadCrumb,
+  },
+  data() {
+    return {
+      componentKey: 0,
+    };
   },
   // computed: {
   //   currentUser() {
@@ -74,6 +83,9 @@ export default {
   mounted() {
     EventBus.on("logout", () => {
       this.logOut();
+    });
+    bus.$on("reRender", () => {
+      this.componentKey += 1;
     });
   },
   beforeDestroy() {
