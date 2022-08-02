@@ -1,7 +1,5 @@
 <template>
-  <v-col v-if="newData" class="edit-form mx-auto py-3" cols="4">
-    <p class="headline">Çalışmayı Düzenle</p>
-
+  <v-col v-if="newData" class="mx-auto py-3" sm="8" md="6" lg="4">
     <v-form ref="form" lazy-validation>
       <template v-for="(val, key, index) in newData">
         <v-text-field
@@ -17,9 +15,7 @@
 
       <label><strong>Durum:</strong></label>
       {{ currentTutorial.published ? "Yayında" : "Beklemede" }}
-
       <v-divider class="my-5"></v-divider>
-
       <v-btn
         v-if="currentTutorial.published"
         @click="updatePublished(false)"
@@ -53,7 +49,7 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
-// import _ from "lodash";
+import { bus } from "../main";
 export default {
   name: "tutorial",
   data() {
@@ -202,17 +198,10 @@ export default {
                 !key.includes("lon")
             )
           );
+          bus.$emit("reRender");
         } else next({ name: "login" });
       } else next({ name: "login" });
     });
   },
 };
 </script>
-
-<style>
-.edit-form {
-  position: relative;
-  z-index: 1;
-  min-height: 100%;
-}
-</style>

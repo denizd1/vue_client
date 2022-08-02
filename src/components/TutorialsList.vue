@@ -13,24 +13,22 @@
       </v-layout>
     </v-overlay>
 
-    <v-tabs
-      background-color="transparent"
-      centered
-      v-model="tab"
-      style="position: relative; z-index: 4"
-    >
+    <v-tabs centered v-model="tab" background-color="transparent">
       <v-tab href="#listView">Liste Görünümü</v-tab>
       <v-tab @click="reloadMap()" href="#mapView">Harita Görünümü</v-tab>
     </v-tabs>
 
-    <v-tabs-items v-model="tab">
+    <v-tabs-items
+      style="background-color: transparent !important"
+      v-model="tab"
+    >
       <v-tab-item :key="1" value="listView" :eager="true">
         <v-row class="list px-3 mx-auto">
           <v-col cols="8">
             <v-text-field
               v-on:keyup.enter="
                 page = 1;
-                retrieveTutorials(searchTitle);
+                retrieveTutorials(searchTitle, $event);
               "
               v-model="searchTitle"
               label="Arama"
@@ -42,7 +40,7 @@
                 small
                 @click="
                   page = 1;
-                  retrieveTutorials(searchTitle);
+                  retrieveTutorials(searchTitle, $event);
                 "
               >
                 <v-icon>mdi-database-search-outline</v-icon>
@@ -155,6 +153,9 @@ export default {
     // SearchDetail,
     TurkeyMap,
   },
+  /*
+    check if user is admin or moderator before loading the page
+  */
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       if (!vm.$store.state.auth.user) {
@@ -258,6 +259,9 @@ export default {
     reloadMap() {
       bus.$emit("renderMap");
     },
+    /*
+      check il ilce flag
+    */
     getSelectedcity(val, flag) {
       if (flag === "il") {
         this.selectedCity = val;
@@ -266,6 +270,9 @@ export default {
         this.selectedDistrict = val;
       }
     },
+    /*
+      create param object for the request
+    */
     getRequestParams(searchTitle, page, pageSize) {
       let params = {};
       if (this.selectedCity != null) {
@@ -293,11 +300,14 @@ export default {
 
       return params;
     },
-    retrieveTutorials(searchTitle) {
+    /*
+      retrieve tutorials from server
+    */
+    retrieveTutorials(searchTitle, event) {
       var params = null;
       if (searchTitle) {
         params = {
-          il: searchTitle,
+          il: searchTitle, // !!! il is just a placeholder for the searchTitle,
           page: this.page - 1,
           size: this.pageSize,
           userStatus: this.isUser ? "user" : null,
@@ -309,7 +319,7 @@ export default {
           this.pageSize
         );
       }
-      if (this.areaJson != null) {
+      if (!event && this.areaJson != null) {
         params["areaJson"] = this.areaJson;
       }
 
@@ -323,10 +333,13 @@ export default {
         .catch((e) => {
           console.log(e);
         });
+      if (event && event.isTrusted == true) {
+        bus.$emit("searchDatatoMap", params.il);
+      }
     },
 
     refreshList() {
-      this.retrieveTutorials();
+      this.retrieveTutorials(this.searchTitle);
     },
 
     editTutorial(id) {
@@ -342,25 +355,30 @@ export default {
           console.log(e);
         });
     },
-
+    /*
+      redirect to tutorial detail page
+    */
     handleClick(value) {
       let routeData = this.$router.resolve({
         name: "tutorial",
         params: { id: value.id },
       });
       window.open(routeData.href, "_blank");
-      // this.$router.push({ name: "tutorial", params: { id: value.id } });
     },
     handlePageChange(value) {
+      console.log(this.searchTitle);
       this.page = value;
-      this.retrieveTutorials();
+      this.retrieveTutorials(this.searchTitle);
     },
 
     handlePageSizeChange(size) {
       this.pageSize = size;
       this.page = 1;
-      this.retrieveTutorials();
+      this.retrieveTutorials(this.searchTitle);
     },
+    /*
+      get display tutorial object
+    */
     getDisplayTutorial(tutorial) {
       return {
         id: tutorial.id,
@@ -372,6 +390,9 @@ export default {
         status: tutorial.published ? "Yayında" : "Beklemede",
       };
     },
+    /*
+      json to csv
+    */
     jsontoExcel(response) {
       let xlsx = require("json-as-xlsx");
       let keys = Object.keys(response[0]);
@@ -393,6 +414,9 @@ export default {
       };
       return xlsx(data, settings);
     },
+    /*
+      csv export
+    */
     exportExcel(searchTitle) {
       this.loading = true;
 

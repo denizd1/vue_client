@@ -79,7 +79,7 @@
             class="mx-auto"
             style="width: 100px"
           >
-            Güncelle
+            Yayınla
           </v-btn>
         </v-col>
       </v-row>

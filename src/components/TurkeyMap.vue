@@ -61,7 +61,7 @@
                 v-for="(legendElement, index) in legend"
                 :key="index"
                 class="pa-2"
-                align="left"
+                align-left
                 tile
               >
                 <img
@@ -113,6 +113,25 @@ import magIcon from "../assets/magnetic-field.png";
 import welllogIcon from "../assets/drilling-rig.png";
 import gravIcon from "../assets/gravity.png";
 import radioIcon from "../assets/radiation-detector.png";
+/*
+Feature types:
+  - point
+  - line
+  - polygon
+  - multiPoint
+  - multiLine
+  - multiPolygon
+  - geometryCollection
+  - feature
+  - featureCollection
+
+  https://leafletjs.com/reference-1.3.0.html#geojson-properties
+  https://leafletjs.com/examples/geojson/
+  https://leafletjs.com/examples/geojson/geojson-simple.html
+  https://leafletjs.com/examples/geojson/geojson-custom-icons.html
+  https://leafletjs.com/examples/geojson/geojson-custom-markers.html
+  https://leafletjs.com/examples/geojson/geojson-custom-markers-and-popups.html
+*/
 
 function onEachFeature(feature, layer) {
   var v = this;
@@ -246,6 +265,9 @@ export default {
     };
   },
   methods: {
+    /*
+    popup redirect to detail page
+    */
     handlePopupClick(val) {
       let routeData = this.$router.resolve({
         name: "tutorial",
@@ -253,22 +275,26 @@ export default {
       });
       window.open(routeData.href, "_blank");
     },
-    dataService(city, district, selectedMethod) {
+    /*
+    get data from data service
+    */
+    dataService(city, district, selectedMethod, requestFlag) {
       this.polyline = [];
       this.markers = [];
-      if (city || district || selectedMethod.length != 0) {
+      if (city || district || selectedMethod) {
         let params = {};
         this.polyline = [];
         this.markers = [];
 
-        params["il"] = city;
-        params["ilce"] = district;
-        params["yontem"] = selectedMethod;
+        params["il"] = city ? city : null;
+        params["ilce"] = district ? district : null;
+        params["yontem"] = selectedMethod ? selectedMethod : null;
         params["userStatus"] = this.$store.state.auth.user.roles.includes(
           "ROLE_USER"
         )
           ? "user"
           : null;
+        params["requestFlag"] = requestFlag ? requestFlag : null;
         TutorialDataService.findAllgetAll(params)
           .then((response) => {
             this.responseData = response.data;
@@ -277,34 +303,32 @@ export default {
               //profileplotter.js ile nokta ve profilleri cizmek icin
               this.triggerExternalplot(this.responseData[i]);
             }
-
-            // this.citiesLatLongjson.filter((elem) => {
-            //   if (city === elem.il) {
-            //     for (let i = 0; i < this.responseData.length; i++) {
-            //       //profileplotter.js ile nokta ve profilleri cizmek icin
-            //       this.triggerExternalplot(this.responseData[i]);
-            //     }
-            //   }
-            // });
           })
           .catch((e) => {
             console.log(e);
           });
       }
     },
+    /*
+    map zoom and data update
+    */
     zoomUpdate(zoom) {
       this.currentZoom = zoom;
     },
     centerUpdate(center) {
       this.currentCenter = center;
     },
-    //farkli olceklerde parsel geojsonlari ve sehir geojsoni getirmek icin (checkbox change)
+    /*
+    scale control
+    */
     changeScale(val) {
-      // this.polyline = [];
-      // this.markers = [];
       this.selectedJsonparam = val;
       this.scaleService(val);
     },
+    /*
+    trigger function from profileplotter.js
+    plot profile and point
+    */
     triggerExternalplot(currentTutorial) {
       var params = ProfilePlotter(currentTutorial);
       if (params.polyline !== null) {
@@ -316,9 +340,15 @@ export default {
         });
       }
       if (params.markerLatlong !== null) {
+        var thisCity = citiesLatLongjson.filter(
+          (city) => city.il == currentTutorial.il
+        )[0];
         this.markers.push({
           id: params.id,
-          latlng: params.markerLatlong,
+          latlng:
+            params.markerLatlong != null
+              ? params.markerLatlong
+              : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)],
           text: params.text,
         });
         if (params.yontem == "Sismik Yöntemler") {
@@ -371,6 +401,9 @@ export default {
         }
       }
     },
+    /*
+    generate icon for marker
+    */
     generateIcon(iconUrl, shadowUrl) {
       let customicon = icon(
         Object.assign({}, Icon.Default.prototype.options, {
@@ -381,7 +414,9 @@ export default {
 
       this.icon = customicon;
     },
-    //asenkron geojson servisi. (checkbox change)
+    /*
+    asnyc function to get data from data service
+    */
     async scaleService(val) {
       const response = await api.get(`/getGeoJson${val}`);
 
@@ -398,13 +433,6 @@ export default {
             "selected"
           );
         }, 100);
-        // if (this.markers.length == 0 && this.polyline.length == 0) {
-        //   this.dataService(
-        //     this.selectedCityparam,
-        //     this.selectedDistrict,
-        //     this.methodarr
-        //   );
-        // }
       }
     },
   },
@@ -467,7 +495,7 @@ export default {
       if (this.$refs.map) {
         this.scaleService(0);
         setTimeout(() => {
-          this.dataService(city, null, this.methodarr);
+          this.dataService(city, null, this.methodarr, null);
           bus.$emit("searchParam", city, "il");
         }, 100);
       }
@@ -481,7 +509,7 @@ export default {
         this.scaleService(0);
         setTimeout(() => {
           this.map._layers[city]._path.classList.add("selected");
-          this.dataService(city, district, this.methodarr);
+          this.dataService(city, district, this.methodarr, null);
           bus.$emit("searchParam", district, "ilce");
         }, 100);
       }
@@ -498,7 +526,13 @@ export default {
       } else {
         this.methodarr = this.methodarr.filter((e) => e !== name);
       }
-      this.dataService(city, district, this.methodarr);
+      if (city != null || district != null || this.methodarr.length != 0) {
+        this.dataService(city, district, this.methodarr, null);
+      }
+      if (this.methodarr.length == 0) {
+        this.polyline = [];
+        this.markers = [];
+      }
     });
     bus.$on("hideGeojson", (data) => {
       this.showGeojson = data;
@@ -515,6 +549,15 @@ export default {
       this.showGeojson = false;
       this.geojson = null;
       this.$refs.clusterRef.mapObject.refreshClusters();
+    });
+    bus.$on("searchDatatoMap", (param) => {
+      this.methodarr = [];
+      this.selectedCityparam = null;
+      this.selectedDistrict = null;
+      this.showGeojson = false;
+      this.geojson = null;
+      this.$refs.clusterRef.mapObject.refreshClusters();
+      this.dataService(param, null, null, "userSearch");
     });
   },
 };

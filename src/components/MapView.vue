@@ -36,6 +36,8 @@ import {
 } from "vue2-leaflet";
 import { Icon } from "leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
+import citiesLatLongjson from "../data/cities_of_turkey.json";
+
 // import * as L from "leaflet";
 delete Icon.Default.prototype._getIconUrl;
 
@@ -65,6 +67,7 @@ export default {
       attribution:
         'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
       currentZoom: 11.5,
+      citiesLatLongjson: citiesLatLongjson,
       mapOptions: {
         zoomSnap: 0.5,
       },
@@ -79,10 +82,16 @@ export default {
       this.currentCenter = center;
     },
     triggerExternalplot(currentTutorial) {
+      var thisCity = citiesLatLongjson.filter(
+        (city) => city.il == currentTutorial.il
+      )[0];
       var params = ProfilePlotter(currentTutorial);
       this.center = params.center;
       this.currentCenter = params.currentCenter;
-      this.markerLatlong = params.markerLatlong;
+      this.markerLatlong =
+        params.markerLatlong != null
+          ? params.markerLatlong
+          : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)];
       this.polyline = params.polyline;
     },
   },

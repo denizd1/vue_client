@@ -22,18 +22,20 @@
       v-if="!submitted"
     >
       <v-tabs
-        background-color="transparent"
         align-center
         justify-center
         centered
         v-model="tab"
+        background-color="transparent"
       >
-        <v-tab style="z-index: 5" href="#importExcel">Excel Import</v-tab>
+        <v-tab href="#importExcel">Excel Import</v-tab>
       </v-tabs>
-      <v-tabs-items v-model="tab">
+      <v-tabs-items
+        style="background-color: transparent !important"
+        v-model="tab"
+      >
         <v-tab-item :key="1" value="importExcel">
           <v-file-input
-            style="z-index: 5"
             class="mt-3"
             v-model="filestoImport"
             counter
@@ -49,17 +51,30 @@
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
           >
           </v-file-input>
-          <div v-show="show">
-            {{ message }}
-          </div>
-          <v-btn color="primary" style="z-index: 5" @click="dataImporter"
-            >Excel Import</v-btn
-          >
+          <v-overlay style="z-index: 6" v-show="show">
+            <v-layout align-center justify-center column fill-height>
+              <v-flex row align-center justify-center>
+                <v-card color="#ffffff">
+                  <v-card-text class="justify-center" style="color: #00000099">
+                    {{ message }}
+                  </v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" text @click="show = false">
+                      Kapat
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-flex>
+            </v-layout>
+          </v-overlay>
+          <v-btn color="primary" @click="dataImporter">Excel Import</v-btn>
         </v-tab-item>
       </v-tabs-items>
     </v-col>
     <v-col sm="8" md="6" lg="4" align-center class="mx-auto" v-else>
-      <v-card style="z-index: 5" class="text-center justify-center">
+      <v-card class="text-center justify-center">
         <v-card-title class="justify-center" v-if="showSubmit">
           Nokta(lar) Başarıyla Eklendi!
         </v-card-title>
@@ -85,29 +100,36 @@
       <v-overlay style="z-index: 6" v-if="errorDialog">
         <v-layout align-center justify-center column fill-height>
           <v-flex row align-center justify-center>
-            <v-card color="#8aabaa" dark>
-              <v-card-title justify-center class="text-h5">
+            <v-card color="#ffffff">
+              <v-card-title
+                text-center
+                class="justify-center"
+                style="color: black"
+              >
                 Bu nokta(lar) veritabanında bulunmaktadir!
               </v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <!-- <div style="white-space: pre">{{ message }}</div> -->
-                <v-list
-                  style="max-height: 300px; width: 100%"
-                  class="overflow-y-auto"
-                  color="#8aabaa"
-                >
-                  <v-list-item
-                    v-for="(item, index) in errorMessage"
-                    :key="index"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title v-text="item.err"></v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
+              <perfect-scrollbar>
+                <v-card-text>
+                  <!-- <div style="white-space: pre">{{ message }}</div> -->
 
+                  <v-list
+                    color="#ffffff"
+                    style="max-height: 400px; width: 100%"
+                  >
+                    <v-list-item
+                      style="color: #00000099 !important"
+                      v-for="(item, index) in errorMessage"
+                      :key="index"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title
+                          v-text="item.err"
+                        ></v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-card-text>
+              </perfect-scrollbar>
               <v-divider></v-divider>
 
               <v-card-actions>
@@ -382,17 +404,22 @@ export default {
                 data[key] = val; // key - value
               }
             });
-            var latlon = this.converter(
-              data["x"],
-              data["y"],
-              data["zone"],
-              data["datum"]
-            );
-            data["lat"] = latlon.lng;
-            data["lon"] = latlon.lat;
+            var latlon = null;
+            if (data["x"] != 0 && data["y"] != 0) {
+              latlon = this.converter(
+                data["x"],
+                data["y"],
+                data["zone"],
+                data["datum"]
+              );
+              data["lat"] = latlon.lng;
+              data["lon"] = latlon.lat;
+            }
+
             TutorialDataService.create(data)
               .then(() => {
                 this.showSubmit = true;
+                this.loading = false;
               })
 
               .catch((error) => {
@@ -405,6 +432,7 @@ export default {
                     error.message ||
                     error.toString(),
                 });
+                this.loading = false;
               });
           }
           this.submitted = true;
