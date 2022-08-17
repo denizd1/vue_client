@@ -379,6 +379,28 @@ export default {
 
       return latLng(point.lat, point.lng);
     },
+    /**
+     * Convert excel date to js date
+     */
+    ExcelDateToJSDate(serial) {
+      var utc_days = Math.floor(serial - 25569);
+      var utc_value = utc_days * 86400;
+      var date_info = new Date(utc_value * 1000);
+
+      var fractional_day = serial - Math.floor(serial) + 0.0000001;
+
+      var total_seconds = Math.floor(86400 * fractional_day);
+
+      var seconds = total_seconds % 60;
+
+      total_seconds -= seconds;
+
+      return new Date(
+        date_info.getFullYear(),
+        date_info.getMonth(),
+        date_info.getDate()
+      );
+    },
     /*
     Function for arrange the data and call the service.
     */
@@ -390,6 +412,7 @@ export default {
       } else {
         this.loading = true;
         var arr = this.excelDatalist;
+
         if (this.show === false) {
           for (let i = 0; i < arr.length; i++) {
             let data = {};
@@ -414,6 +437,15 @@ export default {
               );
               data["lat"] = latlon.lng;
               data["lon"] = latlon.lat;
+            }
+            if (typeof data["calisma_tarihi"] !== "string") {
+              var dummyDate = this.ExcelDateToJSDate(data["calisma_tarihi"]);
+              data["calisma_tarihi"] =
+                dummyDate.getDate() +
+                "/" +
+                (dummyDate.getMonth() + 1) +
+                "/" +
+                dummyDate.getFullYear();
             }
 
             TutorialDataService.create(data)
