@@ -57,23 +57,6 @@ export default {
       componentKey: 0,
     };
   },
-  // computed: {
-  //   currentUser() {
-  //     return this.$store.state.auth.user;
-  //   },
-  //   isUseradmin() {
-  //     if (this.currentUser && this.currentUser.roles) {
-  //       return this.currentUser.roles.includes("ROLE_ADMIN");
-  //     }
-  //     return false;
-  //   },
-  //   isUsermoderator() {
-  //     if (this.currentUser && this.currentUser.roles) {
-  //       return this.currentUser.roles.includes("ROLE_MODERATOR");
-  //     }
-  //     return false;
-  //   },
-  // },
   methods: {
     logOut() {
       this.$store.dispatch("auth/logout");
@@ -99,21 +82,6 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 99%;
 }
-
-/* .particle-wrap:before {
-  content: " ";
-  display: block;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.6;
-  background-image: url("https://logowik.com/content/uploads/images/742_mta.jpg");
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  background-size: 40%;
-} */
 </style>

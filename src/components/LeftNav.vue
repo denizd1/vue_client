@@ -23,16 +23,6 @@
       </v-list>
 
       <v-list dense v-if="currentUser" class="pt-0">
-        <!-- <v-list-item class="px-2">
-          <v-avatar color="primary" size="36"
-            ><span class="white--text">{{
-              currentUser.username.split(".")[0].charAt(0) +
-              (currentUser.username.split(".")[1]
-                ? currentUser.username.split(".")[1].charAt(0)
-                : "")
-            }}</span></v-avatar
-          >
-        </v-list-item> -->
         <v-list-item link :to="{ name: 'profile' }">
           <v-list-item-content>
             <v-row>

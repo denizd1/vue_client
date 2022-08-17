@@ -18,6 +18,7 @@ import TutorialDataService from "../services/TutorialDataService";
 
 import MapView from "./MapView.vue";
 import DetailTable from "./DetailTable.vue";
+import { bus } from "../main";
 
 export default {
   name: "tutorial",
@@ -32,15 +33,6 @@ export default {
   },
 
   methods: {
-    // getTutorial(id) {
-    //   TutorialDataService.get(id)
-    //     .then((response) => {
-    //       this.currentTutorial = response.data;
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
-    // },
     exportExcel() {
       const XLSX = require("xlsx");
       const fileName = this.currentTutorial.nokta_adi + ".xlsx";
@@ -66,6 +58,7 @@ export default {
         } else if (thisUser && fetchTutorial.data.published === true) {
           vm.currentTutorial = fetchTutorial.data;
         }
+        bus.$emit("reRender");
       } else {
         next({ name: "login" });
       }
