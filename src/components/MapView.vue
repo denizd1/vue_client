@@ -17,6 +17,12 @@
         :lat-lngs="polyline.latlngs"
         :color="polyline.color"
       />
+      <l-geo-json
+        v-if="showGeojson"
+        :geojson="geojson"
+        :options-style="styleFunction"
+      />
+
       <l-control-scale
         position="topright"
         :imperial="false"
@@ -28,6 +34,7 @@
 
 <script>
 import {
+  LGeoJson,
   LMap,
   LTileLayer,
   LMarker,
@@ -51,6 +58,7 @@ export default {
   name: "MapView",
   props: ["currentTutorial"],
   components: {
+    LGeoJson,
     LMap,
     LTileLayer,
     LMarker,
@@ -72,6 +80,8 @@ export default {
         zoomSnap: 0.5,
       },
       showMap: true,
+      geojson: null,
+      showGeojson: false,
     };
   },
   methods: {
@@ -88,11 +98,39 @@ export default {
       var params = ProfilePlotter(currentTutorial);
       this.center = params.center;
       this.currentCenter = params.currentCenter;
-      this.markerLatlong =
-        params.markerLatlong != null
-          ? params.markerLatlong
-          : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)];
+      if (params.markerLatlong != null) {
+        this.markerLatlong = params.markerLatlong;
+      } else if (params.centerOfMass != null) {
+        this.markerLatlong = [
+          params.centerOfMass.geometry.coordinates[1],
+          params.centerOfMass.geometry.coordinates[0],
+        ];
+      } else {
+        this.markerLatlong = [
+          parseFloat(thisCity.latitude),
+          parseFloat(thisCity.longitude),
+        ];
+      }
+
       this.polyline = params.polyline;
+      console.log(params.geoJson);
+      if (params.geoJson != null) {
+        this.geojson = params.geoJson;
+        this.showGeojson = true;
+      }
+    },
+  },
+  computed: {
+    styleFunction() {
+      return () => {
+        return {
+          weight: 2,
+          color: "#ECEFF1",
+          opacity: 1,
+          fillColor: "#068d8d",
+          fillOpacity: 0.4,
+        };
+      };
     },
   },
   beforeMount() {
