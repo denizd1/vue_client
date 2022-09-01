@@ -249,6 +249,14 @@ export default {
           icon: "/gravity.png",
         },
         {
+          text: "Havadan Jeofizik",
+          icon: "/airborne.png",
+        },
+        {
+          text: "Kuyu Ölçüleri",
+          icon: "/drilling-rig.png",
+        },
+        {
           text: "Manyetik",
           icon: "/magnetic-field.png",
         },
@@ -259,14 +267,6 @@ export default {
         {
           text: "Sismik Yöntemler",
           icon: "/seismic.png",
-        },
-        {
-          text: "Havadan Jeofizik",
-          icon: "/airborne.png",
-        },
-        {
-          text: "Kuyu Ölçüleri",
-          icon: "/drilling-rig.png",
         },
       ],
     };
