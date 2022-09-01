@@ -23,8 +23,8 @@
       v-model="tab"
     >
       <v-tab-item :key="1" value="listView" :eager="true">
-        <v-row class="list px-3 mx-auto">
-          <v-col cols="8">
+        <v-row class="justify-center mx-auto">
+          <v-col cols="8" md="4">
             <v-text-field
               v-on:keyup.enter="
                 page = 1;
@@ -34,7 +34,7 @@
               label="Arama"
             ></v-text-field>
           </v-col>
-          <v-col cols="4">
+          <v-col cols="2">
             <v-card-actions class="justify-left mt-3">
               <v-btn
                 small
@@ -48,36 +48,33 @@
             </v-card-actions>
           </v-col>
           <!-- <search-detail></search-detail> -->
-          <v-col cols="12" sm="12">
-            <v-row>
-              <v-col cols="4" sm="3">
-                <v-select
-                  v-model="pageSize"
-                  :items="pageSizes"
-                  label="Öğe Sayısı"
-                  @change="handlePageSizeChange"
-                ></v-select>
-              </v-col>
-
-              <v-col cols="8" sm="9">
-                <v-pagination
-                  v-model="page"
-                  :length="totalPages"
-                  total-visible="7"
-                  next-icon="mdi-menu-right"
-                  prev-icon="mdi-menu-left"
-                  @input="handlePageChange"
-                ></v-pagination>
-              </v-col>
-            </v-row>
+        </v-row>
+        <v-row class="justify-center mx-auto">
+          <v-col cols="4" md="3">
+            <v-select
+              v-model="pageSize"
+              :items="pageSizes"
+              label="Öğe Sayısı"
+              @change="handlePageSizeChange"
+            ></v-select>
           </v-col>
-          <v-col class="py-0" cols="12" sm="12">
-            <p style="margin-bottom: 0px">
+
+          <v-col cols="6" md="3">
+            <v-pagination
+              v-model="page"
+              :length="totalPages"
+              total-visible="7"
+              next-icon="mdi-menu-right"
+              prev-icon="mdi-menu-left"
+              @input="handlePageChange"
+            ></v-pagination>
+          </v-col>
+        </v-row>
+        <v-row class="justify-center mx-auto">
+          <v-col cols="12" md="8">
+            <div class="text-subtitle-1">
               Toplam {{ tutorialCount }} öğe bulundu.
-            </p>
-          </v-col>
-
-          <v-col cols="12" sm="12">
+            </div>
             <v-card class="mx-auto" tile>
               <v-data-table
                 :headers="headers"
