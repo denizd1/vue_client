@@ -84,8 +84,10 @@
         </v-card-subtitle>
         <v-card-subtitle v-if="dialog">
           Eklediğiniz dosyalardaki bazı noktalar, veritabanında bulunmaktadır.
-          Lütfen kontrol
-          <button v-on:click="errorDialog = true">ediniz.</button>
+          Veritabanındaki noktaları görmek için
+          <button v-on:click="errorDialog = true">
+            <span style="text-decoration: underline">tıklayınız</span>.
+          </button>
 
           <!-- <v-btn color="green darken-1" text @click="errorDialog = true">
           ediniz.
@@ -148,6 +150,7 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
+import centerofmass from "@turf/center-of-mass";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
 
@@ -418,6 +421,9 @@ export default {
             let data = {};
             Object.entries(this.excelDatalist[i]).forEach(([key, value]) => {
               if (key === "nokta_adi") {
+                if (typeof value === "number") {
+                  value = value.toString();
+                }
                 data[key] = value.includes("_")
                   ? value.replace(/_/g, " ")
                   : value;
@@ -428,7 +434,7 @@ export default {
               }
             });
             var latlon = null;
-            if (data["x"] != 0 && data["y"] != 0) {
+            if (data["x"] != null && data["y"] != null) {
               latlon = this.converter(
                 data["x"],
                 data["y"],
@@ -437,6 +443,63 @@ export default {
               );
               data["lat"] = latlon.lng;
               data["lon"] = latlon.lat;
+            }
+            if (
+              data["a_1"] !== null &&
+              data["a_2"] !== null &&
+              data["a_3"] !== null &&
+              data["a_4"] !== null
+            ) {
+              var corners = [
+                data["a_1"],
+                data["a_2"],
+                data["a_3"],
+                data["a_4"],
+              ]; //typeof string
+              var coordinates = [];
+
+              //need to convert string to number then convert utm to latlng
+              for (let i = 0; i < corners.length; i++) {
+                var corner = corners[i];
+                var cornerCoordinates = corner.split(",");
+                var x = parseInt(cornerCoordinates[0]);
+                var y = parseInt(cornerCoordinates[1]);
+
+                var cornerPoint = this.converter(
+                  x,
+                  y,
+                  data["zone"],
+                  data["datum"]
+                );
+                coordinates.push([cornerPoint.lng, cornerPoint.lat]);
+              }
+              var close = this.converter(
+                parseInt(corners[0].split(",")[0]),
+                parseInt(corners[0].split(",")[1]),
+                data["zone"],
+                data["datum"]
+              );
+              coordinates.push([close.lng, close.lat]);
+              var geoJson = {
+                type: "FeatureCollection",
+                features: [
+                  {
+                    type: "Feature",
+                    properties: {
+                      mytag: "datdat",
+                      name: "datdat",
+                      tessellate: true,
+                    },
+                    geometry: {
+                      type: "Polygon",
+                      coordinates: [coordinates],
+                    },
+                  },
+                ],
+              };
+              var centerOfMass = centerofmass(geoJson);
+              data["lat"] = centerOfMass.geometry.coordinates[1];
+              data["lon"] = centerOfMass.geometry.coordinates[0];
             }
             if (typeof data["calisma_tarihi"] !== "string") {
               var dummyDate = this.ExcelDateToJSDate(data["calisma_tarihi"]);
@@ -489,6 +552,8 @@ export default {
           return "Gravite";
         case "MANYETIK":
           return "Manyetik";
+        case "HAVADAN MANYETIK":
+          return "Havadan Manyetik";
         case "RADYOMETRI":
           return "Radyometri";
         case "SUSEPTIBILITE":
@@ -549,6 +614,8 @@ export default {
           return "Kömür";
         case "VAR":
           return "Var";
+        case "YOK":
+          return "Yok";
         default:
           return value;
       }

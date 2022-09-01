@@ -13,11 +13,7 @@
     >
       <v-icondefault></v-icondefault>
       <l-tile-layer :url="url" :attribution="attribution" />
-      <!-- <l-marker
-            ref="marker"
-            v-if="withTooltip != null"
-            :lat-lng="withTooltip"
-          /> -->
+
       <v-marker-cluster ref="clusterRef">
         <v-marker
           v-for="marker in markers"
@@ -57,19 +53,25 @@
           <v-expansion-panel>
             <v-expansion-panel-header> Semboller </v-expansion-panel-header>
             <v-expansion-panel-content>
-              <v-card
-                v-for="(legendElement, index) in legend"
-                :key="index"
-                class="pa-2"
-                align-left
-                tile
-              >
-                <img
-                  :src="require(`@/assets` + legendElement.icon)"
-                  height="20"
-                  width="20"
-                />
-                <small class="pl-3">{{ legendElement.text }}</small>
+              <v-card class="pa-2" align-left tile>
+                <v-card-text>
+                  <v-row
+                    align="center"
+                    v-for="(legendElement, index) in legend"
+                    :key="index"
+                  >
+                    <v-col class="pa-1" cols="3">
+                      <v-img
+                        :src="require(`@/assets` + legendElement.icon)"
+                        height="30"
+                        width="30"
+                      ></v-img>
+                    </v-col>
+                    <v-col class="text-caption pa-0 mt-1" cols="9">
+                      {{ legendElement.text }}
+                    </v-col>
+                  </v-row>
+                </v-card-text>
               </v-card>
             </v-expansion-panel-content>
           </v-expansion-panel>
@@ -113,6 +115,7 @@ import magIcon from "../assets/magnetic-field.png";
 import welllogIcon from "../assets/drilling-rig.png";
 import gravIcon from "../assets/gravity.png";
 import radioIcon from "../assets/radiation-detector.png";
+import airBorneIcon from "../assets/airborne.png";
 /*
 Feature types:
   - point
@@ -258,6 +261,10 @@ export default {
           icon: "/seismic.png",
         },
         {
+          text: "Havadan Jeofizik",
+          icon: "/airborne.png",
+        },
+        {
           text: "Kuyu Ölçüleri",
           icon: "/drilling-rig.png",
         },
@@ -351,54 +358,80 @@ export default {
               : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)],
           text: params.text,
         });
-        if (params.yontem == "Sismik Yöntemler") {
-          Icon.Default.mergeOptions({
-            iconRetinaUrl: seismicIcon,
-            iconUrl: seismicIcon,
-            shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-          });
-          this.generateIcon(seismicIcon, shadowUrl);
-        }
-        if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
-          Icon.Default.mergeOptions({
-            iconRetinaUrl: emIcon,
-            iconUrl: emIcon,
-            shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-          });
-          this.generateIcon(emIcon, shadowUrl);
-        }
-        if (params.yontem == "Kuyu Ölçüleri") {
-          Icon.Default.mergeOptions({
-            iconRetinaUrl: welllogIcon,
-            iconUrl: welllogIcon,
-            shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-          });
-          this.generateIcon(welllogIcon, shadowUrl);
-        }
-        if (params.altyontem == "Gravite") {
-          Icon.Default.mergeOptions({
-            iconRetinaUrl: gravIcon,
-            iconUrl: gravIcon,
-            shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-          });
-          this.generateIcon(gravIcon, shadowUrl);
-        }
-        if (params.altyontem == "Manyetik") {
-          Icon.Default.mergeOptions({
-            iconRetinaUrl: magIcon,
-            iconUrl: magIcon,
-            shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-          });
-          this.generateIcon(magIcon, shadowUrl);
-        }
-        if (params.altyontem == "Radyometri") {
-          Icon.Default.mergeOptions({
-            iconRetinaUrl: radioIcon,
-            iconUrl: radioIcon,
-            shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-          });
-          this.generateIcon(radioIcon, shadowUrl);
-        }
+        this.iconFunc(params);
+      }
+      if (params.centerOfMass != null) {
+        this.markers.push({
+          id: params.id,
+          latlng:
+            params.centerOfMass != null
+              ? [
+                  params.centerOfMass.geometry.coordinates[1],
+                  params.centerOfMass.geometry.coordinates[0],
+                ]
+              : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)],
+          text: params.text,
+        });
+        this.iconFunc(params);
+      }
+    },
+    iconFunc(params) {
+      console.log(params);
+      if (params.yontem == "Sismik Yöntemler") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: seismicIcon,
+          iconUrl: seismicIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(seismicIcon, shadowUrl);
+      }
+      if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: emIcon,
+          iconUrl: emIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(emIcon, shadowUrl);
+      }
+      if (params.yontem == "Kuyu Ölçüleri") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: welllogIcon,
+          iconUrl: welllogIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(welllogIcon, shadowUrl);
+      }
+      if (params.altyontem == "Gravite") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: gravIcon,
+          iconUrl: gravIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(gravIcon, shadowUrl);
+      }
+      if (params.altyontem == "Manyetik") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: magIcon,
+          iconUrl: magIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(magIcon, shadowUrl);
+      }
+      if (params.altyontem == "Radyometri") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: radioIcon,
+          iconUrl: radioIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(radioIcon, shadowUrl);
+      }
+      if (params.altyontem == "Havadan Manyetik") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: airBorneIcon,
+          iconUrl: airBorneIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        this.generateIcon(airBorneIcon, shadowUrl);
       }
     },
     /*

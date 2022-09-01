@@ -41,15 +41,6 @@
             </template>
           </v-file-input>
           <v-row>
-            <!-- <v-col cols="6">
-              <v-select
-                item-text="zone"
-                :items="zones"
-                single-line
-                placeholder="Zone Seçiniz"
-                @change="selectedZone = $event"
-              ></v-select>
-            </v-col> -->
             <v-col cols="6">
               <v-select
                 item-text="datum"
