@@ -26,7 +26,10 @@ function ProfilePlotter(currentTutorial) {
   if (currentTutorial.datum === "ED_50") {
     utm = new utmObj("ED50");
   }
-  if (currentTutorial.x !== null && currentTutorial.y !== null) {
+  if (
+    (currentTutorial.x !== null && currentTutorial.y !== null) ||
+    (currentTutorial.x !== 0 && currentTutorial.y !== 0)
+  ) {
     var pointIcon = utm.convertUtmToLatLng(
       currentTutorial.x,
       currentTutorial.y,
