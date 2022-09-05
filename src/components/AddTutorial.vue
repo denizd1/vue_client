@@ -434,7 +434,10 @@ export default {
               }
             });
             var latlon = null;
-            if (data["x"] != null && data["y"] != null) {
+            if (
+              (data["x"] != null && data["y"] != null) ||
+              (data["x"] != 0 && data["y"] != 0)
+            ) {
               latlon = this.converter(
                 data["x"],
                 data["y"],
