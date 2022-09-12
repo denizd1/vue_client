@@ -14,15 +14,17 @@
     </v-overlay>
 
     <v-tabs centered v-model="tab" background-color="transparent">
-      <v-tab href="#listView">Liste Görünümü</v-tab>
-      <v-tab @click="reloadMap()" href="#mapView">Harita Görünümü</v-tab>
+      <v-tab href="#liste-gorunumu">Liste Görünümü</v-tab>
+      <v-tab @click="reloadMap()" href="#harita-gorunumu"
+        >Harita Görünümü</v-tab
+      >
     </v-tabs>
 
     <v-tabs-items
       style="background-color: transparent !important"
       v-model="tab"
     >
-      <v-tab-item :key="1" value="listView" :eager="true">
+      <v-tab-item :key="1" value="liste-gorunumu" :eager="true">
         <v-row class="justify-center mx-auto">
           <v-col cols="8" md="4">
             <v-text-field
@@ -115,7 +117,12 @@
           </v-col>
         </v-row>
       </v-tab-item>
-      <v-tab-item :key="2" value="mapView" :eager="true" style="z-index: 5">
+      <v-tab-item
+        :key="2"
+        value="harita-gorunumu"
+        :eager="true"
+        style="z-index: 5"
+      >
         <turkey-map></turkey-map>
       </v-tab-item>
     </v-tabs-items>
@@ -156,7 +163,7 @@ export default {
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       if (!vm.$store.state.auth.user) {
-        next({ name: "home" });
+        next({ name: "calismalar" });
       } else {
         vm.retrieveTutorials();
       }
@@ -346,7 +353,7 @@ export default {
     },
 
     editTutorial(id) {
-      this.$router.push({ name: "tutorial-edit", params: { id: id } });
+      this.$router.push({ name: "duzenle", params: { id: id } });
     },
 
     deleteTutorial(id) {
@@ -363,7 +370,7 @@ export default {
     */
     handleClick(value) {
       let routeData = this.$router.resolve({
-        name: "tutorial",
+        name: "calisma",
         params: { id: value.id },
       });
       window.open(routeData.href, "_blank");

@@ -277,7 +277,7 @@ export default {
     */
     handlePopupClick(val) {
       let routeData = this.$router.resolve({
-        name: "tutorial",
+        name: "calisma",
         params: { id: val },
       });
       window.open(routeData.href, "_blank");

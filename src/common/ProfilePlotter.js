@@ -126,6 +126,7 @@ function ProfilePlotter(currentTutorial) {
       centerOfMass.geometry.coordinates[0],
     ];
     currentCenter = center;
+    markerLatlong = center;
   }
   return {
     center: center,

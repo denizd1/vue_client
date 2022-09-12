@@ -23,7 +23,7 @@
       </v-list>
 
       <v-list dense v-if="currentUser" class="pt-0">
-        <v-list-item link :to="{ name: 'profile' }">
+        <v-list-item link :to="{ name: 'profil' }">
           <v-list-item-content>
             <v-row>
               <v-col sm="1" lg="2"
@@ -47,7 +47,7 @@
             </v-row>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item v-if="currentUser" link :to="{ name: 'tutorials-list' }">
+        <v-list-item v-if="currentUser" link :to="{ name: 'calismalar' }">
           <v-list-item-icon>
             <v-icon>mdi-folder-outline</v-icon>
           </v-list-item-icon>
@@ -56,7 +56,7 @@
         <v-list-item
           v-if="isUseradmin || isUsermoderator"
           link
-          :to="{ name: 'add' }"
+          :to="{ name: 'ekle' }"
         >
           <v-list-item-icon>
             <v-icon>mdi-archive-plus</v-icon>
@@ -206,10 +206,10 @@ export default {
       menuItems: [
         {
           title: "Kaydol",
-          path: "/register",
+          path: "/kaydol",
           icon: "mdi-account-plus-outline",
         },
-        { title: "Giriş Yap", path: "/login", icon: "mdi-login" },
+        { title: "Giriş Yap", path: "/giris", icon: "mdi-login" },
       ],
       //Farkli geojsonlar icin gereken parametreler
       scaleControls: [
@@ -299,7 +299,7 @@ export default {
     },
     logOut() {
       this.$store.dispatch("auth/logout");
-      this.$router.push("/login");
+      this.$router.push("/giris");
     },
     triggerChange(ev, checked, val) {
       if (checked === true) {
@@ -360,7 +360,7 @@ export default {
   watch: {
     $route: function () {
       // Check if given route is true, if it is then hide Nav.
-      if (this.$route.query.tab === "mapView") {
+      if (this.$route.query.tab === "harita-gorunumu") {
         this.showNavelement = true;
         this.showNavmethod = true;
         this.showNavcity = true;

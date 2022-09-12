@@ -129,7 +129,7 @@ export default {
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       if (!vm.$store.state.auth.user) {
-        vm.$router.push({ name: "login" });
+        vm.$router.push({ name: "giris" });
       } else {
         if (vm.$store.state.auth.user.roles.includes("ROLE_ADMIN")) {
           vm.retrieveTutorials();
@@ -159,7 +159,7 @@ export default {
     },
     handleClick(value) {
       let routeData = this.$router.resolve({
-        name: "tutorial",
+        name: "calisma",
         params: { id: value.id },
       });
       window.open(routeData.href, "_blank");

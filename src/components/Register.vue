@@ -80,7 +80,7 @@ export default {
   },
   mounted() {
     if (this.loggedIn) {
-      this.$router.push("/tutorials-list");
+      this.$router.push("/calismalar");
     }
   },
   methods: {
@@ -91,7 +91,7 @@ export default {
             this.message = data.message;
             this.submitted = true;
             setTimeout(() => {
-              this.$router.push("/login");
+              this.$router.push("/giris");
             }, 2000);
           },
           (error) => {

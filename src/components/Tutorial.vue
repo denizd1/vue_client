@@ -60,7 +60,7 @@ export default {
         }
         bus.$emit("reRender");
       } else {
-        next({ name: "login" });
+        next({ name: "giris" });
       }
     });
   },

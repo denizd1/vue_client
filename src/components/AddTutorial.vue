@@ -28,13 +28,13 @@
         v-model="tab"
         background-color="transparent"
       >
-        <v-tab href="#importExcel">Excel Import</v-tab>
+        <v-tab href="#excel-import">Excel Import</v-tab>
       </v-tabs>
       <v-tabs-items
         style="background-color: transparent !important"
         v-model="tab"
       >
-        <v-tab-item :key="1" value="importExcel">
+        <v-tab-item :key="1" value="excel-import">
           <v-file-input
             class="mt-3"
             v-model="filestoImport"
@@ -254,10 +254,10 @@ export default {
     next((vm) => {
       var val = vm.$store.state.auth.user;
       if (!val) {
-        vm.$router.push({ name: "login" });
+        vm.$router.push({ name: "giris" });
       } else if (val) {
         if (val.roles[0] == "ROLE_USER") {
-          vm.$router.push({ name: "tutorials-list" });
+          vm.$router.push({ name: "calismalar" });
         }
         if (val.roles[0] == "ROLE_ADMIN") {
           return;
@@ -319,6 +319,7 @@ export default {
      */
     importExcel(e) {
       this.show = false;
+      this.loading = true;
       this.excelDatalist = [];
       for (let i = 0; i < e.length; i++) {
         const files = e[i];
@@ -327,6 +328,7 @@ export default {
           this.message =
             "Yalnızca xls ya da xlsx uzantılı dosya yukleyebilirsiniz!";
           this.show = true;
+          this.loading = false;
           return;
         } else {
           this.show = false;
@@ -365,6 +367,7 @@ export default {
           }
         };
         fileReader.readAsBinaryString(files);
+        this.loading = false;
       }
     },
     /*
