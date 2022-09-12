@@ -199,8 +199,8 @@ export default {
             )
           );
           bus.$emit("reRender");
-        } else next({ name: "login" });
-      } else next({ name: "login" });
+        } else next({ name: "giris" });
+      } else next({ name: "giris" });
     });
   },
 };

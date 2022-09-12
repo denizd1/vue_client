@@ -9,9 +9,9 @@ export const router = new Router({
   // mode: "history",
   routes: [
     {
-      path: "/tutorials-list",
-      alias: "/tutorials-list",
-      name: "tutorials-list",
+      path: "/calismalar",
+      alias: "/calismalar",
+      name: "calismalar",
       meta: {
         breadCrumb: [
           {
@@ -22,14 +22,14 @@ export const router = new Router({
       component: () => import("./components/TutorialsList"),
     },
     {
-      path: "/tutorials/edit/:id",
-      name: "tutorial-edit",
+      path: "/calismalar/duzenle/:id",
+      name: "duzenle",
       meta: {
         breadCrumb() {
           return [
             {
               text: "Anasayfa",
-              to: { name: "tutorials-list" },
+              to: { name: "projeler" },
             },
             {
               text: "Düzenle",
@@ -40,14 +40,14 @@ export const router = new Router({
       component: () => import("./components/TutorialEdit"),
     },
     {
-      path: "/tutorials/:id",
-      name: "tutorial",
+      path: "/calisma/:id",
+      name: "calisma",
       meta: {
         breadCrumb() {
           return [
             {
               text: "Anasayfa",
-              to: { name: "tutorials-list" },
+              to: { name: "calismalar" },
             },
             {
               text: "Çalışma",
@@ -58,14 +58,14 @@ export const router = new Router({
       component: () => import("./components/Tutorial"),
     },
     {
-      path: "/add",
-      name: "add",
+      path: "/ekle",
+      name: "ekle",
       meta: {
         breadCrumb() {
           return [
             {
               text: "Anasayfa",
-              to: { name: "tutorials-list" },
+              to: { name: "calismalar" },
             },
             {
               text: "Ekle",
@@ -77,27 +77,27 @@ export const router = new Router({
     },
     {
       path: "/",
-      name: "home",
+      name: "anasayfa",
       component: Login,
     },
     {
-      path: "/login",
-      name: "login",
+      path: "/giris",
+      name: "giris",
       component: Login,
     },
     {
-      path: "/register",
+      path: "/kaydol",
       component: Register,
     },
     {
-      path: "/profile",
-      name: "profile",
+      path: "/profil",
+      name: "profil",
       meta: {
         breadCrumb() {
           return [
             {
               text: "Anasayfa",
-              to: { name: "tutorials-list" },
+              to: { name: "calismalar" },
             },
             {
               text: "Profil",
