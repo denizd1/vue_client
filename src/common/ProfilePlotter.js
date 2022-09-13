@@ -59,10 +59,48 @@ function ProfilePlotter(currentTutorial) {
       "N"
     );
 
-    center = latLng(
-      (polyLineStart.lat + polyLineEnd.lat) / 2,
-      (polyLineStart.lng + polyLineEnd.lng) / 2
+    /*
+     * Find midpoint between two coordinates points
+     * Source : http://www.movable-type.co.uk/scripts/latlong.html
+     */
+
+    //-- Define radius function
+    if (typeof Number.prototype.toRad === "undefined") {
+      Number.prototype.toRad = function () {
+        return (this * Math.PI) / 180;
+      };
+    }
+
+    //-- Define degrees function
+    if (typeof Number.prototype.toDeg === "undefined") {
+      Number.prototype.toDeg = function () {
+        return this * (180 / Math.PI);
+      };
+    }
+
+    //-- Define middle point function
+
+    //-- Longitude difference
+    var dLng = (polyLineEnd.lng - polyLineStart.lng).toRad();
+
+    //-- Convert to radians
+    var lat1 = polyLineStart.lat.toRad();
+    var lat2 = polyLineEnd.lat.toRad();
+    var lng1 = polyLineStart.lng.toRad();
+
+    var bX = Math.cos(lat2) * Math.cos(dLng);
+    var bY = Math.cos(lat2) * Math.sin(dLng);
+    var lat3 = Math.atan2(
+      Math.sin(lat1) + Math.sin(lat2),
+      Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY)
     );
+    var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
+
+    //-- Return result
+    // return [lng3.toDeg(), lat3.toDeg()];
+
+    center = [lat3.toDeg(), lng3.toDeg()];
+    console.log(center);
     currentCenter = center;
     polyline = {
       latlngs: [

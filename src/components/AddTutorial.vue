@@ -451,6 +451,65 @@ export default {
               data["lon"] = latlon.lat;
             }
             if (
+              data["profil_baslangic_x"] != null &&
+              data["profil_baslangic_y"] != null &&
+              data["profil_bitis_x"] != null &&
+              data["profil_bitis_y"] != null
+            ) {
+              var polyLineStart = this.converter(
+                data["profil_baslangic_x"],
+                data["profil_baslangic_y"],
+                data["zone"],
+                data["datum"]
+              );
+              var polyLineEnd = this.converter(
+                data["profil_bitis_x"],
+                data["profil_bitis_y"],
+                data["zone"],
+                data["datum"]
+              );
+              /*
+               * Find midpoint between two coordinates points
+               * Source : http://www.movable-type.co.uk/scripts/latlong.html
+               */
+
+              //-- Define radius function
+              if (typeof Number.prototype.toRad === "undefined") {
+                Number.prototype.toRad = function () {
+                  return (this * Math.PI) / 180;
+                };
+              }
+
+              //-- Define degrees function
+              if (typeof Number.prototype.toDeg === "undefined") {
+                Number.prototype.toDeg = function () {
+                  return this * (180 / Math.PI);
+                };
+              }
+
+              //-- Define middle point function
+
+              //-- Longitude difference
+              var dLng = (polyLineEnd.lng - polyLineStart.lng).toRad();
+
+              //-- Convert to radians
+              var lat1 = polyLineStart.lat.toRad();
+              var lat2 = polyLineEnd.lat.toRad();
+              var lng1 = polyLineStart.lng.toRad();
+
+              var bX = Math.cos(lat2) * Math.cos(dLng);
+              var bY = Math.cos(lat2) * Math.sin(dLng);
+              var lat3 = Math.atan2(
+                Math.sin(lat1) + Math.sin(lat2),
+                Math.sqrt(
+                  (Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY
+                )
+              );
+              var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
+              data["lat"] = lng3.toDeg();
+              data["lon"] = lat3.toDeg();
+            }
+            if (
               data["a_1"] !== null &&
               data["a_2"] !== null &&
               data["a_3"] !== null &&
@@ -504,8 +563,8 @@ export default {
                 ],
               };
               var centerOfMass = centerofmass(geoJson);
-              data["lat"] = centerOfMass.geometry.coordinates[1];
-              data["lon"] = centerOfMass.geometry.coordinates[0];
+              data["lat"] = centerOfMass.geometry.coordinates[0];
+              data["lon"] = centerOfMass.geometry.coordinates[1];
             }
             if (typeof data["calisma_tarihi"] !== "string") {
               var dummyDate = this.ExcelDateToJSDate(data["calisma_tarihi"]);

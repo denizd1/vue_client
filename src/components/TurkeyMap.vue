@@ -592,6 +592,8 @@ export default {
     });
     bus.$on("searchDatatoMap", (param) => {
       this.methodarr = [];
+      this.polyline = [];
+      this.markers = [];
       this.selectedCityparam = null;
       this.selectedDistrict = null;
       this.showGeojson = false;
