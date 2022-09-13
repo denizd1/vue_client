@@ -151,6 +151,7 @@ export default {
       componentKey: 0,
       areaJson: null,
       loading: false,
+      methodarr: null,
     };
   },
   components: {
@@ -258,6 +259,16 @@ export default {
       },
       immediate: true,
     },
+    methodarr: {
+      handler: function (methodarr) {
+        if (methodarr !== null) {
+          this.page = 1;
+          this.retrieveTutorials();
+          this.componentKey += 1;
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
     reloadMap() {
@@ -277,7 +288,8 @@ export default {
     /*
       create param object for the request
     */
-    getRequestParams(searchTitle, page, pageSize) {
+    getRequestParams(searchTitle, page, pageSize, methodarr) {
+      console.log(methodarr);
       let params = {};
       if (this.selectedCity != null) {
         searchTitle = this.selectedCity;
@@ -289,6 +301,9 @@ export default {
         this.searchTitle = this.selectedDistrict;
 
         params["ilce"] = searchTitle;
+      }
+      if (methodarr != null) {
+        params["yontem"] = methodarr;
       }
 
       if (page) {
@@ -320,7 +335,8 @@ export default {
         params = this.getRequestParams(
           this.searchTitle,
           this.page,
-          this.pageSize
+          this.pageSize,
+          this.methodarr
         );
       }
       if (!event && this.areaJson != null) {
@@ -466,8 +482,9 @@ export default {
     },
   },
   mounted() {
-    bus.$on("searchParam", (data, flag) => {
+    bus.$on("searchParam", (data, flag, methodarr) => {
       this.getSelectedcity(data, flag);
+      this.methodarr = methodarr;
       this.areaJson = null;
     });
     bus.$on("clearMap", () => {
