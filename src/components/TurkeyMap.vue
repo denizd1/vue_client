@@ -177,11 +177,12 @@ function onEachFeature(feature, layer) {
         .forEach((el) => el.classList.remove("selected"));
       e.originalEvent.target.classList.add("selected");
       e.originalEvent.target.classList.remove("pseudoClass");
-      bus.$emit("searchParam", feature.properties.name);
+      // bus.$emit("searchParam", feature.properties.name);
       v.selectedCityparam = feature.properties.name;
 
       v.dataService(feature.properties.name, null, v.methodarr);
-      bus.$emit("searchParam", feature.properties.name, "il");
+      bus.$emit("searchParam", feature.properties.name, "il", v.methodarr);
+      bus.$emit("geojsonSelectCity", feature.properties.name);
     });
     // layer.on("mouseover", function (e) {
     //   document
@@ -376,7 +377,6 @@ export default {
       }
     },
     iconFunc(params) {
-      console.log(params);
       if (params.yontem == "Sismik Yöntemler") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: seismicIcon,
@@ -471,6 +471,7 @@ export default {
   },
   watch: {
     methodarr: function () {
+      bus.$emit("searchParam", this.selectedCityparam, "il", this.methodarr);
       if (
         this.geojson &&
         this.geojson.features[0].properties.mytag === "datdat"
@@ -543,7 +544,7 @@ export default {
         setTimeout(() => {
           this.map._layers[city]._path.classList.add("selected");
           this.dataService(city, district, this.methodarr, null);
-          bus.$emit("searchParam", district, "ilce");
+          bus.$emit("searchParam", district, "ilce", this.methodarr);
         }, 100);
       }
     });
@@ -561,6 +562,12 @@ export default {
       }
       if (city != null || district != null || this.methodarr.length != 0) {
         this.dataService(city, district, this.methodarr, null);
+      }
+      if (city != null) {
+        bus.$emit("searchParam", city, "il", this.methodarr);
+      }
+      if (district != null) {
+        bus.$emit("searchParam", district, "ilce", this.methodarr);
       }
       if (this.methodarr.length == 0) {
         this.polyline = [];

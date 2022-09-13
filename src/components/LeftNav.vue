@@ -345,6 +345,10 @@ export default {
       this.logOut();
     });
 
+    bus.$on("geojsonSelectCity", (geojsonCity) => {
+      this.citytoEmit = geojsonCity;
+    });
+
     bus.$on("clearNav", () => {
       this.methodSelect.filter((item) => {
         item.checked = false;
