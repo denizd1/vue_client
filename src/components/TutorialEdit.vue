@@ -17,6 +17,7 @@
       {{ currentTutorial.published ? "Yayında" : "Beklemede" }}
       <v-divider class="my-5"></v-divider>
       <v-btn
+        v-show="hidebuttons"
         v-if="currentTutorial.published"
         @click="updatePublished(false)"
         color="primary"
@@ -27,6 +28,7 @@
       </v-btn>
 
       <v-btn
+        v-show="hidebuttons"
         v-else
         @click="updatePublished(true)"
         color="primary"
@@ -36,7 +38,13 @@
         Yayınla
       </v-btn>
 
-      <v-btn color="error" small class="mr-2" @click="deleteTutorial">
+      <v-btn
+        v-show="hidebuttons"
+        color="error"
+        small
+        class="mr-2"
+        @click="deleteTutorial"
+      >
         Sil
       </v-btn>
 
@@ -57,6 +65,7 @@ export default {
       currentTutorial: null,
       newData: null,
       message: "",
+      hidebuttons: true,
       headers: [
         "Nokta/Kuyu/Profil Adı",
         "Yöntem",
@@ -169,7 +178,7 @@ export default {
       TutorialDataService.delete(this.currentTutorial.id)
         .then((response) => {
           console.log(response.data);
-          this.$router.push({ name: "tutorials" });
+          this.$router.push({ name: "calismalar" });
         })
         .catch((e) => {
           console.log(e);
@@ -185,6 +194,9 @@ export default {
       if (thisPerson) {
         var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
         var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
+        if (thisMod) {
+          vm.hidebuttons = false;
+        }
         if (thisAdmin || thisMod) {
           vm.currentTutorial = fetchTutorial.data;
           vm.newData = Object.fromEntries(

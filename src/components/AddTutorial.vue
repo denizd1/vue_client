@@ -150,6 +150,7 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
+import citiesLatLongjson from "../data/cities_of_turkey.json";
 import centerofmass from "@turf/center-of-mass";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
@@ -437,10 +438,13 @@ export default {
               }
             });
             var latlon = null;
-            if (
-              (data["x"] != null && data["y"] != null) ||
-              (data["x"] != 0 && data["y"] != 0)
-            ) {
+            var thisCity = citiesLatLongjson.filter(
+              (city) => city.il == data["il"]
+            )[0];
+            console.log(thisCity);
+            data["lat"] = thisCity.longitude;
+            data["lon"] = thisCity.latitude;
+            if (data["x"] != null && data["y"] != null) {
               latlon = this.converter(
                 data["x"],
                 data["y"],
@@ -449,6 +453,10 @@ export default {
               );
               data["lat"] = latlon.lng;
               data["lon"] = latlon.lat;
+            }
+            if (data["x"] == 0 && data["y"] == 0) {
+              data["lat"] = parseFloat(thisCity.longitude);
+              data["lon"] = parseFloat(thisCity.latitude);
             }
             if (
               data["profil_baslangic_x"] != null &&
@@ -510,10 +518,19 @@ export default {
               data["lon"] = lat3.toDeg();
             }
             if (
-              data["a_1"] !== null &&
-              data["a_2"] !== null &&
-              data["a_3"] !== null &&
-              data["a_4"] !== null
+              data["profil_baslangic_x"] == 0 &&
+              data["profil_baslangic_y"] == 0 &&
+              data["profil_bitis_x"] == 0 &&
+              data["profil_bitis_y"] == 0
+            ) {
+              data["lat"] = parseFloat(thisCity.longitude);
+              data["lon"] = parseFloat(thisCity.latitude);
+            }
+            if (
+              data["a_1"] != null &&
+              data["a_2"] != null &&
+              data["a_3"] != null &&
+              data["a_4"] != null
             ) {
               var corners = [
                 data["a_1"],
@@ -565,6 +582,15 @@ export default {
               var centerOfMass = centerofmass(geoJson);
               data["lat"] = centerOfMass.geometry.coordinates[0];
               data["lon"] = centerOfMass.geometry.coordinates[1];
+            }
+            if (
+              data["a_1"] == 0 &&
+              data["a_2"] == 0 &&
+              data["a_3"] == 0 &&
+              data["a_4"] == 0
+            ) {
+              data["lat"] = parseFloat(thisCity.longitude);
+              data["lon"] = parseFloat(thisCity.latitude);
             }
             if (typeof data["calisma_tarihi"] !== "string") {
               var dummyDate = this.ExcelDateToJSDate(data["calisma_tarihi"]);
