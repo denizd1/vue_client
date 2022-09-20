@@ -289,7 +289,6 @@ export default {
       create param object for the request
     */
     getRequestParams(searchTitle, page, pageSize, methodarr) {
-      console.log(methodarr);
       let params = {};
       if (this.selectedCity != null) {
         searchTitle = this.selectedCity;
@@ -386,7 +385,6 @@ export default {
       window.open(routeData.href, "_blank");
     },
     handlePageChange(value) {
-      console.log(this.searchTitle);
       this.page = value;
       this.retrieveTutorials(this.searchTitle);
     },

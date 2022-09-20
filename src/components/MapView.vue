@@ -92,28 +92,12 @@ export default {
       this.currentCenter = center;
     },
     triggerExternalplot(currentTutorial) {
-      var thisCity = citiesLatLongjson.filter(
-        (city) => city.il == currentTutorial.il
-      )[0];
       var params = ProfilePlotter(currentTutorial);
-      this.center = params.center;
-      this.currentCenter = params.currentCenter;
-      if (params.markerLatlong != null) {
-        this.markerLatlong = params.markerLatlong;
-      } else if (params.centerOfMass != null) {
-        this.markerLatlong = [
-          params.centerOfMass.geometry.coordinates[1],
-          params.centerOfMass.geometry.coordinates[0],
-        ];
-      } else {
-        this.markerLatlong = [
-          parseFloat(thisCity.latitude),
-          parseFloat(thisCity.longitude),
-        ];
-      }
+      this.center = [currentTutorial.lon, currentTutorial.lat];
+      this.currentCenter = [currentTutorial.lon, currentTutorial.lat];
+      this.markerLatlong = [currentTutorial.lon, currentTutorial.lat];
 
       this.polyline = params.polyline;
-      console.log(params.geoJson);
       if (params.geoJson != null) {
         this.geojson = params.geoJson;
         this.showGeojson = true;

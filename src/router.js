@@ -29,7 +29,7 @@ export const router = new Router({
           return [
             {
               text: "Anasayfa",
-              to: { name: "projeler" },
+              to: { name: "calismalar" },
             },
             {
               text: "Düzenle",

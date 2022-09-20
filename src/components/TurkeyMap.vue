@@ -341,40 +341,13 @@ export default {
       var params = ProfilePlotter(currentTutorial);
       if (params.polyline !== null) {
         this.polyline.push(params.polyline);
-        this.markers.push({
-          id: params.id,
-          latlng: params.center,
-          text: params.text,
-        });
       }
-      if (params.markerLatlong !== null) {
-        var thisCity = citiesLatLongjson.filter(
-          (city) => city.il == currentTutorial.il
-        )[0];
-        this.markers.push({
-          id: params.id,
-          latlng:
-            params.markerLatlong != null
-              ? params.markerLatlong
-              : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)],
-          text: params.text,
-        });
-        this.iconFunc(params);
-      }
-      if (params.centerOfMass != null) {
-        this.markers.push({
-          id: params.id,
-          latlng:
-            params.centerOfMass != null
-              ? [
-                  params.centerOfMass.geometry.coordinates[1],
-                  params.centerOfMass.geometry.coordinates[0],
-                ]
-              : [parseFloat(thisCity.latitude), parseFloat(thisCity.longitude)],
-          text: params.text,
-        });
-        this.iconFunc(params);
-      }
+      this.markers.push({
+        id: currentTutorial.id,
+        latlng: [currentTutorial.lon, currentTutorial.lat],
+        text: currentTutorial.nokta_adi,
+      });
+      this.iconFunc(currentTutorial);
     },
     iconFunc(params) {
       if (params.yontem == "Sismik Yöntemler") {
@@ -592,6 +565,8 @@ export default {
     });
     bus.$on("searchDatatoMap", (param) => {
       this.methodarr = [];
+      this.polyline = [];
+      this.markers = [];
       this.selectedCityparam = null;
       this.selectedDistrict = null;
       this.showGeojson = false;
