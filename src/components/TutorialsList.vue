@@ -243,37 +243,16 @@ export default {
       return headers;
     },
   },
-  watch: {
-    selectedCity: {
-      handler: function (selectedCity) {
-        if (selectedCity !== null) {
-          this.selectedDistrict = null;
-          this.page = 1;
-          this.retrieveTutorials();
-          this.componentKey += 1;
-        }
-      },
-      immediate: true,
-    },
-    selectedDistrict: {
-      handler: function (selectedDistrict) {
-        if (selectedDistrict !== null) {
-          this.page = 1;
-          this.retrieveTutorials();
-          this.componentKey += 1;
-        }
-      },
-      immediate: true,
-    },
-    methodarr: {
-      handler: function () {
-        this.page = 1;
-        this.retrieveTutorials();
-        this.componentKey += 1;
-      },
-      immediate: true,
-    },
-  },
+  // watch: {
+  //   methodarr: {
+  //     handler: function () {
+  //       this.page = 1;
+  //       this.retrieveTutorials();
+  //       this.componentKey += 1;
+  //     },
+  //     immediate: true,
+  //   },
+  // },
   methods: {
     reloadMap() {
       bus.$emit("renderMap");
@@ -281,14 +260,16 @@ export default {
     /*
       check il ilce flag
     */
-    getSelectedcity(val, flag) {
-      if (flag === "il") {
-        this.selectedCity = val;
-      }
-      if (flag === "ilce") {
-        this.selectedDistrict = val;
-      }
-    },
+    // getSelectedcity(val, flag) {
+    //   if (flag === "il") {
+    //     this.areaJson = null;
+    //     this.selectedCity = val;
+    //   }
+    //   if (flag === "ilce") {
+    //     this.areaJson = null;
+    //     this.selectedDistrict = val;
+    //   }
+    // },
     /*
       create param object for the request
     */
@@ -486,24 +467,36 @@ export default {
     },
   },
   mounted() {
-    bus.$on("searchParam", (data, flag, methodarr) => {
-      this.getSelectedcity(data, flag);
+    bus.$on("searchParam", (city, district, methodarr) => {
+      // this.getSelectedcity(data, flag);
+      this.areaJson = null;
+      this.selectedCity = city;
+      this.selectedDistrict = district;
       this.methodarr = methodarr;
+      this.page = 1;
+      this.retrieveTutorials();
+      this.componentKey += 1;
     });
-    bus.$on("clearAll", () => {
+    bus.$on("clearAll", (flag) => {
       this.tutorials = [];
       this.searchTitle = "";
       this.selectedCity = null;
       this.selectedDistrict = null;
       this.areaJson = null;
       this.methodarr = null;
-      this.retrieveTutorials();
+      if (flag === "fullClean") {
+        this.page = 1;
+        this.retrieveTutorials();
+        this.componentKey += 1;
+      }
       // bus.$emit("clearAll");
       // bus.$emit("clearNav");
     });
     bus.$on("areaJson", (data, methodarr) => {
       this.areaJson = data;
       this.methodarr = methodarr;
+      this.selectedCity = null;
+      this.selectedDistrict = null;
       this.retrieveTutorials();
     });
   },

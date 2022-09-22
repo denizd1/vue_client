@@ -113,10 +113,15 @@ export default {
           };
 
           var centerOfMass = centerofmass(this.geoJson);
-          bus.$emit("plotGeojson", this.geoJson, [
-            centerOfMass.geometry.coordinates[1],
-            centerOfMass.geometry.coordinates[0],
-          ]);
+          bus.$emit(
+            "plotGeojson",
+            this.geoJson,
+            [
+              centerOfMass.geometry.coordinates[1],
+              centerOfMass.geometry.coordinates[0],
+            ],
+            "geojsonFlag"
+          );
         }
       },
     },

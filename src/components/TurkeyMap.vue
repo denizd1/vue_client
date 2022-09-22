@@ -183,23 +183,12 @@ function onEachFeature(feature, layer) {
       e.originalEvent.target.classList.remove("pseudoClass");
       // bus.$emit("searchParam", feature.properties.name);
       v.selectedCityparam = feature.properties.name;
+      v.selectedDistrict = null;
 
       v.dataService(feature.properties.name, null, v.methodarr);
-      bus.$emit("searchParam", feature.properties.name, "il", v.methodarr);
+      bus.$emit("searchParam", feature.properties.name, null, v.methodarr);
       bus.$emit("geojsonSelectCity", feature.properties.name);
     });
-    // layer.on("mouseover", function (e) {
-    //   document
-    //     .querySelectorAll(".pseudoClass")
-    //     .forEach((el) => el.classList.remove("pseudoClass"));
-    //   e.originalEvent.target.classList.add("pseudoClass");
-    // });
-    // layer.on("mouseout", function (e) {
-    //   document
-    //     .querySelectorAll(".pseudoClass")
-    //     .forEach((el) => el.classList.remove("pseudoClass"));
-    //   e.originalEvent.target.classList.add("pseudoClass");
-    // });
   }
 }
 export default {
@@ -243,6 +232,7 @@ export default {
       selectedCityparam: null,
       selectedDistrict: null,
       selectedJsonparam: null,
+      geojsonSelector: false,
       legend: [
         {
           text: "Elektrik ve Elektromanyetik Yöntemler",
@@ -450,7 +440,7 @@ export default {
       return customicon;
     },
     /*
-    
+
     /*
     asnyc function to get data from data service
     */
@@ -459,52 +449,21 @@ export default {
 
       const data = await response.data;
 
-      this.citiesGeojson = data;
+      this.$refs.map.mapObject.invalidateSize();
       this.geojson = data;
       this.showGeojson = true;
       this.$refs.map.setCenter([39.9208, 32.8541]);
       this.$refs.map.setZoom(6);
-      if (val === 0 && this.selectedCityparam != null) {
-        setTimeout(() => {
-          this.map._layers[this.selectedCityparam]._path.classList.add(
-            "selected"
-          );
-        }, 100);
-      }
+      // if (val === 0 && this.selectedCityparam != null) {
+      //   setTimeout(() => {
+      //     this.map._layers[this.selectedCityparam]._path.classList.add(
+      //       "selected"
+      //     );
+      //   }, 200);
+      // }
     },
   },
-  watch: {
-    methodarr: function () {
-      if (this.methodarr.length > 0) {
-        bus.$emit("searchParam", this.selectedCityparam, "il", this.methodarr);
-      }
-      if (this.methodarr.length == 0) {
-        bus.$emit("searchParam", this.selectedCityparam, "il", null);
-      }
 
-      if (
-        this.geojson &&
-        this.geojson.features[0].properties.mytag === "datdat"
-      ) {
-        let params = {};
-        params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
-        params["yontem"] = this.methodarr;
-        this.polyline = [];
-        this.markers = [];
-        TutorialDataService.findAllGeo(params)
-          .then((response) => {
-            for (let i = 0; i < response.data.length; i++) {
-              //profileplotter.js ile nokta ve profilleri cizmek icin
-              this.triggerExternalplot(response.data[i]);
-            }
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
-    },
-    deep: true,
-  },
   computed: {
     styleFunction() {
       return () => {
@@ -528,38 +487,31 @@ export default {
           //mapObject is a property that is part of leaflet
           this.$refs.map.mapObject.invalidateSize();
         }
-      }, 100);
+      }, 200);
     });
-    bus.$on("cityChanged", (city) => {
+    bus.$on("cityorDistrictChanged", (city, district) => {
+      this.geojsonSelector = false;
       this.selectedCityparam = city;
-      // this.geojson = null;
+      this.selectedDistrict = district;
       this.methodarr = [];
       this.polyline = [];
       this.markers = [];
-      if (this.$refs.map) {
-        this.scaleService(0);
-        setTimeout(() => {
-          this.dataService(city, null, this.methodarr, null);
-          bus.$emit("searchParam", city, "il");
-        }, 100);
-      }
-    });
-    bus.$on("districtChanged", (city, district) => {
-      // this.geojson = null;
-      this.polyline = [];
-      this.markers = [];
-      this.selectedDistrict = district;
-      if (this.$refs.map) {
-        this.scaleService(0);
-        setTimeout(() => {
-          this.map._layers[city]._path.classList.add("selected");
-          this.dataService(city, district, this.methodarr, null);
-          bus.$emit("searchParam", district, "ilce", this.methodarr);
-        }, 100);
-      }
+      this.scaleService(0);
+      setTimeout(() => {
+        if (this.$refs.map) {
+          this.map._layers[this.selectedCityparam]._path.classList.add(
+            "selected"
+          );
+        }
+      }, 200);
+      this.dataService(city, district, this.methodarr, null);
+      bus.$emit("searchParam", city, district, this.methodarr);
+      console.log(this.map);
     });
 
     bus.$on("fireScalechange", (val) => {
+      bus.$emit("clearMap");
+      bus.$emit("clearAll");
       this.changeScale(val);
     });
     bus.$on("methodParam", (name, checked, city, district) => {
@@ -570,18 +522,33 @@ export default {
       } else {
         this.methodarr = this.methodarr.filter((e) => e !== name);
       }
-      if (
-        (city != null || district != null || this.methodarr.length != 0) &&
-        this.geojson === null
-      ) {
+      if (this.geojsonSelector === true) {
+        let params = {};
+        params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
+        params["yontem"] = this.methodarr;
+        this.polyline = [];
+        this.markers = [];
+        bus.$emit(
+          "areaJson",
+          this.geojson.features[0].geometry.coordinates[0],
+          this.methodarr
+        );
+        TutorialDataService.findAllGeo(params)
+          .then((response) => {
+            for (let i = 0; i < response.data.length; i++) {
+              //profileplotter.js ile nokta ve profilleri cizmek icin
+              this.triggerExternalplot(response.data[i]);
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      }
+      if (this.geojsonSelector === false) {
         this.dataService(city, district, this.methodarr, null);
+        bus.$emit("searchParam", city, district, this.methodarr);
       }
-      if (city != null) {
-        bus.$emit("searchParam", city, "il", this.methodarr);
-      }
-      if (district != null) {
-        bus.$emit("searchParam", district, "ilce", this.methodarr);
-      }
+
       if (this.methodarr.length == 0) {
         this.polyline = [];
         this.markers = [];
@@ -590,7 +557,15 @@ export default {
     bus.$on("hideGeojson", (data) => {
       this.showGeojson = data;
     });
-    bus.$on("plotGeojson", (data, center) => {
+    bus.$on("plotGeojson", (data, center, flag) => {
+      if (flag === "geojsonFlag") {
+        this.geojsonSelector = true;
+      }
+      this.polyline = [];
+      this.markers = [];
+      this.methodarr = [];
+      this.selectedCityparam = null;
+      this.selectedDistrict = null;
       this.$refs.map.setCenter(center);
       this.$refs.map.setZoom(12);
       this.geojson = data;
@@ -602,6 +577,7 @@ export default {
       this.methodarr = [];
       this.showGeojson = false;
       this.geojson = null;
+      this.geojsonSelector = false;
       this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("clearAll", () => {
@@ -610,6 +586,7 @@ export default {
       this.methodarr = [];
       this.showGeojson = false;
       this.geojson = null;
+      this.geojsonSelector = false;
       this.$refs.map.setCenter([39.9208, 32.8541]);
       this.$refs.map.setZoom(6);
       this.$refs.clusterRef.mapObject.refreshClusters();
@@ -621,6 +598,7 @@ export default {
       this.selectedCityparam = null;
       this.selectedDistrict = null;
       this.showGeojson = false;
+      this.geojsonSelector = false;
       this.geojson = null;
       this.$refs.clusterRef.mapObject.refreshClusters();
       this.dataService(param, null, null, "userSearch");
