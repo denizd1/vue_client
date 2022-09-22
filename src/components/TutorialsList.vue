@@ -266,12 +266,10 @@ export default {
       immediate: true,
     },
     methodarr: {
-      handler: function (methodarr) {
-        if (methodarr !== null) {
-          this.page = 1;
-          this.retrieveTutorials();
-          this.componentKey += 1;
-        }
+      handler: function () {
+        this.page = 1;
+        this.retrieveTutorials();
+        this.componentKey += 1;
       },
       immediate: true,
     },
@@ -344,6 +342,11 @@ export default {
           this.methodarr
         );
       }
+
+      if (event && event.isTrusted == true) {
+        params["requestFlag"] = "userSearch";
+        bus.$emit("searchDatatoMap", params.il);
+      }
       if (!event && this.areaJson != null) {
         params["areaJson"] = this.areaJson;
       }
@@ -358,9 +361,6 @@ export default {
         .catch((e) => {
           console.log(e);
         });
-      if (event && event.isTrusted == true) {
-        bus.$emit("searchDatatoMap", params.il);
-      }
     },
 
     refreshList() {
@@ -489,18 +489,21 @@ export default {
     bus.$on("searchParam", (data, flag, methodarr) => {
       this.getSelectedcity(data, flag);
       this.methodarr = methodarr;
-      this.areaJson = null;
     });
-    bus.$on("clearMap", () => {
+    bus.$on("clearAll", () => {
       this.tutorials = [];
       this.searchTitle = "";
       this.selectedCity = null;
       this.selectedDistrict = null;
-      bus.$emit("clearAll");
-      bus.$emit("clearNav");
+      this.areaJson = null;
+      this.methodarr = null;
+      this.retrieveTutorials();
+      // bus.$emit("clearAll");
+      // bus.$emit("clearNav");
     });
-    bus.$on("areaJson", (data) => {
+    bus.$on("areaJson", (data, methodarr) => {
       this.areaJson = data;
+      this.methodarr = methodarr;
       this.retrieveTutorials();
     });
   },

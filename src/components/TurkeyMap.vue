@@ -19,7 +19,7 @@
           v-for="marker in markers"
           :key="marker.id"
           :lat-lng="marker.latlng"
-          :icon="icon"
+          :icon="marker.icon"
           :class="$style.baz"
         >
           <v-popup>
@@ -161,7 +161,11 @@ function onEachFeature(feature, layer) {
           .catch((e) => {
             console.log(e);
           });
-        bus.$emit("areaJson", v.geojson.features[0].geometry.coordinates[0]);
+        bus.$emit(
+          "areaJson",
+          v.geojson.features[0].geometry.coordinates[0],
+          v.methodarr
+        );
       },
     });
   }
@@ -215,7 +219,6 @@ export default {
   },
   data() {
     return {
-      icon: null,
       polyline: [],
       responseData: null,
       markers: [],
@@ -342,84 +345,112 @@ export default {
       if (params.polyline !== null) {
         this.polyline.push(params.polyline);
       }
+      var methodIcon = this.iconFunc(currentTutorial);
+
       this.markers.push({
         id: currentTutorial.id,
         latlng: [currentTutorial.lon, currentTutorial.lat],
         text: currentTutorial.nokta_adi,
+        icon: methodIcon,
       });
-      this.iconFunc(currentTutorial);
     },
-    iconFunc(params) {
-      if (params.yontem == "Sismik Yöntemler") {
+    iconFunc(currentTutorial) {
+      var customicon = null;
+      if (currentTutorial.yontem == "Sismik Yöntemler") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: seismicIcon,
           iconUrl: seismicIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(seismicIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            seismicIcon,
+            shadowUrl,
+          })
+        );
       }
-      if (params.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
+      if (currentTutorial.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: emIcon,
           iconUrl: emIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(emIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            emIcon,
+            shadowUrl,
+          })
+        );
       }
-      if (params.yontem == "Kuyu Ölçüleri") {
+      if (currentTutorial.yontem == "Kuyu Ölçüleri") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: welllogIcon,
           iconUrl: welllogIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(welllogIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            welllogIcon,
+            shadowUrl,
+          })
+        );
       }
-      if (params.altyontem == "Gravite") {
+      if (currentTutorial.alt_yontem == "Gravite") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: gravIcon,
           iconUrl: gravIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(gravIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            gravIcon,
+            shadowUrl,
+          })
+        );
       }
-      if (params.altyontem == "Manyetik") {
+      if (currentTutorial.alt_yontem == "Manyetik") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: magIcon,
           iconUrl: magIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(magIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            magIcon,
+            shadowUrl,
+          })
+        );
       }
-      if (params.altyontem == "Radyometri") {
+      if (currentTutorial.alt_yontem == "Radyometri") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: radioIcon,
           iconUrl: radioIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(radioIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            radioIcon,
+            shadowUrl,
+          })
+        );
       }
-      if (params.altyontem == "Havadan Manyetik") {
+      if (currentTutorial.alt_yontem == "Havadan Manyetik") {
         Icon.Default.mergeOptions({
           iconRetinaUrl: airBorneIcon,
           iconUrl: airBorneIcon,
           shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
         });
-        this.generateIcon(airBorneIcon, shadowUrl);
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            airBorneIcon,
+            shadowUrl,
+          })
+        );
       }
+      return customicon;
     },
     /*
-    generate icon for marker
-    */
-    generateIcon(iconUrl, shadowUrl) {
-      let customicon = icon(
-        Object.assign({}, Icon.Default.prototype.options, {
-          iconUrl,
-          shadowUrl,
-        })
-      );
-
-      this.icon = customicon;
-    },
+    
     /*
     asnyc function to get data from data service
     */
@@ -444,7 +475,13 @@ export default {
   },
   watch: {
     methodarr: function () {
-      bus.$emit("searchParam", this.selectedCityparam, "il", this.methodarr);
+      if (this.methodarr.length > 0) {
+        bus.$emit("searchParam", this.selectedCityparam, "il", this.methodarr);
+      }
+      if (this.methodarr.length == 0) {
+        bus.$emit("searchParam", this.selectedCityparam, "il", null);
+      }
+
       if (
         this.geojson &&
         this.geojson.features[0].properties.mytag === "datdat"
@@ -533,7 +570,10 @@ export default {
       } else {
         this.methodarr = this.methodarr.filter((e) => e !== name);
       }
-      if (city != null || district != null || this.methodarr.length != 0) {
+      if (
+        (city != null || district != null || this.methodarr.length != 0) &&
+        this.geojson === null
+      ) {
         this.dataService(city, district, this.methodarr, null);
       }
       if (city != null) {
@@ -556,11 +596,22 @@ export default {
       this.geojson = data;
       this.showGeojson = true;
     });
+    bus.$on("clearMap", () => {
+      this.polyline = [];
+      this.markers = [];
+      this.methodarr = [];
+      this.showGeojson = false;
+      this.geojson = null;
+      this.$refs.clusterRef.mapObject.refreshClusters();
+    });
     bus.$on("clearAll", () => {
       this.polyline = [];
       this.markers = [];
+      this.methodarr = [];
       this.showGeojson = false;
       this.geojson = null;
+      this.$refs.map.setCenter([39.9208, 32.8541]);
+      this.$refs.map.setZoom(6);
       this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("searchDatatoMap", (param) => {

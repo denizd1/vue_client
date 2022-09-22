@@ -172,6 +172,11 @@
             </v-list-item>
           </v-list>
         </v-list-group>
+        <v-list-item>
+          <v-btn color="success" class="mr-4" @click="clearNav">
+            Seçimleri Temizle
+          </v-btn>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-app-bar style="z-index: 6" flat app>
@@ -322,6 +327,18 @@ export default {
         this.districtToEmit
       );
     },
+    clearNav() {
+      this.citytoEmit = null;
+      this.districtToEmit = null;
+      this.fillDistrict = [];
+      for (let i = 0; i < this.methodSelect.length; i++) {
+        this.methodSelect[i].checked = false;
+      }
+      for (let i = 0; i < this.scaleControls.length; i++) {
+        this.scaleControls[i].checked = false;
+      }
+      bus.$emit("clearAll");
+    },
   },
   computed: {
     currentUser() {
@@ -349,14 +366,14 @@ export default {
       this.citytoEmit = geojsonCity;
     });
 
-    bus.$on("clearNav", () => {
-      this.methodSelect.filter((item) => {
-        item.checked = false;
-      });
-      this.scaleControls.filter((item) => {
-        item.checked = false;
-      });
-    });
+    // bus.$on("clearNav", () => {
+    //   this.methodSelect.filter((item) => {
+    //     item.checked = false;
+    //   });
+    //   this.scaleControls.filter((item) => {
+    //     item.checked = false;
+    //   });
+    // });
   },
   beforeDestroy() {
     EventBus.remove("logout");
