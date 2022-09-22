@@ -265,7 +265,7 @@ export default {
       for (let i = 0; i < this.methodSelect.length; i++) {
         this.methodSelect[i].checked = false;
       }
-      bus.$emit("cityChanged", event);
+      bus.$emit("cityorDistrictChanged", event, null);
       this.citytoEmit = event;
 
       for (let i = 0; i < this.scaleControls.length; i++) {
@@ -289,7 +289,7 @@ export default {
     },
     handleDistrictChange(event) {
       this.districtToEmit = event;
-      bus.$emit("districtChanged", this.citytoEmit, event);
+      bus.$emit("cityorDistrictChanged", this.citytoEmit, event);
 
       for (let i = 0; i < this.scaleControls.length; i++) {
         if (
@@ -337,7 +337,7 @@ export default {
       for (let i = 0; i < this.scaleControls.length; i++) {
         this.scaleControls[i].checked = false;
       }
-      bus.$emit("clearAll");
+      bus.$emit("clearAll", "fullClean");
     },
   },
   computed: {
