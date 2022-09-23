@@ -163,7 +163,7 @@ export default {
     },
 
     updateTutorial() {
-      console.log(this.currentTutorial);
+      this.currentTutorial.editorame = this.$store.state.auth.user.username;
       TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
         .then((response) => {
           console.log(response.data);
@@ -207,7 +207,8 @@ export default {
                 !key.includes("createdAt") &&
                 !key.includes("published") &&
                 !key.includes("lat") &&
-                !key.includes("lon")
+                !key.includes("lon") &&
+                !key.includes("editorname")
             )
           );
           bus.$emit("reRender");

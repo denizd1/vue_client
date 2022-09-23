@@ -449,7 +449,7 @@ export default {
 
       const data = await response.data;
 
-      this.$refs.map.mapObject.invalidateSize();
+      // this.$refs.map.mapObject.invalidateSize();
       this.geojson = data;
       this.showGeojson = true;
       this.$refs.map.setCenter([39.9208, 32.8541]);

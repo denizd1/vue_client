@@ -437,11 +437,11 @@ export default {
                 data[key] = val; // key - value
               }
             });
+            data["editorname"] = this.$store.state.auth.user.username;
             var latlon = null;
             var thisCity = citiesLatLongjson.filter(
               (city) => city.il == data["il"]
             )[0];
-            console.log(thisCity);
             data["lat"] = thisCity.longitude;
             data["lon"] = thisCity.latitude;
             if (data["x"] != null && data["y"] != null) {
