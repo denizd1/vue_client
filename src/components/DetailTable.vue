@@ -147,7 +147,8 @@ export default {
           !key.includes("createdAt") &&
           !key.includes("published") &&
           !key.includes("lat") &&
-          !key.includes("lon")
+          !key.includes("lon") &&
+          !key.includes("editorname")
       )
     );
   },

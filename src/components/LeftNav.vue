@@ -111,7 +111,7 @@
           prepend-icon="mdi-sine-wave"
           :value="false"
           no-action
-          v-if="showNavmethod"
+          v-if="showNavelement"
         >
           <template v-slot:activator>
             <v-list-item-content>
@@ -141,7 +141,7 @@
           prepend-icon="mdi-city-variant-outline"
           :value="false"
           no-action
-          v-if="showNavcity"
+          v-if="showNavelement"
         >
           <template v-slot:activator>
             <v-list-item-content>
@@ -172,7 +172,7 @@
             </v-list-item>
           </v-list>
         </v-list-group>
-        <v-list-item>
+        <v-list-item v-if="showNavelement">
           <v-btn color="success" class="mr-4" @click="clearNav">
             Seçimleri Temizle
           </v-btn>
@@ -383,20 +383,9 @@ export default {
       // Check if given route is true, if it is then hide Nav.
       if (this.$route.query.tab === "harita-gorunumu") {
         this.showNavelement = true;
-        this.showNavmethod = true;
-        this.showNavcity = true;
       } else {
         this.showNavelement = false;
-        this.showNavmethod = false;
-        this.showNavcity = false;
       }
-      // if (!/tutorials-list/.test(window.location.href)) {
-      //   this.showNavmethod = false;
-      //   this.showNavcity = false;
-      // } else {
-      //   this.showNavmethod = true;
-      //   this.showNavcity = true;
-      // }
     },
   },
 };
