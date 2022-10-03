@@ -228,7 +228,7 @@ export default {
       searchParam: null,
       options: { onEachFeature: onEachFeature.bind(this) },
 
-      methodarr: [],
+      methodarr: null,
       selectedCityparam: null,
       selectedDistrict: null,
       selectedJsonparam: null,
@@ -506,22 +506,21 @@ export default {
       }, 200);
       this.dataService(city, district, this.methodarr, null);
       bus.$emit("searchParam", city, district, this.methodarr);
-      console.log(this.map);
     });
 
     bus.$on("fireScalechange", (val) => {
-      bus.$emit("clearMap");
-      bus.$emit("clearAll");
+      this.methodarr = [];
       this.changeScale(val);
     });
-    bus.$on("methodParam", (name, checked, city, district) => {
-      if (checked === true) {
-        if (!this.methodarr.includes(name)) {
-          this.methodarr.push(name);
-        }
-      } else {
-        this.methodarr = this.methodarr.filter((e) => e !== name);
-      }
+    bus.$on("methodParam", (data, city, district) => {
+      this.methodarr = data;
+      // if (checked === true) {
+      //   if (!this.methodarr.includes(name)) {
+      //     this.methodarr.push(name);
+      //   }
+      // } else {
+      //   this.methodarr = this.methodarr.filter((e) => e !== name);
+      // }
       if (this.geojsonSelector === true) {
         let params = {};
         params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
@@ -552,6 +551,7 @@ export default {
       if (this.methodarr.length == 0) {
         this.polyline = [];
         this.markers = [];
+        this.$refs.clusterRef.mapObject.refreshClusters();
       }
     });
     bus.$on("hideGeojson", (data) => {

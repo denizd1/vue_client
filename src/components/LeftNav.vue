@@ -7,6 +7,7 @@
       temporary
       app
       style="z-index: 200 !important"
+      width="25%"
     >
       <v-divider class="mt-0"></v-divider>
       <v-list v-if="!currentUser">
@@ -70,6 +71,26 @@
           <v-list-item-title>Çıkış</v-list-item-title>
         </v-list-item>
         <v-divider></v-divider>
+        <v-list v-if="showNavelement">
+          <v-list-item>
+            <v-select
+              prepend-icon="mdi-sine-wave"
+              label="Yöntem"
+              v-model="methodControl"
+              :items="methodSelect"
+              attach
+              chips
+              multiple
+              @change="handleMethodChange()"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item)"
+                  v-text="selection.item"
+                ></v-chip> </template
+            ></v-select>
+          </v-list-item>
+        </v-list>
         <v-list-group
           prepend-icon="mdi-math-compass"
           :value="false"
@@ -108,36 +129,6 @@
         </v-list-group>
 
         <v-list-group
-          prepend-icon="mdi-sine-wave"
-          :value="false"
-          no-action
-          v-if="showNavelement"
-        >
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title>Yöntem</v-list-item-title>
-            </v-list-item-content>
-          </template>
-          <v-list>
-            <v-list-item
-              v-for="(geoMethods, index) in methodSelect"
-              :key="index"
-            >
-              <v-list-item-title v-text="geoMethods.name"> </v-list-item-title>
-
-              <v-checkbox
-                style="z-index: 89"
-                @change="
-                  handleMethodChange(geoMethods.name, geoMethods.checked)
-                "
-                v-model="geoMethods.checked"
-              >
-              </v-checkbox>
-            </v-list-item>
-          </v-list>
-        </v-list-group>
-
-        <v-list-group
           prepend-icon="mdi-city-variant-outline"
           :value="false"
           no-action
@@ -151,7 +142,6 @@
           <v-list>
             <v-list-item>
               <v-select
-                style="display: block"
                 item-text="il"
                 :items="cities"
                 single-line
@@ -161,7 +151,6 @@
             </v-list-item>
             <v-list-item>
               <v-select
-                style="display: block"
                 v-if="fillDistrict.length"
                 item-text="ilceleri"
                 :items="fillDistrict"
@@ -172,7 +161,8 @@
             </v-list-item>
           </v-list>
         </v-list-group>
-        <v-list-item v-if="showNavelement">
+
+        <v-list-item v-if="showNavelement" class="justify-center">
           <v-btn color="success" class="mr-4" @click="clearNav">
             Seçimleri Temizle
           </v-btn>
@@ -199,7 +189,6 @@ export default {
   data() {
     return {
       cities: citiesJson,
-      fillSubMethod: [],
       fillDistrict: [],
       mini: true,
       drawer: false,
@@ -253,18 +242,44 @@ export default {
         },
       ],
       methodSelect: [
-        { name: "Elektrik ve Elektromanyetik Yöntemler", checked: false },
-        { name: "Potansiyel Alan Yöntemleri", checked: false },
-        { name: "Sismik Yöntemler", checked: false },
-        { name: "Kuyu Ölçüleri", checked: false },
+        "Düşey Elektrik Sondaj (DES)",
+        "Geçici Elektromanyetik Yöntem (TEM)",
+        "Yapay Uçlaşma Yöntemi (IP)",
+        "Gradient Yapay Uçlaşma Yöntemi (IP)",
+        "Manyetotellürik (MT)",
+        "Audio Manyetotellürik (AMT)",
+        "Yapay Kaynaklı Audio Manyetotellürik (CSAMT)",
+        "Doğal Potansiyel (SP)",
+        "Çok Kanallı Özdirenç Yöntemi",
+        "Gamma Ray (GR)",
+        "Neutron (NEU)",
+        "Density (DEN)",
+        "Resistivity (RES)",
+        "Self Potential (SP)",
+        "Caliper (Cal)",
+        "Sıcaklık Logu (Term)",
+        "Spektral Gammaray (SGR)",
+        "Çimento Logu (Cbl)",
+        "Sonic Log (Son)",
+        "Casing Collor Locator (CCL)",
+        "Birleşik Log",
+        "Magnetik",
+        "Gravite",
+        "Radyometri",
+        "Suseptibilite",
+        "Havadan Manyetik",
+        "2 Boyutlu Sismik Yansıma",
+        "Yer Radarı",
       ],
+      methodControl: null,
     };
   },
   methods: {
+    deleteItem(item) {
+      this.methodControl = this.methodControl.filter((find) => find !== item);
+      this.handleMethodChange();
+    },
     handleCityChange(event) {
-      for (let i = 0; i < this.methodSelect.length; i++) {
-        this.methodSelect[i].checked = false;
-      }
       bus.$emit("cityorDistrictChanged", event, null);
       this.citytoEmit = event;
 
@@ -318,11 +333,10 @@ export default {
         bus.$emit("hideGeojson", false);
       }
     },
-    handleMethodChange(name, checked) {
+    handleMethodChange() {
       bus.$emit(
         "methodParam",
-        name,
-        checked,
+        this.methodControl,
         this.citytoEmit,
         this.districtToEmit
       );
@@ -331,9 +345,7 @@ export default {
       this.citytoEmit = null;
       this.districtToEmit = null;
       this.fillDistrict = [];
-      for (let i = 0; i < this.methodSelect.length; i++) {
-        this.methodSelect[i].checked = false;
-      }
+      this.methodControl = null;
       for (let i = 0; i < this.scaleControls.length; i++) {
         this.scaleControls[i].checked = false;
       }
