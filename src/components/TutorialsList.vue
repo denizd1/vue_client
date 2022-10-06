@@ -251,19 +251,7 @@ export default {
     reloadMap() {
       bus.$emit("renderMap");
     },
-    /*
-      check il ilce flag
-    */
-    // getSelectedcity(val, flag) {
-    //   if (flag === "il") {
-    //     this.areaJson = null;
-    //     this.selectedCity = val;
-    //   }
-    //   if (flag === "ilce") {
-    //     this.areaJson = null;
-    //     this.selectedDistrict = val;
-    //   }
-    // },
+
     /*
       create param object for the request
     */
@@ -319,12 +307,13 @@ export default {
       }
 
       if (event && event.isTrusted == true) {
-        params["requestFlag"] = "userSearch";
         bus.$emit("searchDatatoMap", params.il);
       }
+
       if (!event && this.areaJson != null) {
         params["areaJson"] = this.areaJson;
       }
+      console.log(params);
 
       TutorialDataService.getAll(params)
         .then((response) => {

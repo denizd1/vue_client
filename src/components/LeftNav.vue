@@ -252,7 +252,7 @@ export default {
         },
       ],
       methodSelect: [
-        "Düşey Elektrik Sondaj (DES)",
+        "Düşey Elektrik Sondajı (DES)",
         "Geçici Elektromanyetik Yöntem (TEM)",
         "Yapay Uçlaşma Yöntemi (IP)",
         "Gradient Yapay Uçlaşma Yöntemi (IP)",
