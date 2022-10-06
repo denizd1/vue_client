@@ -71,26 +71,37 @@
           <v-list-item-title>Çıkış</v-list-item-title>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list v-if="showNavelement">
-          <v-list-item>
-            <v-select
-              prepend-icon="mdi-sine-wave"
-              label="Yöntem"
-              v-model="methodControl"
-              :items="methodSelect"
-              attach
-              chips
-              multiple
-              @change="handleMethodChange()"
-            >
-              <template #selection="selection">
-                <v-chip
-                  @click="deleteItem(selection.item)"
-                  v-text="selection.item"
-                ></v-chip> </template
-            ></v-select>
-          </v-list-item>
-        </v-list>
+
+        <v-list-group
+          prepend-icon="mdi-sine-wave"
+          :value="false"
+          no-action
+          v-if="showNavelement"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Yöntem</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-select
+                v-model="methodControl"
+                :items="methodSelect"
+                single-line
+                chips
+                multiple
+                @change="handleMethodChange()"
+              >
+                <template #selection="selection">
+                  <v-chip
+                    @click="deleteItem(selection.item)"
+                    v-text="selection.item"
+                  ></v-chip> </template
+              ></v-select>
+            </v-list-item>
+          </v-list>
+        </v-list-group>
         <v-list-group
           prepend-icon="mdi-math-compass"
           :value="false"
@@ -110,7 +121,6 @@
               <v-list-item-title v-text="scaleControl.label">
               </v-list-item-title>
               <v-checkbox
-                style="z-index: 89"
                 v-model="scaleControl.checked"
                 :color="scaleControl.color"
                 :input-value="scaleControl.factor"
