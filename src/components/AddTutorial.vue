@@ -390,6 +390,7 @@ export default {
      * Convert excel date to js date
      */
     ExcelDateToJSDate(serial) {
+      console.log(serial);
       var utc_days = Math.floor(serial - 25569);
       var utc_value = utc_days * 86400;
       var date_info = new Date(utc_value * 1000);
@@ -592,14 +593,21 @@ export default {
               data["lat"] = parseFloat(thisCity.longitude);
               data["lon"] = parseFloat(thisCity.latitude);
             }
+
             if (typeof data["calisma_tarihi"] !== "string") {
-              var dummyDate = this.ExcelDateToJSDate(data["calisma_tarihi"]);
-              data["calisma_tarihi"] =
-                dummyDate.getDate() +
-                "/" +
-                (dummyDate.getMonth() + 1) +
-                "/" +
-                dummyDate.getFullYear();
+              var regex =
+                /^(181[2-9]|18[2-9]\d|19\d\d|2\d{3}|30[0-3]\d|304[0-8])$/;
+              if (regex.test(data["calisma_tarihi"])) {
+                data["calisma_tarihi"] = data["calisma_tarihi"].toString();
+              } else {
+                var dummyDate = this.ExcelDateToJSDate(data["calisma_tarihi"]);
+                data["calisma_tarihi"] =
+                  dummyDate.getDate() +
+                  "/" +
+                  (dummyDate.getMonth() + 1) +
+                  "/" +
+                  dummyDate.getFullYear();
+              }
             }
 
             TutorialDataService.create(data)
