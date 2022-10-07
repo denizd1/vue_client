@@ -6,8 +6,17 @@
 
     <v-col cols="12" md="8" style="z-index: 4" class="text-right">
       <map-view :currentTutorial="currentTutorial"></map-view>
-      <v-btn class="mt-3" depressed color="primary" @click="exportExcel">
+      <v-btn class="mt-3 mr-3" depressed color="primary" @click="exportExcel">
         Excel Olarak İndir
+      </v-btn>
+      <v-btn
+        v-if="visibility"
+        class="mt-3"
+        depressed
+        color="primary"
+        @click="goToedit"
+      >
+        Düzenle
       </v-btn>
     </v-col>
   </v-row>
@@ -25,6 +34,7 @@ export default {
   data() {
     return {
       currentTutorial: null,
+      visibility: false,
     };
   },
   components: {
@@ -33,6 +43,12 @@ export default {
   },
 
   methods: {
+    goToedit() {
+      this.$router.push({
+        name: "duzenle",
+        params: { id: this.currentTutorial.id },
+      });
+    },
     exportExcel() {
       const XLSX = require("xlsx");
       const fileName = this.currentTutorial.nokta_adi + ".xlsx";
@@ -54,6 +70,7 @@ export default {
         var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
         var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
         if (thisAdmin || thisMod) {
+          vm.visibility = true;
           vm.currentTutorial = fetchTutorial.data;
         } else if (thisUser && fetchTutorial.data.published === true) {
           vm.currentTutorial = fetchTutorial.data;
