@@ -669,6 +669,8 @@ export default {
           return "Çok Kanallı Özdirenç Yöntemi";
         case "2_BOYUTLU_SISMIK_YANSIMA":
           return "2 Boyutlu Sismik Yansıma";
+        case "2_BOYUTLU_SISMIK_KIRILMA":
+          return "2 Boyutlu Sismik Kırılma";
         case "YER_RADARI":
           return "Yer Radarı";
         case "GAMMA_RAY(GR)":

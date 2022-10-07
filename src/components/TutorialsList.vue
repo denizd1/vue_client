@@ -319,7 +319,6 @@ export default {
       if (!event && this.areaJson != null) {
         params["areaJson"] = this.areaJson;
       }
-      console.log(params);
 
       TutorialDataService.getAll(params)
         .then((response) => {

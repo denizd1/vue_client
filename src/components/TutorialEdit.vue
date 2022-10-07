@@ -58,6 +58,8 @@
 <script>
 import TutorialDataService from "../services/TutorialDataService";
 import { bus } from "../main";
+import { latLng } from "leaflet";
+import * as utmObj from "utm-latlng";
 export default {
   name: "tutorial",
   data() {
@@ -153,20 +155,101 @@ export default {
       };
 
       TutorialDataService.update(this.currentTutorial.id, data)
-        .then((response) => {
+        .then(() => {
           this.currentTutorial.published = status;
-          console.log(response.data);
         })
         .catch((e) => {
           console.log(e);
         });
     },
+    converter(x, y, zone, datum) {
+      var utm = null;
+      if (datum === "WGS_84") {
+        utm = new utmObj("WGS 84");
+      }
+      if (datum === "ED_50") {
+        utm = new utmObj("ED50");
+      }
+      var point = utm.convertUtmToLatLng(x, y, zone, "N");
+
+      return latLng(point.lat, point.lng);
+    },
 
     updateTutorial() {
+      var latlon = null;
+
+      if (this.currentTutorial.x != null && this.currentTutorial.y != null) {
+        latlon = this.converter(
+          this.currentTutorial.x,
+          this.currentTutorial.y,
+          this.currentTutorial.zone,
+          this.currentTutorial.datum
+        );
+        this.currentTutorial.lat = latlon.lng;
+        this.currentTutorial.lon = latlon.lat;
+      }
+
+      if (
+        this.currentTutorial.profil_baslangic_x != null &&
+        this.currentTutorial.profil_baslangic_y != null &&
+        this.currentTutorial.profil_bitis_x != null &&
+        this.currentTutorial.profil_bitis_y != null
+      ) {
+        var polyLineStart = this.converter(
+          this.currentTutorial.profil_baslangic_x,
+          this.currentTutorial.profil_baslangic_y,
+          this.currentTutorial.zone,
+          this.currentTutorial.datum
+        );
+        var polyLineEnd = this.converter(
+          this.currentTutorial.profil_bitis_x,
+          this.currentTutorial.profil_bitis_y,
+          this.currentTutorial.zone,
+          this.currentTutorial.datum
+        );
+        /*
+         * Find midpoint between two coordinates points
+         * Source : http://www.movable-type.co.uk/scripts/latlong.html
+         */
+
+        //-- Define radius function
+        if (typeof Number.prototype.toRad === "undefined") {
+          Number.prototype.toRad = function () {
+            return (this * Math.PI) / 180;
+          };
+        }
+
+        //-- Define degrees function
+        if (typeof Number.prototype.toDeg === "undefined") {
+          Number.prototype.toDeg = function () {
+            return this * (180 / Math.PI);
+          };
+        }
+
+        //-- Define middle point function
+
+        //-- Longitude difference
+        var dLng = (polyLineEnd.lng - polyLineStart.lng).toRad();
+
+        //-- Convert to radians
+        var lat1 = polyLineStart.lat.toRad();
+        var lat2 = polyLineEnd.lat.toRad();
+        var lng1 = polyLineStart.lng.toRad();
+
+        var bX = Math.cos(lat2) * Math.cos(dLng);
+        var bY = Math.cos(lat2) * Math.sin(dLng);
+        var lat3 = Math.atan2(
+          Math.sin(lat1) + Math.sin(lat2),
+          Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY)
+        );
+        var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
+        this.currentTutorial.lat = lng3.toDeg();
+        this.currentTutorial.lon = lat3.toDeg();
+      }
+
       this.currentTutorial.editorame = this.$store.state.auth.user.username;
       TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
-        .then((response) => {
-          console.log(response.data);
+        .then(() => {
           this.message = "İçerik Başarıyla Güncellendi";
         })
         .catch((e) => {
@@ -176,8 +259,7 @@ export default {
 
     deleteTutorial() {
       TutorialDataService.delete(this.currentTutorial.id)
-        .then((response) => {
-          console.log(response.data);
+        .then(() => {
           this.$router.push({ name: "calismalar" });
         })
         .catch((e) => {
