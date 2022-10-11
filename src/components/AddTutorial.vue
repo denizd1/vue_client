@@ -440,11 +440,17 @@ export default {
             });
             data["editorname"] = this.$store.state.auth.user.username;
             var latlon = null;
+            var dummyCity = null;
+            if (data["il"].includes(",")) {
+              dummyCity = data["il"].split(",")[0];
+            } else {
+              dummyCity = data["il"];
+            }
             var thisCity = citiesLatLongjson.filter(
-              (city) => city.il == data["il"]
+              (city) => city.il == dummyCity
             )[0];
-            data["lat"] = thisCity.longitude;
-            data["lon"] = thisCity.latitude;
+            data["lat"] = parseFloat(thisCity.longitude);
+            data["lon"] = parseFloat(thisCity.latitude);
             if (data["x"] != null && data["y"] != null) {
               latlon = this.converter(
                 data["x"],
@@ -455,10 +461,7 @@ export default {
               data["lat"] = latlon.lng;
               data["lon"] = latlon.lat;
             }
-            if (data["x"] == 0 && data["y"] == 0) {
-              data["lat"] = parseFloat(thisCity.longitude);
-              data["lon"] = parseFloat(thisCity.latitude);
-            }
+
             if (
               data["profil_baslangic_x"] != null &&
               data["profil_baslangic_y"] != null &&
@@ -518,15 +521,7 @@ export default {
               data["lat"] = lng3.toDeg();
               data["lon"] = lat3.toDeg();
             }
-            if (
-              data["profil_baslangic_x"] == 0 &&
-              data["profil_baslangic_y"] == 0 &&
-              data["profil_bitis_x"] == 0 &&
-              data["profil_bitis_y"] == 0
-            ) {
-              data["lat"] = parseFloat(thisCity.longitude);
-              data["lon"] = parseFloat(thisCity.latitude);
-            }
+
             if (
               data["a_1"] != null &&
               data["a_2"] != null &&
@@ -583,15 +578,6 @@ export default {
               var centerOfMass = centerofmass(geoJson);
               data["lat"] = centerOfMass.geometry.coordinates[0];
               data["lon"] = centerOfMass.geometry.coordinates[1];
-            }
-            if (
-              data["a_1"] == 0 &&
-              data["a_2"] == 0 &&
-              data["a_3"] == 0 &&
-              data["a_4"] == 0
-            ) {
-              data["lat"] = parseFloat(thisCity.longitude);
-              data["lon"] = parseFloat(thisCity.latitude);
             }
 
             if (typeof data["calisma_tarihi"] !== "string") {
