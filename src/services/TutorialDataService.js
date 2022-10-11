@@ -32,8 +32,9 @@ class TutorialDataService {
   }
 
   getAllunPublished(params) {
-    return (
-      api.get("/tutorials/unpublished", { params }),
+    return api.get(
+      "/tutorials/unpublished",
+      { params },
       { headers: { "x-access-token": user.accessToken } }
     );
   }
