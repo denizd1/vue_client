@@ -440,10 +440,11 @@ export default {
             for await (let value of generator) {
               await this.importData(value); // 1, then 2, then 3, then 4, then 5 (with delay between)
             }
+            this.loading = false;
+            this.submitted = true;
+            this.showSubmit = true;
           })();
         }
-        this.loading = false;
-        this.submitted = true;
       }
     },
     async *generateSequence(start, end, data) {
@@ -615,10 +616,7 @@ export default {
         }
 
         TutorialDataService.create(data)
-          .then(() => {
-            this.showSubmit = true;
-            this.loading = false;
-          })
+          .then(() => {})
 
           .catch((error) => {
             this.dialog = true;
