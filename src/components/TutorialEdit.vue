@@ -180,10 +180,10 @@ export default {
 
       if (this.currentTutorial.x != null && this.currentTutorial.y != null) {
         latlon = this.converter(
-          this.currentTutorial.x,
-          this.currentTutorial.y,
-          this.currentTutorial.zone,
-          this.currentTutorial.datum
+          parseFloat(this.currentTutorial.x),
+          parseFloat(this.currentTutorial.y),
+          parseInt(this.currentTutorial.zone),
+          parseInt(this.currentTutorial.datum)
         );
         this.currentTutorial.lat = latlon.lng;
         this.currentTutorial.lon = latlon.lat;
@@ -196,16 +196,16 @@ export default {
         this.currentTutorial.profil_bitis_y != null
       ) {
         var polyLineStart = this.converter(
-          this.currentTutorial.profil_baslangic_x,
-          this.currentTutorial.profil_baslangic_y,
-          this.currentTutorial.zone,
-          this.currentTutorial.datum
+          parseFloat(this.currentTutorial.profil_baslangic_x),
+          parseFloat(this.currentTutorial.profil_baslangic_y),
+          parseInt(this.currentTutorial.zone),
+          parseInt(this.currentTutorial.datum)
         );
         var polyLineEnd = this.converter(
-          this.currentTutorial.profil_bitis_x,
-          this.currentTutorial.profil_bitis_y,
-          this.currentTutorial.zone,
-          this.currentTutorial.datum
+          parseFloat(this.currentTutorial.profil_bitis_x),
+          parseFloat(this.currentTutorial.profil_bitis_y),
+          parseInt(this.currentTutorial.zone),
+          parseInt(this.currentTutorial.datum)
         );
         /*
          * Find midpoint between two coordinates points
