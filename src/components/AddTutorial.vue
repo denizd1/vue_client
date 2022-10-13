@@ -154,6 +154,7 @@ import citiesLatLongjson from "../data/cities_of_turkey.json";
 import centerofmass from "@turf/center-of-mass";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
+import { bus } from "../main";
 
 // import { Base64 } from "js-base64";
 export default {
@@ -280,6 +281,13 @@ export default {
         return this.$route.query.tab;
       },
     },
+  },
+  mounted() {
+    bus.$on("alldone", () => {
+      this.loading = false;
+      this.submitted = true;
+      this.showSubmit = true;
+    });
   },
   /*methods*/
   methods: {
@@ -438,11 +446,8 @@ export default {
               dataChunked
             );
             for await (let value of generator) {
-              await this.importData(value); // 1, then 2, then 3, then 4, then 5 (with delay between)
+              await this.importData(value, dataChunked.length); // 1, then 2, then 3, then 4, then 5 (with delay between)
             }
-            this.loading = false;
-            this.submitted = true;
-            this.showSubmit = true;
           })();
         }
       }
@@ -455,7 +460,8 @@ export default {
       }
     },
     //import data
-    async importData(dataarray) {
+    async importData(dataarray, len) {
+      let senddata = [];
       for (let i = 0; i < dataarray.length; i++) {
         let data = {};
         Object.entries(dataarray[i]).forEach(([key, value]) => {
@@ -614,22 +620,23 @@ export default {
               dummyDate.getFullYear();
           }
         }
-
-        TutorialDataService.create(data)
-          .then(() => {})
-
-          .catch((error) => {
-            this.dialog = true;
-            this.errorMessage.push({
-              err:
-                (error.response &&
-                  error.response.data &&
-                  error.response.data.message) ||
-                error.message ||
-                error.toString(),
-            });
-          });
+        senddata.push(data);
       }
+      TutorialDataService.create(senddata, len)
+        .then(() => {})
+
+        .catch((error) => {
+          this.dialog = true;
+          this.errorMessage.push({
+            err:
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString(),
+          });
+        });
+      await new Promise((resolve) => setTimeout(resolve, 500));
     },
     /*
       Replaces corresponding cells in excel
@@ -723,6 +730,7 @@ export default {
      * To go back to import field in order to import new files
      */
     newTutorial() {
+      bus.$emit("resetCount");
       this.filestoImport = [];
       this.submitted = false;
       this.showSubmit = false;
