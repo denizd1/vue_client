@@ -63,7 +63,12 @@ class TutorialDataService {
           bus.$emit("alldone");
         }
       })
-      .catch((err) => console.log(err));
+      .catch(() => {
+        counter++;
+        if (counter === len) {
+          bus.$emit("alldone");
+        }
+      });
   }
 
   update(id, data) {
