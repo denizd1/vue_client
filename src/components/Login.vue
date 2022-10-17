@@ -11,6 +11,7 @@
         label="Kullanıcı Adı"
         :rules="nameRules"
         prepend-icon="mdi-account-box"
+        v-on:keydown.native.enter="validate"
         required
       ></v-text-field>
 
@@ -22,6 +23,7 @@
         :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
         :type="showPassword ? 'text' : 'password'"
         @click:append="showPassword = !showPassword"
+        v-on:keydown.native.enter="validate"
         required
       ></v-text-field>
       <div class="text-center">

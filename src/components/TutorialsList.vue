@@ -302,6 +302,7 @@ export default {
           page: this.page - 1,
           size: this.pageSize,
           userStatus: this.isUser ? "user" : null,
+          yontem: this.methodarr ? this.methodarr : null,
         };
       } else {
         params = this.getRequestParams(

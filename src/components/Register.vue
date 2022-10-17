@@ -11,6 +11,7 @@
         label="Kullanıcı Adı"
         :rules="nameRules"
         prepend-icon="mdi-account-box"
+        v-on:keydown.native.enter="validate"
         required
       ></v-text-field>
       <v-text-field
@@ -18,6 +19,7 @@
         :rules="emailRules"
         label="E-mail"
         prepend-icon="mdi-mail"
+        v-on:keydown.native.enter="validate"
         required
       ></v-text-field>
       <v-text-field
@@ -28,6 +30,7 @@
         :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
         :type="showPassword ? 'text' : 'password'"
         @click:append="showPassword = !showPassword"
+        v-on:keydown.native.enter="validate"
         required
       ></v-text-field>
       <div class="text-center">
@@ -36,6 +39,7 @@
           color="success"
           class="mr-4"
           @click="validate"
+          v-on:keyup.enter="validate"
         >
           Kaydol
         </v-btn>
