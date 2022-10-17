@@ -479,14 +479,17 @@ export default {
         data["editorname"] = this.$store.state.auth.user.username;
         var latlon = null;
         var dummyCity = null;
+        var thisCity = null;
         if (data["il"].includes(",")) {
           dummyCity = data["il"].split(",")[0];
+          thisCity = citiesLatLongjson.filter((city) => city.il == dummyCity);
         } else {
           dummyCity = data["il"];
+          thisCity = citiesLatLongjson.filter(
+            (city) => city.il == dummyCity
+          )[0];
         }
-        var thisCity = citiesLatLongjson.filter(
-          (city) => city.il == dummyCity
-        )[0];
+
         data["lat"] = parseFloat(thisCity.longitude);
         data["lon"] = parseFloat(thisCity.latitude);
         if (data["x"] != null && data["y"] != null) {
