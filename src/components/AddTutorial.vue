@@ -433,7 +433,7 @@ export default {
         var dataChunked = [];
         var data = dataarr;
         var dataLength = data.length;
-        var dataChunk = 100;
+        var dataChunk = 30;
 
         for (var i = 0; i < dataLength; i += dataChunk) {
           dataChunked.push(data.slice(i, i + dataChunk));
