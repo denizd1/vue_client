@@ -493,7 +493,6 @@ export default {
       this.geojsonSelector = false;
       this.selectedCityparam = city;
       this.selectedDistrict = district;
-      this.methodarr = [];
       this.polyline = [];
       this.markers = [];
       this.scaleService(0);
@@ -509,7 +508,6 @@ export default {
     });
 
     bus.$on("fireScalechange", (val) => {
-      this.methodarr = [];
       this.changeScale(val);
     });
     bus.$on("methodParam", (data, city, district) => {
@@ -564,6 +562,8 @@ export default {
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
+      bus.$emit("clearMethodSelection");
+
       this.selectedCityparam = null;
       this.selectedDistrict = null;
       this.$refs.map.setCenter(center);
@@ -575,12 +575,15 @@ export default {
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
+      bus.$emit("clearMethodSelection");
+
       this.showGeojson = false;
       this.geojson = null;
       this.geojsonSelector = false;
       this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("clearAll", () => {
+      bus.$emit("clearMethodSelection");
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
@@ -592,6 +595,7 @@ export default {
       this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("searchDatatoMap", (param) => {
+      bus.$emit("clearMap");
       this.methodarr = [];
       this.polyline = [];
       this.markers = [];

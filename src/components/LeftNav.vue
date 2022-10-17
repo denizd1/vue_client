@@ -340,6 +340,12 @@ export default {
         this.citytoEmit,
         this.districtToEmit
       );
+      // bus.$emit(
+      //   "searchParam",
+      //   this.citytoEmit,
+      //   this.districtToEmit,
+      //   this.methodControl
+      // );
     },
     clearNav() {
       this.citytoEmit = null;
@@ -376,6 +382,9 @@ export default {
 
     bus.$on("geojsonSelectCity", (geojsonCity) => {
       this.citytoEmit = geojsonCity;
+    });
+    bus.$on("clearMethodSelection", () => {
+      this.methodControl = null;
     });
 
     // bus.$on("clearNav", () => {
