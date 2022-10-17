@@ -256,47 +256,51 @@ export default {
       create param object for the request
     */
     getRequestParams(searchTitle, page, pageSize, methodarr) {
-      let params = {};
+      let searchParams = {};
+      searchParams["il"] = searchTitle;
       if (this.selectedCity != null) {
         searchTitle = this.selectedCity;
         this.searchTitle = this.selectedCity;
-        params["il"] = searchTitle;
+        searchParams["il"] = searchTitle;
       }
       if (this.selectedDistrict != null) {
         searchTitle = this.selectedDistrict;
         this.searchTitle = this.selectedDistrict;
 
-        params["ilce"] = searchTitle;
+        searchParams["ilce"] = searchTitle;
       }
       if (methodarr != null) {
-        params["yontem"] = methodarr;
+        searchParams["yontem"] = methodarr;
       }
 
       if (page) {
-        params["page"] = page - 1;
+        searchParams["page"] = page - 1;
       }
 
       if (pageSize) {
-        params["size"] = pageSize;
+        searchParams["size"] = pageSize;
       }
       if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
-        params["userStatus"] = "user";
+        searchParams["userStatus"] = "user";
       }
 
-      return params;
+      return searchParams;
     },
     /*
       retrieve tutorials from server
     */
     retrieveTutorials(searchTitle, event) {
       var params = null;
-      if (searchTitle) {
+      if (searchTitle && event && event.isTrusted) {
+        this.methodarr = null;
+        bus.$emit("searchDatatoMap", searchTitle);
+
         params = {
           il: searchTitle, // !!! il is just a placeholder for the searchTitle,
           page: this.page - 1,
           size: this.pageSize,
+          requestFlag: "userSearch",
           userStatus: this.isUser ? "user" : null,
-          yontem: this.methodarr ? this.methodarr : null,
         };
       } else {
         params = this.getRequestParams(
@@ -305,10 +309,6 @@ export default {
           this.pageSize,
           this.methodarr
         );
-      }
-
-      if (event && event.isTrusted == true) {
-        bus.$emit("searchDatatoMap", params.il);
       }
 
       if (!event && this.areaJson != null) {
@@ -355,14 +355,20 @@ export default {
       window.open(routeData.href, "_blank");
     },
     handlePageChange(value) {
+      this.selectedCity = null;
+      this.selectedDistrict = null;
       this.page = value;
-      this.retrieveTutorials(this.searchTitle);
+      this.retrieveTutorials();
+      this.componentKey += 1;
     },
 
     handlePageSizeChange(size) {
+      this.selectedCity = null;
+      this.selectedDistrict = null;
       this.pageSize = size;
       this.page = 1;
-      this.retrieveTutorials(this.searchTitle);
+      this.retrieveTutorials();
+      this.componentKey += 1;
     },
     /*
       get display tutorial object
@@ -408,10 +414,11 @@ export default {
     exportExcel(searchTitle) {
       this.loading = true;
 
-      let excelParams = {};
+      var excelParams = {};
       if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
         excelParams["userStatus"] = "user";
       }
+      excelParams["yontem"] = this.methodarr ? this.methodarr : null;
       if (this.areaJson == null) {
         if (searchTitle) {
           excelParams["il"] = searchTitle;
