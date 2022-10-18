@@ -183,7 +183,7 @@ export default {
           parseFloat(this.currentTutorial.x),
           parseFloat(this.currentTutorial.y),
           parseInt(this.currentTutorial.zone),
-          parseInt(this.currentTutorial.datum)
+          this.currentTutorial.datum.toString()
         );
         this.currentTutorial.lat = latlon.lng;
         this.currentTutorial.lon = latlon.lat;
@@ -199,13 +199,13 @@ export default {
           parseFloat(this.currentTutorial.profil_baslangic_x),
           parseFloat(this.currentTutorial.profil_baslangic_y),
           parseInt(this.currentTutorial.zone),
-          parseInt(this.currentTutorial.datum)
+          this.currentTutorial.datum.toString()
         );
         var polyLineEnd = this.converter(
           parseFloat(this.currentTutorial.profil_bitis_x),
           parseFloat(this.currentTutorial.profil_bitis_y),
           parseInt(this.currentTutorial.zone),
-          parseInt(this.currentTutorial.datum)
+          this.currentTutorial.datum.toString()
         );
         /*
          * Find midpoint between two coordinates points
@@ -246,7 +246,6 @@ export default {
         this.currentTutorial.lat = lng3.toDeg();
         this.currentTutorial.lon = lat3.toDeg();
       }
-
       this.currentTutorial.editorame = this.$store.state.auth.user.username;
       TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
         .then(() => {

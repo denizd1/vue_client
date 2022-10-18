@@ -482,11 +482,13 @@ export default {
         var thisCity = null;
         if (data["il"].includes(",")) {
           dummyCity = data["il"].split(",")[0];
-          thisCity = citiesLatLongjson.filter((city) => city.il == dummyCity);
+          thisCity = citiesLatLongjson.filter(
+            (city) => city.il == dummyCity.trim()
+          );
         } else {
           dummyCity = data["il"];
           thisCity = citiesLatLongjson.filter(
-            (city) => city.il == dummyCity
+            (city) => city.il == dummyCity.trim()
           )[0];
         }
 
