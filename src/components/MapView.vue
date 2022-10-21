@@ -43,7 +43,7 @@ import {
 } from "vue2-leaflet";
 import { Icon } from "leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
-import citiesLatLongjson from "../data/cities_of_turkey.json";
+import citiesLatLongjson from "../../../app/cities_of_turkey.json";
 
 // import * as L from "leaflet";
 delete Icon.Default.prototype._getIconUrl;

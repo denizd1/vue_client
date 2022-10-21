@@ -1,13 +1,6 @@
 import api from "./api";
-import axios from "axios";
-import { bus } from "../main";
 
 let user = JSON.parse(localStorage.getItem("user"));
-let counter = null;
-//bus on resetcounter
-bus.$on("resetCount", () => {
-  counter = 0;
-});
 
 class TutorialDataService {
   getAll(params) {
@@ -47,29 +40,6 @@ class TutorialDataService {
     );
   }
   //make create function asynchronus to wait for the response
-
-  create(data, len) {
-    return axios
-      .all(
-        data.map((data) =>
-          api.post("/tutorials", data, {
-            headers: { "x-access-token": user.accessToken },
-          })
-        )
-      )
-      .then(() => {
-        counter++;
-        if (counter === len) {
-          bus.$emit("alldone");
-        }
-      })
-      .catch(() => {
-        counter++;
-        if (counter === len) {
-          bus.$emit("alldone");
-        }
-      });
-  }
 
   update(id, data) {
     return api.put(`/tutorials/${id}`, data, {
