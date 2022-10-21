@@ -23,7 +23,7 @@
   </v-col>
 </template>
 <script>
-import citiesJson from "../data/cities_of_turkey.json";
+import citiesJson from "../../../app/cities_of_turkey.json";
 export default {
   data() {
     return {

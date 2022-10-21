@@ -104,7 +104,7 @@ import { Icon, icon } from "leaflet";
 import { bus } from "../main";
 // import * as L from "leaflet";
 
-import citiesLatLongjson from "../data/cities_of_turkey.json";
+import citiesLatLongjson from "../../../app/cities_of_turkey.json";
 // import iconUrl from "leaflet/dist/images/marker-icon.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 delete Icon.Default.prototype._getIconUrl;
