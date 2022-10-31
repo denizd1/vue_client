@@ -1,5 +1,17 @@
 <template>
   <v-app style="background: transparent">
+    <v-overlay style="z-index: 66" v-if="loading">
+      <v-layout align-center justify-center column fill-height>
+        <v-flex row align-center>
+          <v-progress-circular
+            :size="100"
+            :width="7"
+            color="red"
+            indeterminate
+          ></v-progress-circular>
+        </v-flex>
+      </v-layout>
+    </v-overlay>
     <left-nav></left-nav>
     <!-- <header>
       <v-img
@@ -55,6 +67,7 @@ export default {
   data() {
     return {
       componentKey: 0,
+      loading: false,
     };
   },
   methods: {
@@ -64,6 +77,9 @@ export default {
     },
   },
   mounted() {
+    bus.$on("loading", (value) => {
+      this.loading = value;
+    });
     EventBus.on("logout", () => {
       this.logOut();
     });
