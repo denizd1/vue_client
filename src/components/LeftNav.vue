@@ -91,7 +91,6 @@
                 single-line
                 chips
                 multiple
-                @change="handleMethodChange()"
               >
                 <template #selection="selection">
                   <v-chip
@@ -126,11 +125,7 @@
                 :input-value="scaleControl.factor"
                 :disabled="scaleControl.visibility"
                 @change="
-                  triggerChange(
-                    $event,
-                    scaleControl.checked,
-                    scaleControl.factor
-                  )
+                  triggerChange(scaleControl.checked, scaleControl.factor)
                 "
               >
               </v-checkbox>
@@ -152,6 +147,7 @@
           <v-list>
             <v-list-item>
               <v-select
+                v-model="cityControl"
                 item-text="il"
                 :items="cities"
                 single-line
@@ -162,6 +158,7 @@
             <v-list-item>
               <v-select
                 v-if="fillDistrict.length"
+                v-model="districtControl"
                 item-text="ilceleri"
                 :items="fillDistrict"
                 single-line
@@ -173,9 +170,15 @@
         </v-list-group>
 
         <v-list-item v-if="showNavelement" class="justify-center">
-          <v-btn color="success" class="mr-4" @click="clearNav">
-            Seçimleri Temizle
+          <v-btn
+            color="success"
+            class="mr-4"
+            @click.stop="drawer = !drawer"
+            @click="getResults"
+          >
+            Ara
           </v-btn>
+          <v-btn color="success" @click="clearNav"> Seçimleri Temizle </v-btn>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -205,8 +208,6 @@ export default {
       showNavelement: null,
       showNavmethod: null,
       showNavcity: null,
-      citytoEmit: null,
-      districtToEmit: null,
       menuItems: [
         {
           title: "Kaydol",
@@ -272,17 +273,16 @@ export default {
         "Yer Radarı",
       ],
       methodControl: null,
+      districtControl: null,
+      cityControl: null,
     };
   },
   methods: {
     deleteItem(item) {
       this.methodControl = this.methodControl.filter((find) => find !== item);
-      this.handleMethodChange();
     },
     handleCityChange(event) {
-      bus.$emit("cityorDistrictChanged", event, null);
-      this.citytoEmit = event;
-
+      this.districtControl = null;
       for (let i = 0; i < this.scaleControls.length; i++) {
         if (
           this.scaleControls[i].name === "iller" &&
@@ -302,10 +302,7 @@ export default {
       // var self = this;
       // self.district_id = event;
     },
-    handleDistrictChange(event) {
-      this.districtToEmit = event;
-      bus.$emit("cityorDistrictChanged", this.citytoEmit, event);
-
+    handleDistrictChange() {
       for (let i = 0; i < this.scaleControls.length; i++) {
         if (
           this.scaleControls[i].name === "iller" &&
@@ -321,7 +318,7 @@ export default {
       this.$store.dispatch("auth/logout");
       this.$router.push("/giris");
     },
-    triggerChange(ev, checked, val) {
+    triggerChange(checked, val) {
       if (checked === true) {
         for (let i = 0; i < this.scaleControls.length; i++) {
           if (val !== this.scaleControls[i].factor) {
@@ -333,23 +330,18 @@ export default {
         bus.$emit("hideGeojson", false);
       }
     },
-    handleMethodChange() {
+    getResults() {
       bus.$emit(
-        "methodParam",
+        "sendResults",
         this.methodControl,
-        this.citytoEmit,
-        this.districtToEmit
+        this.cityControl,
+        this.districtControl
       );
-      // bus.$emit(
-      //   "searchParam",
-      //   this.citytoEmit,
-      //   this.districtToEmit,
-      //   this.methodControl
-      // );
+      bus.$emit("loading", true);
     },
     clearNav() {
-      this.citytoEmit = null;
-      this.districtToEmit = null;
+      this.cityControl = null;
+      this.districtControl = null;
       this.fillDistrict = [];
       this.methodControl = null;
       for (let i = 0; i < this.scaleControls.length; i++) {
@@ -381,10 +373,13 @@ export default {
     });
 
     bus.$on("geojsonSelectCity", (geojsonCity) => {
-      this.citytoEmit = geojsonCity;
+      this.cityControl = geojsonCity;
+      this.districtControl = null;
     });
-    bus.$on("clearMethodSelection", () => {
+    bus.$on("clearNavSelections", () => {
       this.methodControl = null;
+      this.cityControl = null;
+      this.districtControl = null;
     });
 
     // bus.$on("clearNav", () => {

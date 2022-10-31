@@ -490,6 +490,7 @@ export default {
     });
     bus.$on("areaJson", (data, methodarr) => {
       this.areaJson = data;
+      this.searchTitle = "";
       this.methodarr = methodarr;
       this.selectedCity = null;
       this.selectedDistrict = null;

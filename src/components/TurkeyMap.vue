@@ -37,6 +37,7 @@
       />
 
       <l-geo-json
+        ref="geojsonLayer"
         v-if="showGeojson"
         :geojson="geojson"
         :options="options"
@@ -305,6 +306,9 @@ export default {
               this.triggerExternalplot(this.responseData[i]);
             }
           })
+          .then(() => {
+            bus.$emit("loading", false);
+          })
           .catch((e) => {
             console.log(e);
           });
@@ -454,13 +458,15 @@ export default {
       this.showGeojson = true;
       this.$refs.map.setCenter([39.9208, 32.8541]);
       this.$refs.map.setZoom(6);
-      // if (val === 0 && this.selectedCityparam != null) {
-      //   setTimeout(() => {
-      //     this.map._layers[this.selectedCityparam]._path.classList.add(
-      //       "selected"
-      //     );
-      //   }, 200);
-      // }
+      if (val === 0 && this.selectedCityparam != null) {
+        this.$nextTick(() => {
+          if (this.$refs.geojsonLayer && this.$refs.geojsonLayer.mapObject) {
+            this.$refs.geojsonLayer.mapObject._layers[
+              this.selectedCityparam
+            ]._path.classList.add("selected");
+          }
+        });
+      }
     },
   },
 
@@ -489,36 +495,20 @@ export default {
         }
       }, 200);
     });
-    bus.$on("cityorDistrictChanged", (city, district) => {
-      this.geojsonSelector = false;
+    bus.$on("sendResults", (method, city, district) => {
+      if (city !== null || district !== null) {
+        this.geojsonSelector = false;
+      }
+      this.methodarr = method;
+
       this.selectedCityparam = city;
       this.selectedDistrict = district;
       this.polyline = [];
       this.markers = [];
-      this.scaleService(0);
-      setTimeout(() => {
-        if (this.$refs.map) {
-          this.map._layers[this.selectedCityparam]._path.classList.add(
-            "selected"
-          );
-        }
-      }, 200);
-      this.dataService(city, district, this.methodarr, null);
-      bus.$emit("searchParam", city, district, this.methodarr);
-    });
+      if (this.geojsonSelector === false) {
+        this.scaleService(0);
+      }
 
-    bus.$on("fireScalechange", (val) => {
-      this.changeScale(val);
-    });
-    bus.$on("methodParam", (data, city, district) => {
-      this.methodarr = data;
-      // if (checked === true) {
-      //   if (!this.methodarr.includes(name)) {
-      //     this.methodarr.push(name);
-      //   }
-      // } else {
-      //   this.methodarr = this.methodarr.filter((e) => e !== name);
-      // }
       if (this.geojsonSelector === true) {
         let params = {};
         params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
@@ -546,12 +536,17 @@ export default {
         bus.$emit("searchParam", city, district, this.methodarr);
       }
 
-      if (this.methodarr.length == 0) {
+      if (this.methodarr === null || this.methodarr === undefined) {
         this.polyline = [];
         this.markers = [];
         this.$refs.clusterRef.mapObject.refreshClusters();
       }
     });
+
+    bus.$on("fireScalechange", (val) => {
+      this.changeScale(val);
+    });
+
     bus.$on("hideGeojson", (data) => {
       this.showGeojson = data;
     });
@@ -562,7 +557,7 @@ export default {
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
-      bus.$emit("clearMethodSelection");
+      bus.$emit("clearNavSelections");
 
       this.selectedCityparam = null;
       this.selectedDistrict = null;
@@ -575,7 +570,7 @@ export default {
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
-      bus.$emit("clearMethodSelection");
+      bus.$emit("clearNavSelections");
 
       this.showGeojson = false;
       this.geojson = null;
@@ -583,7 +578,7 @@ export default {
       this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("clearAll", () => {
-      bus.$emit("clearMethodSelection");
+      bus.$emit("clearNavSelections");
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
