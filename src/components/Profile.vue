@@ -1,5 +1,5 @@
 <template>
-  <v-row style="position: relative; z-index: 99">
+  <v-row>
     <v-col cols="12" sm="3" v-if="currentUser">
       <v-card>
         <v-card-text>
@@ -21,6 +21,12 @@
                     : "Kullanıcı"
                 }}
               </p>
+              <pie-chart
+                v-if="
+                  currentUser.roles[0] === 'ROLE_ADMIN' ||
+                  currentUser.roles[0] === 'ROLE_MODERATOR'
+                "
+              ></pie-chart>
             </v-col>
           </v-row>
         </v-card-text>
@@ -89,9 +95,13 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
+import PieChart from "./PieChart";
 
 export default {
   name: "Profile",
+  components: {
+    PieChart,
+  },
   data() {
     return {
       tutorials: [],

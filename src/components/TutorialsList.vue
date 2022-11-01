@@ -361,16 +361,12 @@ export default {
       window.open(routeData.href, "_blank");
     },
     handlePageChange(value) {
-      this.selectedCity = null;
-      this.selectedDistrict = null;
       this.page = value;
       this.retrieveTutorials();
       this.componentKey += 1;
     },
 
     handlePageSizeChange(size) {
-      this.selectedCity = null;
-      this.selectedDistrict = null;
       this.pageSize = size;
       this.page = 1;
       this.retrieveTutorials();
