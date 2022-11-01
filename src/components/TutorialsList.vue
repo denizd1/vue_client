@@ -30,7 +30,7 @@
             <v-text-field
               v-on:keyup.enter="
                 page = 1;
-                retrieveTutorials(searchTitle, $event);
+                retrieveTutorials(searchTitle, false, $event);
               "
               v-model="searchTitle"
               label="Arama"
@@ -42,7 +42,7 @@
                 small
                 @click="
                   page = 1;
-                  retrieveTutorials(searchTitle, $event);
+                  retrieveTutorials(searchTitle, false, $event);
                 "
               >
                 <v-icon>mdi-database-search-outline</v-icon>
@@ -289,7 +289,7 @@ export default {
     /*
       retrieve tutorials from server
     */
-    retrieveTutorials(searchTitle, event) {
+    retrieveTutorials(searchTitle, flagCheck, event) {
       var params = null;
       if (searchTitle && event && event.isTrusted) {
         this.methodarr = null;
@@ -309,6 +309,9 @@ export default {
           this.pageSize,
           this.methodarr
         );
+      }
+      if (flagCheck) {
+        params["requestFlag"] = "userSearch";
       }
 
       if (!event && this.areaJson != null) {
@@ -356,14 +359,14 @@ export default {
     },
     handlePageChange(value) {
       this.page = value;
-      this.retrieveTutorials();
+      this.retrieveTutorials(this.searchTitle, true);
       this.componentKey += 1;
     },
 
     handlePageSizeChange(size) {
       this.pageSize = size;
       this.page = 1;
-      this.retrieveTutorials();
+      this.retrieveTutorials(this.searchTitle, true);
       this.componentKey += 1;
     },
     /*

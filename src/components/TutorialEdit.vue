@@ -177,6 +177,13 @@ export default {
 
     updateTutorial() {
       var latlon = null;
+      if (this.currentTutorial.zone.includes(",")) {
+        this.currentTutorial.zone = this.currentTutorial.zone
+          .split(",")
+          .map(Number);
+      } else {
+        this.currentTutorial.zone = Number(this.currentTutorial.zone);
+      }
 
       if (this.currentTutorial.x != null && this.currentTutorial.y != null) {
         latlon = this.converter(
@@ -247,6 +254,7 @@ export default {
         this.currentTutorial.lon = lat3.toDeg();
       }
       this.currentTutorial.editorame = this.$store.state.auth.user.username;
+      this.currentTutorial.zone = this.currentTutorial.zone.toString();
       TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
         .then(() => {
           this.message = "İçerik Başarıyla Güncellendi";

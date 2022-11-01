@@ -117,6 +117,7 @@ import welllogIcon from "../assets/drilling-rig.png";
 import gravIcon from "../assets/gravity.png";
 import radioIcon from "../assets/radiation-detector.png";
 import airBorneIcon from "../assets/airborne.png";
+import satelliteIcon from "../assets/satellite.png";
 /*
 Feature types:
   - point
@@ -262,6 +263,10 @@ export default {
         {
           text: "Sismik Yöntemler",
           icon: "/seismic.png",
+        },
+        {
+          text: "Uydu Görüntüsü",
+          icon: "/satellite.png",
         },
       ],
     };
@@ -428,7 +433,20 @@ export default {
           })
         );
       }
-      if (currentTutorial.alt_yontem == "Havadan Manyetik") {
+      if (currentTutorial.alt_yontem == "Uydu Görüntüsü") {
+        Icon.Default.mergeOptions({
+          iconRetinaUrl: satelliteIcon,
+          iconUrl: satelliteIcon,
+          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+        });
+        customicon = icon(
+          Object.assign({}, Icon.Default.prototype.options, {
+            satelliteIcon,
+            shadowUrl,
+          })
+        );
+      }
+      if (currentTutorial.alt_yontem.includes("Havadan")) {
         Icon.Default.mergeOptions({
           iconRetinaUrl: airBorneIcon,
           iconUrl: airBorneIcon,
