@@ -4,6 +4,14 @@ function ProfilePlotter(currentTutorial) {
   let utm = null;
   let polyline = null;
   let geoJson = null;
+  if (
+    typeof currentTutorial.zone === "string" &&
+    currentTutorial.zone.includes(",")
+  ) {
+    currentTutorial.zone = currentTutorial.zone.split(",").map(Number);
+  } else {
+    currentTutorial.zone = Number(currentTutorial.zone);
+  }
 
   if (currentTutorial.datum === "WGS_84") {
     utm = new utmObj("WGS 84");
@@ -60,13 +68,18 @@ function ProfilePlotter(currentTutorial) {
       var x = parseInt(cornerCoordinates[0]);
       var y = parseInt(cornerCoordinates[1]);
 
-      var cornerPoint = utm.convertUtmToLatLng(x, y, zone, "N");
+      var cornerPoint = utm.convertUtmToLatLng(
+        x,
+        y,
+        zone.length > 1 ? zone[i] : zone,
+        "N"
+      );
       coordinates.push([cornerPoint.lng, cornerPoint.lat]);
     }
     var close = utm.convertUtmToLatLng(
       parseInt(corners[0].split(",")[0]),
       parseInt(corners[0].split(",")[1]),
-      zone,
+      zone.length > 1 ? zone[0] : zone,
       "N"
     );
     coordinates.push([close.lng, close.lat]);
