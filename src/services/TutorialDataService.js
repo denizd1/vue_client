@@ -58,6 +58,12 @@ class TutorialDataService {
       headers: { "x-access-token": user.accessToken },
     });
   }
+  //get number of tutorials for each alt_yontem
+  AltYontemCount() {
+    return api.get("/tutorials/AltYontemCount", {
+      headers: { "x-access-token": user.accessToken },
+    });
+  }
 
   findByTitle(title) {
     return api.get(`/tutorials?title=${title}`, {
