@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Login from "./components/Login.vue";
-import Register from "./components/Register.vue";
+// import Register from "./components/Register.vue";
 // import store from '@/store/index.js';
 Vue.use(Router);
 
@@ -85,10 +85,10 @@ export const router = new Router({
       name: "giris",
       component: Login,
     },
-    {
-      path: "/kaydol",
-      component: Register,
-    },
+    // {
+    //   path: "/kaydol",
+    //   component: Register,
+    // },
     {
       path: "/profil",
       name: "profil",

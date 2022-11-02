@@ -30,7 +30,7 @@
             <v-text-field
               v-on:keyup.enter="
                 page = 1;
-                retrieveTutorials(searchTitle, false, $event);
+                retrieveTutorials(searchTitle, $event);
               "
               v-model="searchTitle"
               label="Arama"
@@ -42,7 +42,7 @@
                 small
                 @click="
                   page = 1;
-                  retrieveTutorials(searchTitle, false, $event);
+                  retrieveTutorials(searchTitle, $event);
                 "
               >
                 <v-icon>mdi-database-search-outline</v-icon>
@@ -164,7 +164,7 @@ export default {
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       if (!vm.$store.state.auth.user) {
-        next({ name: "calismalar" });
+        next({ name: "giris" });
       } else {
         vm.retrieveTutorials();
       }
@@ -258,17 +258,8 @@ export default {
     getRequestParams(searchTitle, page, pageSize, methodarr) {
       let searchParams = {};
       searchParams["il"] = searchTitle;
-      if (this.selectedCity != null) {
-        searchTitle = this.selectedCity;
-        this.searchTitle = this.selectedCity;
-        searchParams["il"] = searchTitle;
-      }
-      if (this.selectedDistrict != null) {
-        searchTitle = this.selectedDistrict;
-        this.searchTitle = this.selectedDistrict;
+      this.searchTitle = searchTitle;
 
-        searchParams["ilce"] = searchTitle;
-      }
       if (methodarr != null) {
         searchParams["yontem"] = methodarr;
       }
@@ -289,9 +280,10 @@ export default {
     /*
       retrieve tutorials from server
     */
-    retrieveTutorials(searchTitle, flagCheck, event) {
+    retrieveTutorials(searchTitle, event) {
       var params = null;
-      if (searchTitle && event && event.isTrusted) {
+
+      if (event && event.isTrusted) {
         this.methodarr = null;
         bus.$emit("searchDatatoMap", searchTitle);
 
@@ -304,14 +296,11 @@ export default {
         };
       } else {
         params = this.getRequestParams(
-          this.searchTitle,
+          searchTitle,
           this.page,
           this.pageSize,
           this.methodarr
         );
-      }
-      if (flagCheck) {
-        params["requestFlag"] = "userSearch";
       }
 
       if (!event && this.areaJson != null) {
@@ -358,15 +347,16 @@ export default {
       window.open(routeData.href, "_blank");
     },
     handlePageChange(value) {
+      console.log(this.searchTitle);
       this.page = value;
-      this.retrieveTutorials(this.searchTitle, true);
+      this.retrieveTutorials(this.searchTitle);
       this.componentKey += 1;
     },
 
     handlePageSizeChange(size) {
       this.pageSize = size;
       this.page = 1;
-      this.retrieveTutorials(this.searchTitle, true);
+      this.retrieveTutorials(this.searchTitle);
       this.componentKey += 1;
     },
     /*
@@ -421,17 +411,6 @@ export default {
       if (this.areaJson == null) {
         if (searchTitle) {
           excelParams["il"] = searchTitle;
-        } else {
-          if (this.selectedCity != null) {
-            searchTitle = this.selectedCity;
-            this.searchTitle = this.selectedCity;
-            excelParams["il"] = searchTitle;
-          }
-          if (this.selectedDistrict != null) {
-            searchTitle = this.selectedDistrict;
-            this.searchTitle = this.selectedDistrict;
-            excelParams["ilce"] = searchTitle;
-          }
         }
         TutorialDataService.findAllgetAll(excelParams)
           .then((response) => {
@@ -459,18 +438,16 @@ export default {
     bus.$on("searchParam", (city, district, methodarr) => {
       // this.getSelectedcity(data, flag);
       this.areaJson = null;
-      this.selectedCity = city;
-      this.selectedDistrict = district;
+      this.searchTitle = city ? city : district ? district : "";
+
       this.methodarr = methodarr;
       this.page = 1;
-      this.retrieveTutorials();
+      this.retrieveTutorials(this.searchTitle);
       this.componentKey += 1;
     });
     bus.$on("clearAll", (flag) => {
       this.tutorials = [];
       this.searchTitle = "";
-      this.selectedCity = null;
-      this.selectedDistrict = null;
       this.areaJson = null;
       this.methodarr = null;
       if (flag === "fullClean") {
