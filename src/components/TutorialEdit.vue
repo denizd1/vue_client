@@ -57,6 +57,7 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
+import centerOfMass from "@turf/center-of-mass";
 import { bus } from "../main";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
@@ -177,7 +178,10 @@ export default {
 
     updateTutorial() {
       var latlon = null;
-      if (this.currentTutorial.zone.includes(",")) {
+      if (
+        typeof this.currentTutorial.zone === "string" &&
+        this.currentTutorial.zone.includes(",")
+      ) {
         this.currentTutorial.zone = this.currentTutorial.zone
           .split(",")
           .map(Number);
@@ -252,6 +256,63 @@ export default {
         var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
         this.currentTutorial.lat = lng3.toDeg();
         this.currentTutorial.lon = lat3.toDeg();
+      }
+      if (
+        this.currentTutorial.a_1 !== null &&
+        this.currentTutorial.a_2 !== null &&
+        this.currentTutorial.a_3 !== null &&
+        this.currentTutorial.a_4 !== null
+      ) {
+        var corners = [
+          this.currentTutorial.a_1,
+          this.currentTutorial.a_2,
+          this.currentTutorial.a_3,
+          this.currentTutorial.a_4,
+        ]; //typeof string
+        var coordinates = [];
+        var zone = this.currentTutorial.zone;
+        //need to convert string to number then convert utm to latlng
+        for (let i = 0; i < corners.length; i++) {
+          var corner = corners[i];
+          var cornerCoordinates = corner.split(",");
+          var x = parseFloat(cornerCoordinates[0]);
+          var y = parseFloat(cornerCoordinates[1]);
+
+          var cornerPoint = this.converter(
+            x,
+            y,
+            zone.length > 1 ? zone[i] : zone,
+            this.currentTutorial.datum.toString()
+          );
+          coordinates.push([cornerPoint.lng, cornerPoint.lat]);
+        }
+        var close = this.converter(
+          parseFloat(corners[0].split(",")[0]),
+          parseFloat(corners[0].split(",")[1]),
+          zone.length > 1 ? zone[0] : zone,
+          this.currentTutorial.datum.toString()
+        );
+        coordinates.push([close.lng, close.lat]);
+        var geoJson = {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {
+                mytag: "datdat",
+                name: "datdat",
+                tessellate: true,
+              },
+              geometry: {
+                type: "Polygon",
+                coordinates: [coordinates],
+              },
+            },
+          ],
+        };
+        var centerofmass = centerOfMass(geoJson);
+        this.currentTutorial.lat = centerofmass.geometry.coordinates[0];
+        this.currentTutorial.lon = centerofmass.geometry.coordinates[1];
       }
       this.currentTutorial.editorame = this.$store.state.auth.user.username;
       this.currentTutorial.zone = this.currentTutorial.zone.toString();
