@@ -255,10 +255,22 @@ export default {
     /*
       create param object for the request
     */
-    getRequestParams(searchTitle, page, pageSize, methodarr) {
+    getRequestParams(page, pageSize, methodarr) {
       let searchParams = {};
-      searchParams["il"] = searchTitle;
-      this.searchTitle = searchTitle;
+      if (
+        this.selectedCity !== null ||
+        this.selectedCity !== "" ||
+        this.selectedCity !== undefined
+      ) {
+        searchParams["il"] = this.selectedCity;
+      }
+      if (
+        this.selectedDistrict !== null ||
+        this.selectedDistrict !== "" ||
+        this.selectedDistrict !== undefined
+      ) {
+        searchParams["ilce"] = this.selectedDistrict;
+      }
 
       if (methodarr != null) {
         searchParams["yontem"] = methodarr;
@@ -296,7 +308,6 @@ export default {
         };
       } else {
         params = this.getRequestParams(
-          searchTitle,
           this.page,
           this.pageSize,
           this.methodarr
@@ -436,13 +447,18 @@ export default {
   },
   mounted() {
     bus.$on("searchParam", (city, district, methodarr) => {
-      // this.getSelectedcity(data, flag);
       this.areaJson = null;
-      this.searchTitle = city ? city : district ? district : "";
+
+      this.searchTitle = city;
+      this.selectedCity = city;
+      this.selectedDistrict = district;
+      if (district != null) {
+        this.searchTitle = district;
+      }
 
       this.methodarr = methodarr;
       this.page = 1;
-      this.retrieveTutorials(this.searchTitle);
+      this.retrieveTutorials();
       this.componentKey += 1;
     });
     bus.$on("clearAll", (flag) => {
