@@ -257,6 +257,7 @@ export default {
     */
     getRequestParams(page, pageSize, methodarr) {
       let searchParams = {};
+
       if (
         this.selectedCity !== null ||
         this.selectedCity !== "" ||
@@ -285,6 +286,17 @@ export default {
       }
       if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
         searchParams["userStatus"] = "user";
+      }
+      if (
+        (this.selectedCity === null ||
+          this.selectedCity === "" ||
+          this.selectedCity === undefined) &&
+        (this.selectedDistrict === null ||
+          this.selectedDistrict === "" ||
+          this.selectedDistrict === undefined)
+      ) {
+        searchParams["il"] = this.searchTitle;
+        searchParams["requestFlag"] = "userSearch";
       }
 
       return searchParams;
@@ -358,7 +370,6 @@ export default {
       window.open(routeData.href, "_blank");
     },
     handlePageChange(value) {
-      console.log(this.searchTitle);
       this.page = value;
       this.retrieveTutorials(this.searchTitle);
       this.componentKey += 1;

@@ -57,6 +57,8 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
+import citiesLatLongjson from "../../../app/cities_of_turkey.json";
+
 import centerOfMass from "@turf/center-of-mass";
 import { bus } from "../main";
 import { latLng } from "leaflet";
@@ -187,6 +189,26 @@ export default {
           .map(Number);
       } else {
         this.currentTutorial.zone = Number(this.currentTutorial.zone);
+      }
+      var dummyCity = null;
+      var thisCity = null;
+      if (
+        this.currentTutorial.il != null ||
+        this.currentTutorial.il != undefined
+      ) {
+        if (this.currentTutorial.il.includes(",")) {
+          dummyCity = this.currentTutorial.il.split(",")[0];
+          thisCity = citiesLatLongjson.filter(
+            (city) => city.il == dummyCity.trim()
+          )[0];
+        } else {
+          dummyCity = this.currentTutorial.il;
+          thisCity = citiesLatLongjson.filter(
+            (city) => city.il == dummyCity.trim()
+          )[0];
+        }
+        this.currentTutorial.lat = parseFloat(thisCity.longitude);
+        this.currentTutorial.lon = parseFloat(thisCity.latitude);
       }
 
       if (this.currentTutorial.x != null && this.currentTutorial.y != null) {

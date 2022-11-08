@@ -87,7 +87,7 @@
       </v-card>
       <v-card class="text-center justify-center" v-else>
         <v-card-title class="justify-center">
-          Bu dosya veritabanında bulunmaktadır!
+          Beklenmedik bir hata oluştu, lütfen yöneticinizle görüşün.
         </v-card-title>
 
         <v-card-subtitle>
