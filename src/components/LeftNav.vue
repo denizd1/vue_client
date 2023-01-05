@@ -301,6 +301,7 @@ export default {
           this.fillDistrict = this.cities[i].ilceleri;
         }
       }
+
       // var self = this;
       // self.district_id = event;
     },
@@ -333,12 +334,12 @@ export default {
       }
     },
     getResults() {
-      bus.$emit(
-        "sendResults",
-        this.methodControl,
-        this.cityControl,
-        this.districtControl
-      );
+      this.$store.commit("searchParam/updateCity", this.cityControl);
+      this.$store.commit("searchParam/updateDistrict", this.districtControl);
+      this.$store.commit("searchParam/updateMethod", this.methodControl);
+
+      console.log(this.$store);
+      bus.$emit("sendResults");
       bus.$emit("loading", true);
     },
     clearNav() {
