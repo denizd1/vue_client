@@ -436,6 +436,7 @@ export default {
         excelParams["userStatus"] = "user";
       }
       excelParams["yontem"] = this.methodarr ? this.methodarr : null;
+      excelParams["requestFlag"] = "userSearch";
       if (this.areaJson == null) {
         if (searchTitle) {
           excelParams["il"] = searchTitle;
@@ -463,17 +464,17 @@ export default {
     },
   },
   mounted() {
-    bus.$on("searchParam", (city, district, methodarr) => {
+    bus.$on("searchParam", () => {
       this.areaJson = null;
 
-      this.searchTitle = city;
-      this.selectedCity = city;
-      this.selectedDistrict = district;
-      if (district != null) {
-        this.searchTitle = district;
+      this.searchTitle = this.$store.state.searchParam.il;
+      this.selectedCity = this.$store.state.searchParam.il;
+      this.selectedDistrict = this.$store.state.searchParam.ilce;
+      if (this.$store.state.searchParam.ilce != null) {
+        this.searchTitle = this.selectedDistrict;
       }
 
-      this.methodarr = methodarr;
+      this.methodarr = this.$store.state.searchParam.yontem;
       this.page = 1;
       this.retrieveTutorials();
       this.componentKey += 1;
@@ -491,10 +492,10 @@ export default {
       // bus.$emit("clearAll");
       // bus.$emit("clearNav");
     });
-    bus.$on("areaJson", (data, methodarr) => {
+    bus.$on("areaJson", (data) => {
       this.areaJson = data;
       this.searchTitle = "";
-      this.methodarr = methodarr;
+      this.methodarr = this.$store.state.searchParam.yontem;
       this.selectedCity = null;
       this.selectedDistrict = null;
       this.retrieveTutorials();

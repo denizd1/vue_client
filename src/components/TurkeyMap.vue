@@ -163,11 +163,7 @@ function onEachFeature(feature, layer) {
           .catch((e) => {
             console.log(e);
           });
-        bus.$emit(
-          "areaJson",
-          v.geojson.features[0].geometry.coordinates[0],
-          v.methodarr
-        );
+        bus.$emit("areaJson", v.geojson.features[0].geometry.coordinates[0]);
       },
     });
   }
@@ -184,11 +180,17 @@ function onEachFeature(feature, layer) {
       e.originalEvent.target.classList.add("selected");
       e.originalEvent.target.classList.remove("pseudoClass");
       // bus.$emit("searchParam", feature.properties.name);
+      v.$store.commit("searchParam/updateCity", feature.properties.name);
+      v.$store.commit("searchParam/updateDistrict", null);
       v.selectedCityparam = feature.properties.name;
       v.selectedDistrict = null;
 
-      v.dataService(feature.properties.name, null, v.methodarr);
-      bus.$emit("searchParam", feature.properties.name, null, v.methodarr);
+      v.dataService(
+        feature.properties.name,
+        null,
+        v.$store.state.searchParam.yontem
+      );
+      bus.$emit("searchParam");
       bus.$emit("geojsonSelectCity", feature.properties.name);
     });
   }
@@ -513,11 +515,14 @@ export default {
         }
       }, 200);
     });
-    bus.$on("sendResults", (method, city, district) => {
+    bus.$on("sendResults", () => {
+      var city = this.$store.state.searchParam.il;
+      var district = this.$store.state.searchParam.ilce;
+      var method = this.$store.state.searchParam.yontem;
+
       if (city !== null || district !== null) {
         this.geojsonSelector = false;
       }
-      this.methodarr = method;
 
       this.selectedCityparam = city;
       this.selectedDistrict = district;
@@ -530,14 +535,10 @@ export default {
       if (this.geojsonSelector === true) {
         let params = {};
         params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
-        params["yontem"] = this.methodarr;
+        params["yontem"] = method;
         this.polyline = [];
         this.markers = [];
-        bus.$emit(
-          "areaJson",
-          this.geojson.features[0].geometry.coordinates[0],
-          this.methodarr
-        );
+        bus.$emit("areaJson", this.geojson.features[0].geometry.coordinates[0]);
         TutorialDataService.findAllGeo(params)
           .then((response) => {
             for (let i = 0; i < response.data.length; i++) {
@@ -550,11 +551,11 @@ export default {
           });
       }
       if (this.geojsonSelector === false) {
-        this.dataService(city, district, this.methodarr, null);
-        bus.$emit("searchParam", city, district, this.methodarr);
+        this.dataService(city, district, method, null);
+        bus.$emit("searchParam", city, district, method);
       }
 
-      if (this.methodarr === null || this.methodarr === undefined) {
+      if (method === null || method === undefined) {
         this.polyline = [];
         this.markers = [];
         this.$refs.clusterRef.mapObject.refreshClusters();
