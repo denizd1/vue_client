@@ -251,6 +251,14 @@ export default {
           checked: false,
           visibility: false,
         },
+        {
+          id: 5,
+          name: "ilceler",
+          factor: 1,
+          label: "İlçe Sınırları",
+          checked: false,
+          visibility: false,
+        },
       ],
       methodSelect: [
         "Düşey Elektrik Sondajı (DES)",
