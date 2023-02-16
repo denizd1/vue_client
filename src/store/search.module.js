@@ -1,10 +1,11 @@
 //this store module is used to store parameters for search.
-//these parameters are 'il', 'ilce', 'yontem'
+//these parameters are 'il', 'ilce', 'yontem' and 'coords'
 
 const initialState = {
   il: null,
   ilce: null,
   yontem: [],
+  coords: null,
 };
 
 export const searchParam = {
@@ -19,6 +20,9 @@ export const searchParam = {
     },
     updateMethod(state, payload) {
       state.yontem = payload;
+    },
+    updateCoords(state, payload) {
+      state.coords = payload;
     },
   },
 };

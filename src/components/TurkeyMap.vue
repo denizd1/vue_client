@@ -143,6 +143,11 @@ function onEachFeature(feature, layer) {
   if (feature.properties.mytag === "datdat") {
     layer.on({
       click: function () {
+        bus.$emit("loading", true);
+
+        v.$store.commit("searchParam/updateCity", null);
+        v.$store.commit("searchParam/updateDistrict", null);
+        v.$store.commit("searchParam/updateCoords", null);
         let params = {};
         params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = v.methodarr;
@@ -168,7 +173,6 @@ function onEachFeature(feature, layer) {
             console.log(e);
           });
         bus.$emit("areaJson", v.geojson.features[0].geometry.coordinates[0]);
-        bus.$emit("loading", true);
       },
     });
   }
@@ -187,11 +191,12 @@ function onEachFeature(feature, layer) {
       // bus.$emit("searchParam", feature.properties.name);
       v.$store.commit("searchParam/updateCity", feature.properties.name);
       v.$store.commit("searchParam/updateDistrict", null);
+      v.$store.commit("searchParam/updateCoords", feature.geometry.coordinates);
       v.selectedCityparam = feature.properties.name;
       v.selectedDistrict = null;
 
       v.dataService(
-        feature.properties.name,
+        feature.geometry.coordinates,
         null,
         v.$store.state.searchParam.yontem
       );
@@ -227,7 +232,7 @@ export default {
       center: [39.9208, 32.8541],
       url: "http://localhost:8081/styles/basic-preview/{z}/{x}/{y}.png",
       attribution:
-        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a>',
       currentZoom: 6,
       mapOptions: {
         zoomSnap: 0.5,
@@ -301,7 +306,10 @@ export default {
         this.polyline = [];
         this.markers = [];
 
-        params["il"] = city ? city : null;
+        params["il"] =
+          this.$store.state.searchParam.coords != null
+            ? this.$store.state.searchParam.coords
+            : city;
         params["ilce"] = district ? district : null;
         params["yontem"] = selectedMethod ? selectedMethod : null;
         params["userStatus"] = this.$store.state.auth.user.roles.includes(
@@ -552,11 +560,23 @@ export default {
               this.triggerExternalplot(response.data[i]);
             }
           })
+          .then(() => {
+            bus.$emit("loading", false);
+          })
           .catch((e) => {
             console.log(e);
           });
       }
       if (this.geojsonSelector === false) {
+        try {
+          this.$store.commit(
+            "searchParam/updateCoords",
+            this.$refs.geojsonLayer.mapObject._layers[city].feature.geometry
+              .coordinates
+          );
+        } catch (error) {
+          console.log(error);
+        }
         this.dataService(city, district, method, null);
         bus.$emit("searchParam", city, district, method);
       }

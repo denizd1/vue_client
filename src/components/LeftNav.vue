@@ -342,11 +342,11 @@ export default {
       }
     },
     getResults() {
+      this.$store.commit("searchParam/updateCoords", null);
       this.$store.commit("searchParam/updateCity", this.cityControl);
       this.$store.commit("searchParam/updateDistrict", this.districtControl);
       this.$store.commit("searchParam/updateMethod", this.methodControl);
 
-      console.log(this.$store);
       bus.$emit("sendResults");
       bus.$emit("loading", true);
     },

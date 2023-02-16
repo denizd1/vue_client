@@ -73,7 +73,7 @@ export default {
       loading: false,
       url: "http://localhost:8081/styles/basic-preview/{z}/{x}/{y}.png",
       attribution:
-        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a>',
       currentZoom: 11.5,
       citiesLatLongjson: citiesLatLongjson,
       mapOptions: {

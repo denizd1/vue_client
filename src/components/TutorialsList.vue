@@ -468,7 +468,10 @@ export default {
       this.areaJson = null;
 
       this.searchTitle = this.$store.state.searchParam.il;
-      this.selectedCity = this.$store.state.searchParam.il;
+      this.selectedCity =
+        this.$store.state.searchParam.coords != null
+          ? this.$store.state.searchParam.coords
+          : this.$store.state.searchParam.il;
       this.selectedDistrict = this.$store.state.searchParam.ilce;
       if (this.$store.state.searchParam.ilce != null) {
         this.searchTitle = this.selectedDistrict;
