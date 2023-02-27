@@ -1,6 +1,6 @@
 <template>
-  <v-row>
-    <v-col cols="12" sm="3" v-if="currentUser">
+  <v-row v-if="currentUser">
+    <v-col cols="12" md="3">
       <v-card>
         <v-card-text>
           <v-row>
@@ -21,18 +21,42 @@
                     : "Kullanıcı"
                 }}
               </p>
-              <pie-chart
-                v-if="
-                  currentUser.roles[0] === 'ROLE_ADMIN' ||
-                  currentUser.roles[0] === 'ROLE_MODERATOR'
-                "
-              ></pie-chart>
+            </v-col>
+          </v-row>
+          <v-row v-if="toggleList">
+            <v-col cols="12">
+              <v-list>
+                <v-list-item v-for="(user, index) in users" :key="index">
+                  <v-list-item-title sm="8" v-text="user.username">
+                  </v-list-item-title>
+                  <v-select
+                    style="width: 230px !important"
+                    :items="['User', 'Moderator', 'Admin']"
+                    label="Rol"
+                    @change="selectRole"
+                  ></v-select>
+                </v-list-item>
+              </v-list>
+
+              <v-card-actions>
+                <v-btn
+                  @click="updateUserDB"
+                  color="primary"
+                  class="mx-auto"
+                  style="width: 100px"
+                >
+                  Güncelle
+                </v-btn>
+              </v-card-actions>
             </v-col>
           </v-row>
         </v-card-text>
+        <v-card-text v-if="message !== ''"
+          ><p>{{ message }}</p>
+        </v-card-text>
       </v-card>
     </v-col>
-    <v-col cols="12" sm="9" v-if="currentUser.roles[0] === 'ROLE_ADMIN'">
+    <v-col cols="12" md="9" v-if="currentUser.roles[0] === 'ROLE_ADMIN'">
       <v-row class="px-3">
         <v-col cols="12" sm="12">
           <v-row>
@@ -95,13 +119,11 @@
 
 <script>
 import TutorialDataService from "../services/TutorialDataService";
-import PieChart from "./PieChart";
+import UserService from "../services/user.service";
 
 export default {
   name: "Profile",
-  components: {
-    PieChart,
-  },
+
   data() {
     return {
       tutorials: [],
@@ -112,6 +134,10 @@ export default {
       pageSize: 5,
       pageSizes: [5, 10, 15],
       componentKey: 0,
+      users: [],
+      userRoles: [],
+      message: "",
+      toggleList: false,
     };
   },
   computed: {
@@ -145,9 +171,51 @@ export default {
           vm.retrieveTutorials();
         }
       }
+      //get all users before route enter
+      UserService.getAllUsers()
+        .then((response) => {
+          vm.users = response.data;
+          if (vm.users.length > 0) {
+            vm.toggleList = true;
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     });
   },
   methods: {
+    selectRole(event) {
+      var role = null;
+      if (event === "User") {
+        role = 1;
+      } else if (event === "Moderator") {
+        role = 2;
+      } else if (event === "Admin") {
+        role = 3;
+      }
+      this.userRoles.push(role);
+    },
+    //fırst update each user role in user array with corresponding select value then update user db
+    updateUserDB() {
+      if (this.userRoles.length !== this.users.length) {
+        this.message = "Lütfen tüm kullanıcıların rolünü seçiniz.";
+        return;
+      } else {
+        this.message = "";
+        this.users.forEach((user, i) => {
+          this.users[i].role = this.userRoles[i];
+          UserService.updateUser(user)
+            .then(() => {})
+            .catch((e) => {
+              console.log(e);
+            });
+        });
+      }
+      this.toggleList = false;
+      this.message = "Kullanıci rolleri başarıyla güncellendi.";
+    },
+
     retrieveTutorials() {
       var params = null;
 

@@ -230,9 +230,9 @@ export default {
       citiesLatLongjson: citiesLatLongjson,
       zoom: 6,
       center: [39.9208, 32.8541],
-      url: "http://localhost:8081/styles/basic-preview/{z}/{x}/{y}.png",
+      url: "http://localhost:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
       attribution:
-        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a>',
+        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       currentZoom: 6,
       mapOptions: {
         zoomSnap: 0.5,

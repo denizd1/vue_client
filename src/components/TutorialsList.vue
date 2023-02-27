@@ -439,7 +439,10 @@ export default {
       excelParams["requestFlag"] = "userSearch";
       if (this.areaJson == null) {
         if (searchTitle) {
-          excelParams["il"] = searchTitle;
+          excelParams["il"] =
+            this.$store.state.searchParam.coords != null
+              ? this.$store.state.searchParam.coords
+              : searchTitle;
         }
         TutorialDataService.findAllgetAll(excelParams)
           .then((response) => {

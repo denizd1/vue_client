@@ -1,21 +1,14 @@
-import api from './api';
+import api from "./api";
 
 class UserService {
-  getPublicContent() {
-    return api.get('/mtaapp/all');
+  getAllUsers() {
+    return api.get("/users/userlist");
   }
-
-  getUserBoard() {
-    return api.get('/mtaapp/user');
-  }
-
-  getModeratorBoard() {
-    return api.get('/mtaapp/mod');
-  }
-
-  getAdminBoard() {
-    return api.get('/mtaapp/admin');
+  //user_role table is belongs to user and role table. we need to update user_role table when we update user table.
+  updateUser(data) {
+    return api.put("/users/updateUser", data);
   }
 }
+//update user roles
 
 export default new UserService();
