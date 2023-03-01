@@ -436,7 +436,7 @@ export default {
         excelParams["userStatus"] = "user";
       }
       excelParams["yontem"] = this.methodarr ? this.methodarr : null;
-      excelParams["requestFlag"] = "userSearch";
+      excelParams["requestFlag"] = "excel";
       if (this.areaJson == null) {
         if (searchTitle) {
           excelParams["il"] =
