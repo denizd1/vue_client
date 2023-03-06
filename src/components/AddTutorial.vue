@@ -87,7 +87,8 @@
       </v-card>
       <v-card class="text-center justify-center" v-else>
         <v-card-title class="justify-center">
-          Beklenmedik bir hata oluştu, lütfen yöneticinizle görüşün.
+          Bir hata oluştu!
+          {{ message }}
         </v-card-title>
 
         <v-card-subtitle>
@@ -117,6 +118,7 @@ export default {
       show: false,
       allAdded: false,
       loading: false,
+      message: "",
     };
   },
   /*Check role before route enter */
@@ -174,7 +176,12 @@ export default {
           this.allAdded = true;
           this.loading = false;
         })
-        .catch(() => {
+        .catch((err) => {
+          this.message =
+            (err.response && err.response.data && err.response.data.message) ||
+            err.message ||
+            err.toString();
+
           this.submitted = true;
           this.loading = false;
           this.currentFile = undefined;
