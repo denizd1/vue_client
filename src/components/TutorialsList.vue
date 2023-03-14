@@ -160,7 +160,7 @@ export default {
   },
   /*
     check if user is admin or moderator before loading the page
-  */
+*/
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       if (!vm.$store.state.auth.user) {
@@ -314,8 +314,13 @@ export default {
       var params = null;
 
       if (event && event.isTrusted) {
+        this.$store.commit("searchParam/updateCoords", null);
+        this.$store.commit("searchParam/updateCity", null);
+        this.$store.commit("searchParam/updateDistrict", null);
         this.methodarr = null;
         bus.$emit("searchDatatoMap", searchTitle);
+        this.selectedCity = null;
+        this.selectedDistrict = null;
 
         params = {
           il: searchTitle, // !!! il is just a placeholder for the searchTitle,

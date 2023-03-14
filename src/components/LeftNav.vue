@@ -195,6 +195,8 @@
 <script>
 import EventBus from "../common/EventBus";
 import { bus } from "../main";
+import api from "../services/api";
+
 import citiesJson from "../../../app/cities_of_turkey.json";
 
 export default {
@@ -211,7 +213,7 @@ export default {
       menuItems: [
         {
           title: "Kaydol",
-          path: "/kaydol",
+          path: "/giris?tab=kaydol",
           icon: "mdi-account-plus-outline",
         },
         { title: "Giriş Yap", path: "/giris", icon: "mdi-login" },
@@ -291,7 +293,23 @@ export default {
     deleteItem(item) {
       this.methodControl = this.methodControl.filter((find) => find !== item);
     },
-    handleCityChange(event) {
+    async handleCityChange(event) {
+      const response = await api.get(`/getGeoJson${0}`);
+
+      const data = await response.data;
+      this.$nextTick(() => {
+        data.features.find((item) => {
+          if (item.properties.name === event) {
+            this.$store.commit(
+              "searchParam/updateCoords",
+              item.geometry.coordinates
+            );
+          }
+        });
+      });
+
+      this.$store.commit("searchParam/updateCity", event);
+      this.$store.commit("searchParam/updateDistrict", null);
       this.districtControl = null;
       for (let i = 0; i < this.scaleControls.length; i++) {
         if (
@@ -342,7 +360,9 @@ export default {
       }
     },
     getResults() {
-      this.$store.commit("searchParam/updateCoords", null);
+      if (this.cityControl === null || this.cityControl === undefined) {
+        this.$store.commit("searchParam/updateCoords", null);
+      }
       this.$store.commit("searchParam/updateCity", this.cityControl);
       this.$store.commit("searchParam/updateDistrict", this.districtControl);
       this.$store.commit("searchParam/updateMethod", this.methodControl);

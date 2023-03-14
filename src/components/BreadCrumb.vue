@@ -1,20 +1,22 @@
 <template>
-  <v-breadcrumbs
-    style="position: relative; z-index: 4"
-    :items="breadCrumbs"
-    divider="/"
-  >
-    <template v-slot:item="{ item }">
-      <v-breadcrumbs-item
-        :to="item.to"
-        class="text-subtitle-2 crumb-item"
-        :disabled="item.disabled"
-        exact
-      >
-        {{ item.text }}
-      </v-breadcrumbs-item>
-    </template>
-  </v-breadcrumbs>
+  <v-row>
+    <v-breadcrumbs
+      style="position: relative; z-index: 4"
+      :items="breadCrumbs"
+      divider="/"
+    >
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+          :to="item.to"
+          class="text-subtitle-2 crumb-item"
+          :disabled="item.disabled"
+          exact
+        >
+          {{ item.text }}
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
+  </v-row>
 </template>
 
 <script>

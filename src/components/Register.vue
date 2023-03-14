@@ -1,12 +1,13 @@
 <template>
   <v-card
-    class="mx-auto pa-5 ma-5"
-    max-width="400"
+    dark
+    class="mx-auto pa-5 rounded-t-0"
+    style="z-index: 99; opacity: 0.8"
     elevation="2"
-    style="z-index: 99"
   >
     <v-form ref="form" v-model="valid" lazy-validation v-if="!submitted">
       <v-text-field
+        color="blue darken-2"
         v-model="user.username"
         label="Kullanıcı Adı"
         :rules="nameRules"
@@ -15,6 +16,7 @@
         required
       ></v-text-field>
       <v-text-field
+        color="blue darken-2"
         v-model="user.email"
         :rules="emailRules"
         label="E-mail"
@@ -23,6 +25,7 @@
         required
       ></v-text-field>
       <v-text-field
+        color="blue darken-2"
         v-model="user.password"
         label="Şifre"
         :rules="passwordRules"
@@ -48,9 +51,13 @@
         {{ message }}
       </v-alert>
     </v-form>
-    <div style="z-index: 99" v-else>
+
+    <div style="z-index: 99 margin-bottom:20px" v-else>
       <v-card-title class="justify-center"> Kaydınız Tamamlandı! </v-card-title>
     </div>
+    <p style="margin: 20px 0 0 0" class="font-weight-thin text-center">
+      ProjectHub | MTA Jeofizik
+    </p>
   </v-card>
 </template>
 

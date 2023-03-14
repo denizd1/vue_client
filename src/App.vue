@@ -12,27 +12,26 @@
         </v-flex>
       </v-layout>
     </v-overlay>
-    <left-nav></left-nav>
-    <!-- <header>
-      <v-img
-        class="mta-logo mx-auto"
-        src="../src/assets/logo.png"
-        alt="MTA logo"
-      ></v-img>
-    </header> -->
+    <left-nav v-if="!$route.meta.hideNavbar"></left-nav>
     <v-main>
-      <v-container fluid>
-        <bread-crumb></bread-crumb>
+      <v-container fluid class="fill-height">
+        <bread-crumb v-if="!$route.meta.hideNavbar"></bread-crumb>
         <router-view />
       </v-container>
     </v-main>
     <v-footer absolute padless app color="transparent">
-      <v-col transparent class="text-center" cols="12">
+      <v-col
+        transparent
+        :class="{ colorWhite: isLoginScreen }"
+        class="text-center"
+        cols="12"
+      >
         Her Hakkı Saklıdır © MTA {{ new Date().getFullYear() }}
       </v-col>
     </v-footer>
     <vue-particles
       class="particle-bg"
+      :class="{ withBG: isLoginScreen }"
       color="#dedede"
       :particleOpacity="0.7"
       :particlesNumber="300"
@@ -76,6 +75,11 @@ export default {
       this.$router.push("/giris");
     },
   },
+  computed: {
+    isLoginScreen() {
+      return this.$route.path === "/giris";
+    },
+  },
   mounted() {
     bus.$on("loading", (value) => {
       this.loading = value;
@@ -94,10 +98,49 @@ export default {
 </script>
 <style>
 .particle-bg {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 99%;
+  height: 100%;
+}
+.colorWhite {
+  color: #fff;
+}
+.withBG {
+  background-image: url("./assets/bg/2.jpg");
+  background-position: bottom;
+  background-repeat: no-repeat;
+  background-color: black;
+  background-size: cover;
+}
+label.theme--dark + input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: #fff !important; /* inherit only works in Safari */
+  -webkit-text-size-adjust: inherit !important;
+}
+
+label.theme--light + input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: #000 !important; /* inherit only works in Safari */
+  -webkit-text-size-adjust: inherit !important;
+}
+
+/* When dark theme, then make keychain icon white */
+label.theme--dark + input::-webkit-credentials-auto-fill-button {
+  background-color: #fff !important;
+}
+
+/* Hide credentials-auto-fill-button in password inputs, only visible on other inputs */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
 }
 </style>

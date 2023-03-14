@@ -84,10 +84,16 @@ export const router = new Router({
       path: "/giris",
       name: "giris",
       component: Login,
+      meta: {
+        hideNavbar: true,
+      },
     },
     {
-      path: "/kaydol",
+      path: "/giris?tab=kaydol",
       component: Register,
+      meta: {
+        hideNavbar: true,
+      },
     },
     {
       path: "/profil",

@@ -1,5 +1,5 @@
 <template>
-  <v-col cols="12" style="height: 500px; width: 100%">
+  <v-col cols="12" style="height: 80vh; width: 100vw">
     <l-map
       v-if="showMap"
       ref="map"
@@ -230,7 +230,7 @@ export default {
       citiesLatLongjson: citiesLatLongjson,
       zoom: 6,
       center: [39.9208, 32.8541],
-      url: "http://localhost:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
+      url: "http://10.68.19.137:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
       attribution:
         'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       currentZoom: 6,
@@ -568,15 +568,6 @@ export default {
           });
       }
       if (this.geojsonSelector === false) {
-        try {
-          this.$store.commit(
-            "searchParam/updateCoords",
-            this.$refs.geojsonLayer.mapObject._layers[city].feature.geometry
-              .coordinates
-          );
-        } catch (error) {
-          console.log(error);
-        }
         this.dataService(city, district, method, null);
         bus.$emit("searchParam", city, district, method);
       }

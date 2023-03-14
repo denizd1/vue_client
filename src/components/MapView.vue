@@ -71,7 +71,7 @@ export default {
       polyline: null,
       zoom: 11.5,
       loading: false,
-      url: "http://localhost:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
+      url: "http://10.68.19.137:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
       attribution:
         'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       currentZoom: 11.5,

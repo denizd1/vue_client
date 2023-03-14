@@ -114,7 +114,7 @@ export default {
         "Enerji Kaynağı",
         "Km^2",
         "Profil Boyu (km)",
-        "Elektrot Aralığı",
+        "Elektrot Aralığı / Pot Aralığı (m)",
         "Dizilim Türü",
         "Seviye Sayısı",
         "Profil Aralığı",
