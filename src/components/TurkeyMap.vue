@@ -14,20 +14,18 @@
       <v-icondefault></v-icondefault>
       <l-tile-layer :url="url" :attribution="attribution" />
 
-      <v-marker-cluster ref="clusterRef">
-        <v-marker
-          v-for="marker in markers"
-          :key="marker.id"
-          :lat-lng="marker.latlng"
-          :icon="marker.icon"
-          :class="$style.baz"
-        >
-          <v-popup>
-            <button @click="handlePopupClick(marker.id)">
-              {{ marker.text }}
-            </button>
-          </v-popup>
-        </v-marker>
+      <v-marker-cluster
+        v-if="markerReady"
+        ref="clusterRef"
+        :options="{
+          chunkedLoading: true,
+        }"
+      >
+        <l-geo-json
+          :key="clusterKey"
+          :options="geoJsonOptions"
+          :geojson="markers"
+        ></l-geo-json>
       </v-marker-cluster>
       <l-polyline
         v-for="(line, index) in polyline"
@@ -92,11 +90,9 @@ import {
   LMap,
   LGeoJson,
   LTileLayer,
-  LMarker,
   LPolyline,
   LControlScale,
   LIconDefault,
-  LPopup,
   LControl,
 } from "vue2-leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
@@ -158,12 +154,15 @@ function onEachFeature(feature, layer) {
           : null;
         v.polyline = [];
         v.markers = [];
+        v.markerReady = false;
+        v.clusterKey++;
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            for (let i = 0; i < response.data.length; i++) {
-              //profileplotter.js ile nokta ve profilleri cizmek icin
-              v.triggerExternalplot(response.data[i]);
-            }
+            v.markers = response.data;
+          })
+          .then(() => {
+            v.clusterKey++;
+            v.markerReady = true;
           })
           .then(() => {
             bus.$emit("loading", false);
@@ -217,15 +216,13 @@ export default {
     LControl,
     DatatoGeoJson,
     "v-marker-cluster": Vue2LeafletMarkerCluster,
-    "v-marker": LMarker,
     "v-icondefault": LIconDefault,
-    "v-popup": LPopup,
   },
   data() {
     return {
       polyline: [],
       responseData: null,
-      markers: [],
+      markers: null,
       colorScale: ["e7d090", "e9ae7b", "de7062"],
       citiesLatLongjson: citiesLatLongjson,
       zoom: 6,
@@ -242,12 +239,13 @@ export default {
       showGeojson: false,
       searchParam: null,
       options: { onEachFeature: onEachFeature.bind(this) },
-
+      markerReady: false,
       methodarr: null,
       selectedCityparam: null,
       selectedDistrict: null,
       selectedJsonparam: null,
       geojsonSelector: false,
+      clusterKey: 0,
       legend: [
         {
           text: "Elektrik ve Elektromanyetik Yöntemler",
@@ -282,25 +280,152 @@ export default {
           icon: "/satellite.png",
         },
       ],
+      geoJsonOptions: {
+        onEachFeature: (feature, layer) => {
+          const div = document.createElement("div");
+
+          const button = document.createElement("button");
+          button.innerHTML = feature.properties.nokta_adi;
+          button.onclick = () => {
+            let routeData = this.$router.resolve({
+              name: "calisma",
+              params: {
+                id: feature.properties.id,
+              },
+            });
+            window.open(routeData.href, "_blank");
+          };
+
+          div.appendChild(button);
+          layer.bindPopup(div);
+          var customicon = null;
+
+          if (feature.properties.yontem == "Sismik Yöntemler") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: seismicIcon,
+              iconUrl: seismicIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                seismicIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (
+            feature.properties.yontem == "Elektrik ve Elektromanyetik Yöntemler"
+          ) {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: emIcon,
+              iconUrl: emIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                emIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (feature.properties.yontem == "Kuyu Ölçüleri") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: welllogIcon,
+              iconUrl: welllogIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                welllogIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (feature.properties.alt_yontem == "Gravite") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: gravIcon,
+              iconUrl: gravIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                gravIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (feature.properties.alt_yontem == "Manyetik") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: magIcon,
+              iconUrl: magIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                magIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (feature.properties.alt_yontem == "Radyometri") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: radioIcon,
+              iconUrl: radioIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                radioIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (feature.properties.alt_yontem == "Uydu Görüntüsü") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: satelliteIcon,
+              iconUrl: satelliteIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                satelliteIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+          if (feature.properties.alt_yontem.includes("Havadan")) {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: airBorneIcon,
+              iconUrl: airBorneIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                airBorneIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
+        },
+      },
     };
   },
   methods: {
-    /*
-    popup redirect to detail page
-    */
-    handlePopupClick(val) {
-      let routeData = this.$router.resolve({
-        name: "calisma",
-        params: { id: val },
-      });
-      window.open(routeData.href, "_blank");
-    },
     /*
     get data from data service
     */
     dataService(city, district, selectedMethod, requestFlag) {
       this.polyline = [];
       this.markers = [];
+      this.markerReady = false;
       if (city || district || selectedMethod) {
         let params = {};
         this.polyline = [];
@@ -320,13 +445,13 @@ export default {
         params["requestFlag"] = requestFlag ? requestFlag : null;
         TutorialDataService.findAllgetAll(params)
           .then((response) => {
-            this.responseData = response.data;
-
-            for (let i = 0; i < this.responseData.length; i++) {
-              //profileplotter.js ile nokta ve profilleri cizmek icin
-              this.triggerExternalplot(this.responseData[i]);
-            }
+            this.markers = response.data;
           })
+          .then(() => {
+            this.clusterKey++;
+            this.markerReady = true;
+          })
+
           .then(() => {
             bus.$emit("loading", false);
           })
@@ -360,123 +485,8 @@ export default {
       if (params.polyline !== null) {
         this.polyline.push(params.polyline);
       }
-      var methodIcon = this.iconFunc(currentTutorial);
+    },
 
-      this.markers.push({
-        id: currentTutorial.id,
-        latlng: [currentTutorial.lon, currentTutorial.lat],
-        text: currentTutorial.nokta_adi,
-        icon: methodIcon,
-      });
-    },
-    iconFunc(currentTutorial) {
-      var customicon = null;
-      if (currentTutorial.yontem == "Sismik Yöntemler") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: seismicIcon,
-          iconUrl: seismicIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            seismicIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.yontem == "Elektrik ve Elektromanyetik Yöntemler") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: emIcon,
-          iconUrl: emIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            emIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.yontem == "Kuyu Ölçüleri") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: welllogIcon,
-          iconUrl: welllogIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            welllogIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.alt_yontem == "Gravite") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: gravIcon,
-          iconUrl: gravIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            gravIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.alt_yontem == "Manyetik") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: magIcon,
-          iconUrl: magIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            magIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.alt_yontem == "Radyometri") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: radioIcon,
-          iconUrl: radioIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            radioIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.alt_yontem == "Uydu Görüntüsü") {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: satelliteIcon,
-          iconUrl: satelliteIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            satelliteIcon,
-            shadowUrl,
-          })
-        );
-      }
-      if (currentTutorial.alt_yontem.includes("Havadan")) {
-        Icon.Default.mergeOptions({
-          iconRetinaUrl: airBorneIcon,
-          iconUrl: airBorneIcon,
-          shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-        });
-        customicon = icon(
-          Object.assign({}, Icon.Default.prototype.options, {
-            airBorneIcon,
-            shadowUrl,
-          })
-        );
-      }
-      return customicon;
-    },
     /*
 
     /*
@@ -533,6 +543,8 @@ export default {
       var city = this.$store.state.searchParam.il;
       var district = this.$store.state.searchParam.ilce;
       var method = this.$store.state.searchParam.yontem;
+      this.markers = [];
+      this.markerReady = false;
 
       if (city !== null || district !== null) {
         this.geojsonSelector = false;
@@ -542,6 +554,7 @@ export default {
       this.selectedDistrict = district;
       this.polyline = [];
       this.markers = [];
+      this.markerReady = false;
       if (this.geojsonSelector === false) {
         this.scaleService(0);
       }
@@ -555,10 +568,11 @@ export default {
         bus.$emit("areaJson", this.geojson.features[0].geometry.coordinates[0]);
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            for (let i = 0; i < response.data.length; i++) {
-              //profileplotter.js ile nokta ve profilleri cizmek icin
-              this.triggerExternalplot(response.data[i]);
-            }
+            this.markers = response.data;
+          })
+          .then(() => {
+            this.clusterKey++;
+            this.markerReady = true;
           })
           .then(() => {
             bus.$emit("loading", false);
@@ -621,6 +635,7 @@ export default {
       this.showGeojson = false;
       this.geojson = null;
       this.geojsonSelector = false;
+      this.clusterKey++;
       this.$refs.map.setCenter([39.9208, 32.8541]);
       this.$refs.map.setZoom(6);
       this.$refs.clusterRef.mapObject.refreshClusters();
@@ -635,6 +650,7 @@ export default {
       this.showGeojson = false;
       this.geojsonSelector = false;
       this.geojson = null;
+      this.clusterKey++;
       this.$refs.clusterRef.mapObject.refreshClusters();
       this.dataService(param, null, null, "userSearch");
     });

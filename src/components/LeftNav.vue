@@ -213,7 +213,7 @@ export default {
       menuItems: [
         {
           title: "Kaydol",
-          path: "/giris?tab=kaydol",
+          path: "/giris",
           icon: "mdi-account-plus-outline",
         },
         { title: "Giriş Yap", path: "/giris", icon: "mdi-login" },

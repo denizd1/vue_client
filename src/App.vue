@@ -14,7 +14,7 @@
     </v-overlay>
     <left-nav v-if="!$route.meta.hideNavbar"></left-nav>
     <v-main>
-      <v-container fluid class="fill-height">
+      <v-container fluid :class="{ 'fill-height': isLoginScreen }">
         <bread-crumb v-if="!$route.meta.hideNavbar"></bread-crumb>
         <router-view />
       </v-container>

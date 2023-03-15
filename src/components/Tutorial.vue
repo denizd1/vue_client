@@ -52,6 +52,13 @@ export default {
     exportExcel() {
       const XLSX = require("xlsx");
       const fileName = this.currentTutorial.nokta_adi + ".xlsx";
+
+      delete this.currentTutorial.id;
+      delete this.currentTutorial.published;
+      delete this.currentTutorial.createdAt;
+      delete this.currentTutorial.updatedAt;
+      delete this.currentTutorial.editorname;
+
       const ws = XLSX.utils.json_to_sheet(
         JSON.parse(JSON.stringify([this.currentTutorial]))
       );

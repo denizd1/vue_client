@@ -110,6 +110,13 @@ export default {
       return this.$store.state.auth.status.loggedIn;
     },
   },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      if (vm.$route.fullPath === "/?tab=giris") {
+        vm.$router.push("/giris?tab=giris");
+      }
+    });
+  },
   created() {
     if (this.loggedIn) {
       this.$router.push("/calismalar");

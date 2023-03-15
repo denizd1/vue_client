@@ -177,6 +177,7 @@ export default {
           this.loading = false;
         })
         .catch((err) => {
+          this.allAdded = false;
           this.message =
             (err.response && err.response.data && err.response.data.message) ||
             err.message ||

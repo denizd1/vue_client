@@ -89,7 +89,7 @@ export const router = new Router({
       },
     },
     {
-      path: "/giris?tab=kaydol",
+      path: "/giris",
       component: Register,
       meta: {
         hideNavbar: true,
