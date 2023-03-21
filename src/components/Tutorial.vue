@@ -67,22 +67,23 @@ export default {
       XLSX.writeFile(wb, fileName);
     },
   },
-  async beforeRouteEnter(to, from, next) {
-    let fetchTutorial = await TutorialDataService.get(to.params.id);
-
+  beforeRouteEnter(to, from, next) {
     next((vm) => {
       var thisPerson = vm.$store.state.auth.user;
+
       if (thisPerson) {
         var thisUser = thisPerson.roles.includes("ROLE_USER");
         var thisAdmin = thisPerson.roles.includes("ROLE_ADMIN");
         var thisMod = thisPerson.roles.includes("ROLE_MODERATOR");
-        if (thisAdmin || thisMod) {
-          vm.visibility = true;
-          vm.currentTutorial = fetchTutorial.data;
-        } else if (thisUser && fetchTutorial.data.published === true) {
-          vm.currentTutorial = fetchTutorial.data;
-        }
-        bus.$emit("reRender");
+        TutorialDataService.get(to.params.id).then((response) => {
+          if (thisAdmin || thisMod) {
+            vm.visibility = true;
+            vm.currentTutorial = response.data;
+          } else if (thisUser && response.data.published === true) {
+            vm.currentTutorial = response.data;
+          }
+          bus.$emit("reRender");
+        });
       } else {
         next({ name: "giris" });
       }

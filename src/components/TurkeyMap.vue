@@ -195,7 +195,7 @@ function onEachFeature(feature, layer) {
       v.selectedDistrict = null;
 
       v.dataService(
-        feature.geometry.coordinates,
+        feature.properties.name,
         null,
         v.$store.state.searchParam.yontem
       );
@@ -431,10 +431,7 @@ export default {
         this.polyline = [];
         this.markers = [];
 
-        params["il"] =
-          this.$store.state.searchParam.coords != null
-            ? this.$store.state.searchParam.coords
-            : city;
+        params["il"] = city;
         params["ilce"] = district ? district : null;
         params["yontem"] = selectedMethod ? selectedMethod : null;
         params["userStatus"] = this.$store.state.auth.user.roles.includes(
@@ -625,7 +622,6 @@ export default {
       this.showGeojson = false;
       this.geojson = null;
       this.geojsonSelector = false;
-      this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("clearAll", () => {
       bus.$emit("clearNavSelections");
@@ -638,7 +634,6 @@ export default {
       this.clusterKey++;
       this.$refs.map.setCenter([39.9208, 32.8541]);
       this.$refs.map.setZoom(6);
-      this.$refs.clusterRef.mapObject.refreshClusters();
     });
     bus.$on("searchDatatoMap", (param) => {
       bus.$emit("clearMap");
@@ -651,7 +646,6 @@ export default {
       this.geojsonSelector = false;
       this.geojson = null;
       this.clusterKey++;
-      this.$refs.clusterRef.mapObject.refreshClusters();
       this.dataService(param, null, null, "userSearch");
     });
   },

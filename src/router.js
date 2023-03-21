@@ -78,7 +78,7 @@ export const router = new Router({
     {
       path: "/",
       name: "anasayfa",
-      component: Login,
+      component: () => import("./components/TutorialsList"),
     },
     {
       path: "/giris",
