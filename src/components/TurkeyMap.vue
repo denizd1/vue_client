@@ -171,7 +171,7 @@ function onEachFeature(feature, layer) {
           .catch((e) => {
             console.log(e);
           });
-        bus.$emit("areaJson", v.geojson.features[0].geometry.coordinates[0]);
+        bus.$emit("areaJson", v.geojson.features);
       },
     });
   }

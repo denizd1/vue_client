@@ -19,7 +19,7 @@
             prepend-icon="mdi-paperclip"
             outlined
             :show-size="1000"
-            accept=".txt"
+            accept=".txt, .kmz"
           >
             <template v-slot:selection="{ index, text }">
               <v-chip
@@ -77,6 +77,10 @@ import { bus } from "../main";
 import { latLng } from "leaflet";
 import * as utmObj from "utm-latlng";
 import centerofmass from "@turf/center-of-mass";
+//import JSZip package
+import JSZip from "jszip";
+//import togeojson
+import toGeoJSON from "@mapbox/togeojson";
 export default {
   name: "DatatoGeoJson",
   data() {
@@ -152,25 +156,111 @@ export default {
     },
     importData() {
       bus.$emit("clearMap");
-      if (this.selectedDatum === null) {
-        this.message = "Datum Seçiniz";
-        return;
-      } else {
-        this.filestoImport.forEach((file) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.coordinates = this.spliceIntoChunks(
-              JSON.parse(
-                "[" +
-                  e.target.result.split("\n").map((line) => line.split("\t")) +
-                  "]"
-              ),
-              3
-            );
-          };
-          reader.readAsBinaryString(file);
-        });
+
+      //get uploaded file extension
+      let getDom = (xml) => new DOMParser().parseFromString(xml, "text/xml");
+      let getExtension = this.filestoImport[0].name.split(".").pop();
+      if (getExtension === "kmz" || getExtension === "KMZ") {
+        //use jzip and togeojson to convert kmz to geojson
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          JSZip.loadAsync(e.target.result).then((zip) => {
+            zip
+              .file("doc.kml")
+              .async("string")
+              .then((kml) => {
+                var geojson = toGeoJSON.kml(getDom(kml));
+                geojson.features[0].properties.mytag = "datdat";
+                geojson.features[0].properties.name = "datdat";
+                geojson.features[0].properties.tessellate = true;
+                delete geojson.features[0].properties["stroke"];
+                delete geojson.features[0].properties["stroke-opacity"];
+                delete geojson.features[0].properties["stroke-width"];
+                delete geojson.features[0].properties.styleHash;
+                delete geojson.features[0].properties.styleUrl;
+
+                //calculate center of mass if geojson is polygon
+                if (
+                  geojson.features[0].geometry.type === "Polygon" ||
+                  geojson.features[0].geometry.type === "MultiPolygon"
+                ) {
+                  var centerOfMass = centerofmass(geojson);
+                  bus.$emit(
+                    "plotGeojson",
+                    geojson,
+                    [
+                      centerOfMass.geometry.coordinates[1],
+                      centerOfMass.geometry.coordinates[0],
+                    ],
+                    "geojsonFlag"
+                  );
+                }
+                //if linestring, calculate center of mass
+                if (
+                  geojson.features[0].geometry.type === "LineString" ||
+                  geojson.features[0].geometry.type === "MultiLineString"
+                ) {
+                  //convert linestring to polygon
+                  var linestring = geojson.features[0].geometry.coordinates;
+                  var polygon = [];
+                  polygon.push(linestring);
+                  geojson.features[0].geometry.coordinates = polygon;
+                  geojson.features[0].geometry.type = "Polygon";
+
+                  var masscenter = centerofmass(geojson);
+                  bus.$emit(
+                    "plotGeojson",
+                    geojson,
+                    [
+                      masscenter.geometry.coordinates[1],
+                      masscenter.geometry.coordinates[0],
+                    ],
+                    "geojsonFlag"
+                  );
+                }
+                //center is the point if geojson is point
+                if (geojson.features[0].geometry.type === "Point") {
+                  bus.$emit(
+                    "plotGeojson",
+                    geojson,
+                    [
+                      geojson.features[0].geometry.coordinates[1],
+                      geojson.features[0].geometry.coordinates[0],
+                    ],
+                    "geojsonFlag"
+                  );
+                }
+              });
+          });
+        };
+        reader.readAsBinaryString(this.filestoImport[0]);
+
         this.dialog = false;
+      }
+      if (getExtension === "txt") {
+        if (this.selectedDatum === null) {
+          this.message = "Datum Seçiniz";
+          return;
+        }
+        if (this.selectedDatum != null) {
+          this.filestoImport.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              this.coordinates = this.spliceIntoChunks(
+                JSON.parse(
+                  "[" +
+                    e.target.result
+                      .split("\n")
+                      .map((line) => line.split("\t")) +
+                    "]"
+                ),
+                3
+              );
+            };
+            reader.readAsBinaryString(file);
+          });
+          this.dialog = false;
+        }
       }
     },
   },
