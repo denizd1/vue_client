@@ -495,6 +495,13 @@ export default {
       this.areaJson = null;
       this.methodarr = null;
       if (flag === "fullClean") {
+        this.$store.commit("searchParam/updateCity", null);
+        this.$store.commit("searchParam/updateDistrict", null);
+        this.$store.commit("searchParam/updateMethod", null);
+        this.selectedCity = null;
+        this.selectedDistrict = null;
+        this.methodarr = null;
+        this.searchTitle = "";
         this.page = 1;
         this.retrieveTutorials();
         this.componentKey += 1;
