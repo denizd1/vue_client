@@ -30,7 +30,7 @@
       <l-polyline
         v-for="(line, index) in polyline"
         :key="index"
-        :lat-lngs="line.latlngs"
+        :lat-lngs="line.line"
         :color="line.color"
       />
 
@@ -158,7 +158,8 @@ function onEachFeature(feature, layer) {
         v.clusterKey++;
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            v.markers = response.data;
+            v.markers = response.data.resPoints;
+            v.polyline = response.data.resLines;
           })
           .then(() => {
             v.clusterKey++;
@@ -442,7 +443,8 @@ export default {
         params["requestFlag"] = requestFlag ? requestFlag : null;
         TutorialDataService.findAllgetAll(params)
           .then((response) => {
-            this.markers = response.data;
+            this.markers = response.data.resPoints;
+            this.polyline = response.data.resLines;
           })
           .then(() => {
             this.clusterKey++;
@@ -565,7 +567,8 @@ export default {
         bus.$emit("areaJson", this.geojson.features[0].geometry.coordinates[0]);
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            this.markers = response.data;
+            this.markers = response.data.resPoints;
+            this.polyline = response.data.resLines;
           })
           .then(() => {
             this.clusterKey++;
