@@ -11,15 +11,17 @@
       @update:center="centerUpdate"
       @update:zoom="zoomUpdate"
     >
+      <l-control-fullscreen
+        position="topleft"
+        :options="{ title: { false: 'Tam Ekran', true: 'Normal Görünüm' } }"
+      />
       <v-icondefault></v-icondefault>
       <l-tile-layer :url="url" :attribution="attribution" />
 
       <v-marker-cluster
         v-if="markerReady"
         ref="clusterRef"
-        :options="{
-          chunkedLoading: true,
-        }"
+        :options="clusterOptions"
       >
         <l-geo-json
           :key="clusterKey"
@@ -99,7 +101,7 @@ import { ProfilePlotter } from "../common/ProfilePlotter.js";
 import api from "../services/api";
 import { Icon, icon } from "leaflet";
 import { bus } from "../main";
-// import * as L from "leaflet";
+import LControlFullscreen from "vue2-leaflet-fullscreen";
 
 import citiesLatLongjson from "../../../app/cities_of_turkey.json";
 // import iconUrl from "leaflet/dist/images/marker-icon.png";
@@ -216,6 +218,7 @@ export default {
     LControlScale,
     LControl,
     DatatoGeoJson,
+    LControlFullscreen,
     "v-marker-cluster": Vue2LeafletMarkerCluster,
     "v-icondefault": LIconDefault,
   },
@@ -247,6 +250,11 @@ export default {
       selectedJsonparam: null,
       geojsonSelector: false,
       clusterKey: 0,
+      clusterOptions: {
+        chunkedLoading: true,
+        chunkInterval: 300,
+        chunkDelay: 100,
+      },
       legend: [
         {
           text: "Elektrik ve Elektromanyetik Yöntemler",
@@ -526,6 +534,7 @@ export default {
       };
     },
   },
+
   mounted() {
     this.$nextTick(() => {
       this.map = this.$refs.map.mapObject; // work as expected
@@ -589,7 +598,6 @@ export default {
       if (method === null || method === undefined) {
         this.polyline = [];
         this.markers = [];
-        this.$refs.clusterRef.mapObject.refreshClusters();
       }
     });
 

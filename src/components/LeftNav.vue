@@ -212,7 +212,7 @@ export default {
       showNavcity: null,
       menuItems: [
         {
-          title: "Kaydol",
+          title: "Kayıt Ol",
           path: "/giris",
           icon: "mdi-account-plus-outline",
         },
@@ -367,8 +367,16 @@ export default {
       this.$store.commit("searchParam/updateDistrict", this.districtControl);
       this.$store.commit("searchParam/updateMethod", this.methodControl);
 
-      bus.$emit("sendResults");
-      bus.$emit("loading", true);
+      //bus.$emit("sendResults"); if only city or district or method is selected
+      //bus.$emit("loading", true); if only city or district or method is selected
+      if (
+        this.cityControl !== null ||
+        this.districtControl !== null ||
+        this.methodControl !== null
+      ) {
+        bus.$emit("sendResults");
+        bus.$emit("loading", true);
+      }
     },
     clearNav() {
       this.cityControl = null;

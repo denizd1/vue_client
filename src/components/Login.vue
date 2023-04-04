@@ -9,7 +9,7 @@
         v-model="tab"
       >
         <v-tab dark href="#giris">Giriş</v-tab>
-        <v-tab dark href="#kaydol">Kaydol</v-tab>
+        <v-tab dark href="#kayit-ol">Kayıt Ol</v-tab>
       </v-tabs>
       <v-tabs-items
         v-model="tab"
@@ -65,12 +65,21 @@
                 {{ message }}
               </v-alert>
             </v-form>
-            <p style="margin: 20px 0 0 0" class="font-weight-thin text-center">
+            <p
+              style="margin: 20px 0 20px 0"
+              class="font-weight-thin text-center"
+            >
               ProjectHub | MTA Jeofizik
             </p>
+            <v-img
+              class="mx-auto"
+              width="120"
+              src="../assets/loginlogo.svg"
+              alt="MTA Jeofizik"
+            ></v-img>
           </v-card>
         </v-tab-item>
-        <v-tab-item value="kaydol" style="background: transparent !important">
+        <v-tab-item value="kayit-ol" style="background: transparent !important">
           <register></register>
         </v-tab-item>
       </v-tabs-items>

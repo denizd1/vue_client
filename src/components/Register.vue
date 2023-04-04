@@ -44,7 +44,7 @@
           @click="validate"
           v-on:keyup.enter="validate"
         >
-          Kaydol
+          Kayıt Ol
         </v-btn>
       </div>
       <v-alert v-if="message" class="mt-3" dense border="left" type="warning">
@@ -55,9 +55,15 @@
     <div style="z-index: 99 margin-bottom:20px" v-else>
       <v-card-title class="justify-center"> Kaydınız Tamamlandı! </v-card-title>
     </div>
-    <p style="margin: 20px 0 0 0" class="font-weight-thin text-center">
+    <p style="margin: 20px 0 20px 0" class="font-weight-thin text-center">
       ProjectHub | MTA Jeofizik
     </p>
+    <v-img
+      class="mx-auto"
+      width="120"
+      src="../assets/loginlogo.svg"
+      alt="MTA Jeofizik"
+    ></v-img>
   </v-card>
 </template>
 

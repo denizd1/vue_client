@@ -13,6 +13,7 @@ export const router = new Router({
       alias: "/calismalar",
       name: "calismalar",
       meta: {
+        requiresAuth: true,
         breadCrumb: [
           {
             text: "Anasayfa",
@@ -25,6 +26,7 @@ export const router = new Router({
       path: "/calismalar/duzenle/:id",
       name: "duzenle",
       meta: {
+        requiresAuth: true,
         breadCrumb() {
           return [
             {
@@ -43,6 +45,7 @@ export const router = new Router({
       path: "/calisma/:id",
       name: "calisma",
       meta: {
+        requiresAuth: true,
         breadCrumb() {
           return [
             {
@@ -61,6 +64,7 @@ export const router = new Router({
       path: "/ekle",
       name: "ekle",
       meta: {
+        requiresAuth: true,
         breadCrumb() {
           return [
             {
@@ -78,6 +82,9 @@ export const router = new Router({
     {
       path: "/",
       name: "anasayfa",
+      meta: {
+        requiresAuth: true,
+      },
       component: () => import("./components/TutorialsList"),
     },
     {
@@ -99,6 +106,7 @@ export const router = new Router({
       path: "/profil",
       name: "profil",
       meta: {
+        requiresAuth: true,
         breadCrumb() {
           return [
             {
@@ -115,4 +123,18 @@ export const router = new Router({
       component: () => import("./components/Profile"),
     },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ["/giris"];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem("user");
+
+  // trying to access a restricted page + not logged in
+  // redirect to login page
+  if (authRequired && !loggedIn) {
+    return next("/giris");
+  }
+
+  next();
 });

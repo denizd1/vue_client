@@ -3,10 +3,14 @@
     <v-btn depressed color="primary" text @click="dialog = true">
       Alan Dosyası Yükle
     </v-btn>
-    <v-dialog v-model="dialog" width="600">
+    <v-dialog v-model="dialog" width="660" @keydown.esc="dialog = false">
       <v-card>
         <v-card-title class="grey lighten-2 mb-3">
-          Ruhsat alanı çizmek için .txt dosyasını yükleyiniz.
+          Ruhsat alanı çizmek için .txt veya .kmz dosyasını yükleyiniz.
+          <v-spacer></v-spacer>
+          <v-btn icon @click="dialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
 
         <v-card-text>
@@ -41,7 +45,7 @@
             </template>
           </v-file-input>
           <v-row>
-            <v-col cols="6">
+            <v-col cols="4">
               <v-select
                 item-text="datum"
                 :items="datums"
@@ -50,6 +54,11 @@
                 @change="selectedDatum = $event"
               ></v-select>
             </v-col>
+            <v-col cols="8" class="d-flex align-center justify-center">
+              <p class="text-subtitle-2" style="margin-bottom: 0px !important">
+                .kmz uzantılı dosyalarda datum seçimi gerekmemektedir.
+              </p></v-col
+            >
           </v-row>
         </v-card-text>
 
@@ -156,6 +165,11 @@ export default {
     },
     importData() {
       bus.$emit("clearMap");
+      //close dialog if file is not selected
+      if (this.filestoImport.length === 0) {
+        this.dialog = false;
+        return;
+      }
 
       //get uploaded file extension
       let getDom = (xml) => new DOMParser().parseFromString(xml, "text/xml");

@@ -15,17 +15,25 @@
       </v-overlay>
 
       <v-tabs centered v-model="tab" background-color="transparent">
-        <v-tab href="#liste-gorunumu">Liste Görünümü</v-tab>
         <v-tab @click="reloadMap()" href="#harita-gorunumu"
           >Harita Görünümü</v-tab
         >
+        <v-tab href="#liste-gorunumu">Liste Görünümü</v-tab>
       </v-tabs>
 
       <v-tabs-items
         style="background-color: transparent !important"
         v-model="tab"
       >
-        <v-tab-item :key="1" value="liste-gorunumu" :eager="true">
+        <v-tab-item
+          :key="1"
+          value="harita-gorunumu"
+          :eager="true"
+          style="z-index: 5"
+        >
+          <turkey-map></turkey-map>
+        </v-tab-item>
+        <v-tab-item :key="2" value="liste-gorunumu" :eager="true">
           <v-row class="justify-center mx-auto">
             <v-col cols="8" md="4">
               <v-text-field
@@ -118,14 +126,6 @@
             </v-col>
           </v-row>
         </v-tab-item>
-        <v-tab-item
-          :key="2"
-          value="harita-gorunumu"
-          :eager="true"
-          style="z-index: 5"
-        >
-          <turkey-map></turkey-map>
-        </v-tab-item>
       </v-tabs-items>
     </v-col>
   </v-row>
@@ -163,15 +163,7 @@ export default {
   /*
     check if user is admin or moderator before loading the page
 */
-  beforeRouteEnter(to, from, next) {
-    next((vm) => {
-      if (!vm.$store.state.auth.user) {
-        vm.$router.push("/giris?tab=giris");
-      } else {
-        vm.retrieveTutorials();
-      }
-    });
-  },
+
   computed: {
     tab: {
       set(tab) {
@@ -245,16 +237,7 @@ export default {
       return headers;
     },
   },
-  // watch: {
-  //   methodarr: {
-  //     handler: function () {
-  //       this.page = 1;
-  //       this.retrieveTutorials();
-  //       this.componentKey += 1;
-  //     },
-  //     immediate: true,
-  //   },
-  // },
+
   methods: {
     reloadMap() {
       bus.$emit("renderMap");
@@ -412,25 +395,30 @@ export default {
       json to csv
     */
     jsontoExcel(response) {
-      let xlsx = require("json-as-xlsx");
-      let keys = Object.keys(response[0]);
-      let keysArr = [];
-      for (let i = 0; i < keys.length; i++) {
-        keysArr.push({ label: keys[i], value: keys[i] });
+      //if response is not empty or null
+      if (response.length === 0 || response === null) {
+        return;
+      } else {
+        let xlsx = require("json-as-xlsx");
+        let keys = Object.keys(response[0]);
+        let keysArr = [];
+        for (let i = 0; i < keys.length; i++) {
+          keysArr.push({ label: keys[i], value: keys[i] });
+        }
+        let data = [
+          {
+            sheet: "noktalar",
+            columns: keysArr,
+            content: response,
+          },
+        ];
+        let settings = {
+          fileName: "noktalar", // Name of the resulting spreadsheet
+          extraLength: 3, // A bigger number means that columns will be wider
+          //writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
+        };
+        return xlsx(data, settings);
       }
-      let data = [
-        {
-          sheet: "noktalar",
-          columns: keysArr,
-          content: response,
-        },
-      ];
-      let settings = {
-        fileName: "noktalar", // Name of the resulting spreadsheet
-        extraLength: 3, // A bigger number means that columns will be wider
-        //writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
-      };
-      return xlsx(data, settings);
     },
     /*
       csv export
@@ -461,7 +449,7 @@ export default {
           });
       }
       if (this.areaJson != null) {
-        excelParams["geojson"] = this.areaJson;
+        excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
         TutorialDataService.findAllGeo(excelParams)
           .then((response) => {
             this.jsontoExcel(response.data);
@@ -473,7 +461,11 @@ export default {
       }
     },
   },
+
   mounted() {
+    bus.$emit("renderMap");
+    this.retrieveTutorials();
+
     bus.$on("searchParam", () => {
       this.areaJson = null;
 

@@ -129,7 +129,7 @@ export default {
         "Sweep Frekansları (hz)",
         "Sweep Taper (ms)",
         "Yayım Tipi",
-        "Offset (m)",
+        "Offset (m) / Uçuş Yüksekliği (~m)",
         "Jeofon Dizilimi",
         "Grup Aralığı (m)",
         "Atış Aralığı (m)",
@@ -147,7 +147,7 @@ export default {
         "A3",
         "A4",
         "Ölçü Karne No",
-        "Dış Loop Boyutu",
+        "Loop Boyutu",
       ],
     };
   },
