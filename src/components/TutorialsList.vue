@@ -449,7 +449,15 @@ export default {
           });
       }
       if (this.areaJson != null) {
-        excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+        var reg = /^\d+$/;
+
+        if (reg.test(this.areaJson)) {
+          excelParams["geojson"] = this.areaJson;
+        } else if (this.areaJson.isArray) {
+          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+        } else {
+          excelParams["geojson"] = this.areaJson.geometry.coordinates[0];
+        }
         TutorialDataService.findAllGeo(excelParams)
           .then((response) => {
             this.jsontoExcel(response.data);

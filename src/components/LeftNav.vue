@@ -419,6 +419,10 @@ export default {
       this.methodControl = null;
       this.cityControl = null;
       this.districtControl = null;
+      //de-select all scale controls
+      for (let i = 0; i < this.scaleControls.length; i++) {
+        this.scaleControls[i].checked = false;
+      }
     });
 
     // bus.$on("clearNav", () => {

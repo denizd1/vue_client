@@ -116,6 +116,7 @@ import gravIcon from "../assets/gravity.png";
 import radioIcon from "../assets/radiation-detector.png";
 import airBorneIcon from "../assets/airborne.png";
 import satelliteIcon from "../assets/satellite.png";
+import susceptibilityIcon from "../assets/susceptibility.png";
 /*
 Feature types:
   - point
@@ -138,6 +139,7 @@ Feature types:
 
 function onEachFeature(feature, layer) {
   var v = this;
+
   if (feature.properties.mytag === "datdat") {
     layer.on({
       click: function () {
@@ -177,9 +179,7 @@ function onEachFeature(feature, layer) {
         bus.$emit("areaJson", v.geojson.features);
       },
     });
-  }
-
-  if (feature.properties.mytag && feature.properties.mytag == "Cities") {
+  } else if (feature.properties.mytag && feature.properties.mytag == "Cities") {
     layer._leaflet_id = feature.properties.name;
     layer.on("click", function (e) {
       document.querySelectorAll(".leaflet-interactive").forEach((el) => {
@@ -205,6 +205,52 @@ function onEachFeature(feature, layer) {
       bus.$emit("searchParam");
       bus.$emit("geojsonSelectCity", feature.properties.name);
       bus.$emit("loading", true);
+    });
+  } else {
+    layer.on({
+      click: function (e) {
+        if (!e.target.feature.properties.Name) {
+          bus.$emit("loading", true);
+
+          v.$store.commit("searchParam/updateCity", null);
+          v.$store.commit("searchParam/updateDistrict", null);
+          v.$store.commit("searchParam/updateCoords", null);
+          let params = {};
+          if (v.selectedJsonparam === 1) {
+            params["geojson"] = e.target.feature.properties.Id;
+            bus.$emit("areaJson", e.target.feature.properties.Id);
+          } else {
+            params["geojson"] = e.target.feature.geometry.coordinates[0];
+            bus.$emit("areaJson", e.target.feature);
+          }
+          params["yontem"] = v.methodarr;
+          params["userStatus"] = v.$store.state.auth.user.roles.includes(
+            "ROLE_USER"
+          )
+            ? "user"
+            : null;
+          v.polyline = [];
+          v.markers = [];
+          v.markerReady = false;
+          v.clusterKey++;
+          TutorialDataService.findAllGeo(params)
+            .then((response) => {
+              v.markers = response.data.resPoints;
+              v.polyline = response.data.resLines;
+            })
+            .then(() => {
+              v.clusterKey++;
+              v.markerReady = true;
+            })
+            .then(() => {
+              bus.$emit("loading", false);
+            })
+
+            .catch((e) => {
+              console.log(e);
+            });
+        }
+      },
     });
   }
 }
@@ -283,6 +329,10 @@ export default {
         {
           text: "Sismik Yöntemler",
           icon: "/seismic.png",
+        },
+        {
+          text: "Suseptibilite",
+          icon: "/susceptibility.png",
         },
         {
           text: "Uydu Görüntüsü",
@@ -423,6 +473,21 @@ export default {
             );
             layer.setIcon(customicon);
           }
+          //icon for susceptibility
+          if (feature.properties.alt_yontem == "Suseptibilite") {
+            Icon.Default.mergeOptions({
+              iconRetinaUrl: susceptibilityIcon,
+              iconUrl: susceptibilityIcon,
+              shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+            });
+            customicon = icon(
+              Object.assign({}, Icon.Default.prototype.options, {
+                susceptibilityIcon,
+                shadowUrl,
+              })
+            );
+            layer.setIcon(customicon);
+          }
         },
       },
     };
@@ -554,7 +619,7 @@ export default {
       this.markers = [];
       this.markerReady = false;
 
-      if (city !== null || district !== null) {
+      if (city !== null && district !== null) {
         this.geojsonSelector = false;
       }
 
@@ -563,9 +628,6 @@ export default {
       this.polyline = [];
       this.markers = [];
       this.markerReady = false;
-      if (this.geojsonSelector === false) {
-        this.scaleService(0);
-      }
 
       if (this.geojsonSelector === true) {
         let params = {};
@@ -615,6 +677,8 @@ export default {
       this.polyline = [];
       this.markers = [];
       this.methodarr = [];
+      this.markerReady = false;
+      this.clusterKey++;
       bus.$emit("clearNavSelections");
 
       this.selectedCityparam = null;
