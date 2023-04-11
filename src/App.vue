@@ -27,6 +27,12 @@
         cols="12"
       >
         Her Hakkı Saklıdır © MTA {{ new Date().getFullYear() }}
+        <p
+          class="font-weight-light text-caption"
+          style="margin-bottom: 0px !important"
+        >
+          Site Creation & Technology by Deniz Dönmez
+        </p>
       </v-col>
     </v-footer>
     <vue-particles

@@ -635,7 +635,7 @@ export default {
         params["yontem"] = method;
         this.polyline = [];
         this.markers = [];
-        bus.$emit("areaJson", this.geojson.features[0].geometry.coordinates[0]);
+        bus.$emit("areaJson", this.geojson.features);
         TutorialDataService.findAllGeo(params)
           .then((response) => {
             this.markers = response.data.resPoints;

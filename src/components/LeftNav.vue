@@ -185,7 +185,7 @@
     <v-app-bar style="z-index: 6" flat app>
       <v-img
         class="mta-logo mx-auto"
-        src="../assets/logo.png"
+        src="../assets/logo2.png"
         alt="MTA logo"
       ></v-img>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>

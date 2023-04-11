@@ -456,7 +456,7 @@ export default {
         } else if (this.areaJson.isArray) {
           excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
         } else {
-          excelParams["geojson"] = this.areaJson.geometry.coordinates[0];
+          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
         }
         TutorialDataService.findAllGeo(excelParams)
           .then((response) => {
@@ -515,6 +515,7 @@ export default {
       this.methodarr = this.$store.state.searchParam.yontem;
       this.selectedCity = null;
       this.selectedDistrict = null;
+      this.page = 1;
       this.retrieveTutorials();
     });
   },
