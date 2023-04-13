@@ -223,7 +223,7 @@ function onEachFeature(feature, layer) {
             params["geojson"] = e.target.feature.geometry.coordinates[0];
             bus.$emit("areaJson", e.target.feature);
           }
-          params["yontem"] = v.methodarr;
+          params["yontem"] = v.$store.state.searchParam.yontem;
           params["userStatus"] = v.$store.state.auth.user.roles.includes(
             "ROLE_USER"
           )

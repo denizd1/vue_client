@@ -311,16 +311,6 @@ export default {
       this.$store.commit("searchParam/updateCity", event);
       this.$store.commit("searchParam/updateDistrict", null);
       this.districtControl = null;
-      for (let i = 0; i < this.scaleControls.length; i++) {
-        if (
-          this.scaleControls[i].name === "iller" &&
-          this.scaleControls[i].checked != true
-        ) {
-          this.scaleControls[i].checked = true;
-        } else {
-          this.scaleControls[i].checked = false;
-        }
-      }
 
       for (let i = 0; i < this.cities.length; i++) {
         if (this.cities[i].il === event) {
