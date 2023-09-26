@@ -22,6 +22,26 @@ export const router = new Router({
       },
       component: () => import("./components/TutorialsList"),
     },
+    //rapor-dokumu
+    {
+      path: "/rapor-dokumu",
+      name: "rapor-dokumu",
+      meta: {
+        requiresAuth: true,
+        breadCrumb() {
+          return [
+            {
+              text: "Anasayfa",
+              to: { name: "calismalar" },
+            },
+            {
+              text: "Rapor Dokümü",
+            },
+          ];
+        },
+      },
+      component: () => import("./components/RaporDokumu"),
+    },
     {
       path: "/calismalar/duzenle/:id",
       name: "duzenle",
@@ -130,7 +150,7 @@ router.beforeEach((to, from, next) => {
   const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem("user");
 
-  // trying to access a restricted page + not logged in
+  // trying to access a restricted page + not logged in + access token expired
   // redirect to login page
   if (authRequired && !loggedIn) {
     return next("/giris");

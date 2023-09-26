@@ -12,18 +12,46 @@ class TutorialDataService {
   }
 
   findAllgetAll(params) {
-    return api.get(
-      "/tutorials/getall",
-      { params },
-      { headers: { "x-access-token": user.accessToken } }
-    );
+    if (params && params.requestFlag === "excel") {
+      return api.get("/tutorials/getall", {
+        params,
+        headers: {
+          "x-access-token": user.accessToken,
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Custom content type for Excel download
+        },
+        responseType: "blob", // Important
+      });
+    } else {
+      return api.get("/tutorials/getall", {
+        params,
+        headers: {
+          "x-access-token": user.accessToken,
+          // Other headers for non-Excel requests
+        },
+      });
+    }
   }
   findAllGeo(params) {
-    return api.get(
-      "/tutorials/findAllGeo",
-      { params },
-      { headers: { "x-access-token": user.accessToken } }
-    );
+    if (params && params.requestFlag === "excel") {
+      return api.get("/tutorials/findAllGeo", {
+        params,
+        headers: {
+          "x-access-token": user.accessToken,
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Custom content type for Excel download
+        },
+        responseType: "blob", // Important
+      });
+    } else {
+      return api.get("/tutorials/findAllGeo", {
+        params,
+        headers: {
+          "x-access-token": user.accessToken,
+          // Other headers for non-Excel requests
+        },
+      });
+    }
   }
 
   get(id) {
@@ -58,6 +86,18 @@ class TutorialDataService {
       headers: { "x-access-token": user.accessToken },
     });
   }
+
+  //get distinct
+  // distinct(params) {
+  //   return api.get(
+  //     "/tutorials/distinct",
+  //     { params },
+  //     {
+  //       headers: { "x-access-token": user.accessToken },
+  //     }
+  //   );
+  // }
+
   //get number of tutorials for each alt_yontem
   AltYontemCount() {
     return api.get("/tutorials/AltYontemCount", {

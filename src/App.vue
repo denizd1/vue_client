@@ -17,6 +17,7 @@
       <v-container fluid :class="{ 'fill-height': isLoginScreen }">
         <bread-crumb v-if="!$route.meta.hideNavbar"></bread-crumb>
         <router-view />
+        <!-- <search v-if="showNavelement"></search> -->
       </v-container>
     </v-main>
     <v-footer absolute padless app color="transparent">
@@ -63,16 +64,19 @@ import EventBus from "./common/EventBus";
 import LeftNav from "./components/LeftNav.vue";
 import BreadCrumb from "./components/BreadCrumb.vue";
 import { bus } from "./main";
+// import Search from "./components/Search.vue";
 
 export default {
   components: {
     LeftNav,
     BreadCrumb,
+    // Search,
   },
   data() {
     return {
       componentKey: 0,
       loading: false,
+      showNavelement: false,
     };
   },
   methods: {
@@ -84,6 +88,19 @@ export default {
   computed: {
     isLoginScreen() {
       return this.$route.path === "/giris";
+    },
+  },
+  watch: {
+    $route: function () {
+      // Check if given route is true, if it is then hide Nav.
+      if (
+        this.$route.query.tab !== "harita-gorunumu" &&
+        this.$route.query.tab !== "liste-gorunumu"
+      ) {
+        this.showNavelement = false;
+      } else {
+        this.showNavelement = true;
+      }
     },
   },
   mounted() {

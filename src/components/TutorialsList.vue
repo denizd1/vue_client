@@ -34,7 +34,7 @@
           <turkey-map></turkey-map>
         </v-tab-item>
         <v-tab-item :key="2" value="liste-gorunumu" :eager="true">
-          <v-row class="justify-center mx-auto">
+          <v-row align="center" class="justify-center mx-auto">
             <v-col cols="8" md="4">
               <v-text-field
                 v-on:keyup.enter="
@@ -45,8 +45,8 @@
                 label="Arama"
               ></v-text-field>
             </v-col>
-            <v-col cols="2">
-              <v-card-actions class="justify-left mt-3">
+            <v-col cols="2" md="1">
+              <v-card-actions class="mt-3">
                 <v-btn
                   small
                   @click="
@@ -58,7 +58,6 @@
                 </v-btn>
               </v-card-actions>
             </v-col>
-            <!-- <search-detail></search-detail> -->
           </v-row>
           <v-row class="justify-center mx-auto">
             <v-col cols="4" md="3">
@@ -154,6 +153,8 @@ export default {
       areaJson: null,
       loading: false,
       methodarr: null,
+      globalParams: null,
+      detailSearch: false,
     };
   },
   components: {
@@ -298,32 +299,39 @@ export default {
     retrieveTutorials(searchTitle, event) {
       var params = null;
 
-      if (event && event.isTrusted) {
-        this.$store.commit("searchParam/updateCoords", null);
-        this.$store.commit("searchParam/updateCity", null);
-        this.$store.commit("searchParam/updateDistrict", null);
-        this.methodarr = null;
-        bus.$emit("searchDatatoMap", searchTitle);
-        this.selectedCity = null;
-        this.selectedDistrict = null;
-
-        params = {
-          il: searchTitle, // !!! il is just a placeholder for the searchTitle,
-          page: this.page - 1,
-          size: this.pageSize,
-          requestFlag: "userSearch",
-          userStatus: this.isUser ? "user" : null,
-        };
+      if (this.detailSearch === true) {
+        params = this.globalParams;
+        params.page = this.page - 1;
+        params.size = this.pageSize;
+        params.userStatus = this.isUser ? "user" : null;
       } else {
-        params = this.getRequestParams(
-          this.page,
-          this.pageSize,
-          this.methodarr
-        );
-      }
+        if (event && event.isTrusted) {
+          this.$store.commit("searchParam/updateCoords", null);
+          this.$store.commit("searchParam/updateCity", null);
+          this.$store.commit("searchParam/updateDistrict", null);
+          this.methodarr = null;
+          bus.$emit("searchDatatoMap", searchTitle);
+          this.selectedCity = null;
+          this.selectedDistrict = null;
 
-      if (!event && this.areaJson != null) {
-        params["areaJson"] = this.areaJson;
+          params = {
+            il: searchTitle, // !!! il is just a placeholder for the searchTitle,
+            page: this.page - 1,
+            size: this.pageSize,
+            requestFlag: "userSearch",
+            userStatus: this.isUser ? "user" : null,
+          };
+        } else {
+          params = this.getRequestParams(
+            this.page,
+            this.pageSize,
+            this.methodarr
+          );
+        }
+
+        if (!event && this.areaJson != null) {
+          params["areaJson"] = this.areaJson;
+        }
       }
 
       TutorialDataService.getAll(params)
@@ -391,81 +399,106 @@ export default {
         status: tutorial.published ? "Yayında" : "Beklemede",
       };
     },
-    /*
-      json to csv
-    */
-    jsontoExcel(response) {
-      //if response is not empty or null
-      if (response.length === 0 || response === null) {
-        return;
-      } else {
-        let xlsx = require("json-as-xlsx");
-        let keys = Object.keys(response[0]);
-        let keysArr = [];
-        for (let i = 0; i < keys.length; i++) {
-          keysArr.push({ label: keys[i], value: keys[i] });
+    async handleBlobResponse(response) {
+      try {
+        // Check if the response status is OK (HTTP 200)
+        if (response.status === 200) {
+          // Read the response data directly as Blob
+          const blob = new Blob([response.data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+
+          // Create a URL for the Blob
+          const blobURL = window.URL.createObjectURL(blob);
+
+          // Create an anchor element for the download
+          const a = document.createElement("a");
+          a.href = blobURL;
+
+          a.download = "sonuclar" + new Date().toLocaleDateString() + ".xlsx";
+
+          // Trigger a click event on the anchor element to initiate the download
+          a.click();
+
+          // Optionally, do any other necessary post-download actions here
+        } else {
+          throw new Error(
+            `Failed to fetch XLSX file. Status: ${response.status}`
+          );
         }
-        let data = [
-          {
-            sheet: "noktalar",
-            columns: keysArr,
-            content: response,
-          },
-        ];
-        let settings = {
-          fileName: "noktalar", // Name of the resulting spreadsheet
-          extraLength: 3, // A bigger number means that columns will be wider
-          //writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
-        };
-        return xlsx(data, settings);
+      } catch (error) {
+        console.error("Error exporting data:", error);
       }
     },
-    /*
-      csv export
-    */
+
     exportExcel(searchTitle) {
       this.loading = true;
+      var excelParams = null;
+      if (this.detailSearch === true) {
+        excelParams = this.globalParams;
+        excelParams.requestFlag = "excel";
+        excelParams.userStatus = this.$store.state.auth.user.roles.includes(
+          "ROLE_USER"
+        )
+          ? "user"
+          : null;
 
-      var excelParams = {};
-      if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
-        excelParams["userStatus"] = "user";
-      }
-      excelParams["yontem"] = this.methodarr ? this.methodarr : null;
-      excelParams["requestFlag"] = "excel";
-      if (this.areaJson == null) {
-        if (searchTitle) {
-          excelParams["il"] =
-            this.$store.state.searchParam.il != null
-              ? this.$store.state.searchParam.il
-              : searchTitle;
-        }
         TutorialDataService.findAllgetAll(excelParams)
           .then((response) => {
-            this.jsontoExcel(response.data);
-            this.loading = false;
+            // Handle the Blob response
+            this.handleBlobResponse(response);
+            this.loading = false; // Optionally, update loading state
           })
-          .catch((e) => {
-            console.log(e);
+          .catch((error) => {
+            console.error(error);
+            this.loading = false; // Optionally, update loading state
           });
-      }
-      if (this.areaJson != null) {
-        var reg = /^\d+$/;
-
-        if (reg.test(this.areaJson)) {
-          excelParams["geojson"] = this.areaJson;
-        } else if (this.areaJson.isArray) {
-          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
-        } else {
-          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+      } else {
+        excelParams = {};
+        if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
+          excelParams["userStatus"] = "user";
         }
-        TutorialDataService.findAllGeo(excelParams)
-          .then((response) => {
-            this.jsontoExcel(response.data);
-            this.loading = false;
-          })
-          .catch((e) => {
-            console.log(e);
-          });
+        excelParams["yontem"] = this.methodarr ? this.methodarr : null;
+        excelParams["requestFlag"] = "excel";
+        if (this.areaJson == null) {
+          if (searchTitle) {
+            excelParams["il"] =
+              this.$store.state.searchParam.il != null
+                ? this.$store.state.searchParam.il
+                : searchTitle;
+          }
+          TutorialDataService.findAllgetAll(excelParams)
+            .then((response) => {
+              // Handle the Blob response
+              this.handleBlobResponse(response);
+              this.loading = false; // Optionally, update loading state
+            })
+            .catch((error) => {
+              console.error(error);
+              this.loading = false; // Optionally, update loading state
+            });
+        }
+        if (this.areaJson != null) {
+          var reg = /^\d+$/;
+
+          if (reg.test(this.areaJson)) {
+            excelParams["geojson"] = this.areaJson;
+          } else if (this.areaJson.isArray) {
+            excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+          } else {
+            excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+          }
+          TutorialDataService.findAllGeo(excelParams)
+            .then((response) => {
+              // Handle the Blob response
+              this.handleBlobResponse(response);
+              this.loading = false; // Optionally, update loading state
+            })
+            .catch((error) => {
+              console.error(error);
+              this.loading = false; // Optionally, update loading state
+            });
+        }
       }
     },
   },
@@ -474,7 +507,15 @@ export default {
     bus.$emit("renderMap");
     this.retrieveTutorials();
 
+    bus.$on("search", (params) => {
+      this.globalParams = params;
+      this.detailSearch = true;
+      this.retrieveTutorials();
+      this.componentKey += 1;
+    });
+
     bus.$on("searchParam", () => {
+      this.detailSearch = false;
       this.areaJson = null;
 
       this.searchTitle = this.$store.state.searchParam.il;
@@ -490,6 +531,8 @@ export default {
       this.componentKey += 1;
     });
     bus.$on("clearAll", (flag) => {
+      this.detailSearch = false;
+
       this.tutorials = [];
       this.searchTitle = "";
       this.areaJson = null;
@@ -510,6 +553,8 @@ export default {
       // bus.$emit("clearNav");
     });
     bus.$on("areaJson", (data) => {
+      this.detailSearch = false;
+
       this.areaJson = data;
       this.searchTitle = "";
       this.methodarr = this.$store.state.searchParam.yontem;

@@ -8,8 +8,6 @@
           v-model="currentTutorial[key]"
           :key="index"
           :label="headers[index]"
-          :rules="[(v) => !!v || 'Bu alan boş bırakılamaz.']"
-          required
         ></v-text-field>
       </template>
 
@@ -141,7 +139,7 @@ export default {
         "Elektrot Aralığı",
         "Dizilim Türü",
         "Seviye Sayısı",
-        "Profil Aralığı",
+        "Profil Aralığı / Uçuş Yönü",
         "A1",
         "A2",
         "A3",
@@ -180,6 +178,37 @@ export default {
 
     updateTutorial() {
       var latlon = null;
+      if (this.currentTutorial.x === "") {
+        this.currentTutorial.x = null;
+      }
+      if (this.currentTutorial.y === "") {
+        this.currentTutorial.y = null;
+      }
+      if (this.currentTutorial.profil_baslangic_x === "") {
+        this.currentTutorial.profil_baslangic_x = null;
+      }
+      if (this.currentTutorial.profil_baslangic_y === "") {
+        this.currentTutorial.profil_baslangic_y = null;
+      }
+      if (this.currentTutorial.profil_bitis_x === "") {
+        this.currentTutorial.profil_bitis_x = null;
+      }
+      if (this.currentTutorial.profil_bitis_y === "") {
+        this.currentTutorial.profil_bitis_y = null;
+      }
+      if (this.currentTutorial.a_1 === "") {
+        this.currentTutorial.a_1 = null;
+      }
+      if (this.currentTutorial.a_2 === "") {
+        this.currentTutorial.a_2 = null;
+      }
+      if (this.currentTutorial.a_3 === "") {
+        this.currentTutorial.a_3 = null;
+      }
+      if (this.currentTutorial.a_4 === "") {
+        this.currentTutorial.a_4 = null;
+      }
+
       if (
         typeof this.currentTutorial.zone === "string" &&
         this.currentTutorial.zone.includes(",")
@@ -211,7 +240,12 @@ export default {
         this.currentTutorial.lon = parseFloat(thisCity.latitude);
       }
 
-      if (this.currentTutorial.x != null && this.currentTutorial.y != null) {
+      if (
+        this.currentTutorial.x !== null &&
+        this.currentTutorial.y !== null &&
+        this.currentTutorial.x !== "" &&
+        this.currentTutorial.y !== ""
+      ) {
         latlon = this.converter(
           parseFloat(this.currentTutorial.x),
           parseFloat(this.currentTutorial.y),
@@ -223,10 +257,14 @@ export default {
       }
 
       if (
-        this.currentTutorial.profil_baslangic_x != null &&
-        this.currentTutorial.profil_baslangic_y != null &&
-        this.currentTutorial.profil_bitis_x != null &&
-        this.currentTutorial.profil_bitis_y != null
+        this.currentTutorial.profil_baslangic_x !== null &&
+        this.currentTutorial.profil_baslangic_y !== null &&
+        this.currentTutorial.profil_bitis_x !== null &&
+        this.currentTutorial.profil_bitis_y !== null &&
+        this.currentTutorial.profil_baslangic_x !== "" &&
+        this.currentTutorial.profil_baslangic_y !== "" &&
+        this.currentTutorial.profil_bitis_x !== "" &&
+        this.currentTutorial.profil_bitis_y !== ""
       ) {
         var polyLineStart = this.converter(
           parseFloat(this.currentTutorial.profil_baslangic_x),
@@ -283,7 +321,11 @@ export default {
         this.currentTutorial.a_1 !== null &&
         this.currentTutorial.a_2 !== null &&
         this.currentTutorial.a_3 !== null &&
-        this.currentTutorial.a_4 !== null
+        this.currentTutorial.a_4 !== null &&
+        this.currentTutorial.a_1 !== "" &&
+        this.currentTutorial.a_2 !== "" &&
+        this.currentTutorial.a_3 !== "" &&
+        this.currentTutorial.a_4 !== ""
       ) {
         var corners = [
           this.currentTutorial.a_1,
@@ -336,7 +378,7 @@ export default {
         this.currentTutorial.lat = centerofmass.geometry.coordinates[0];
         this.currentTutorial.lon = centerofmass.geometry.coordinates[1];
       }
-      this.currentTutorial.editorame = this.$store.state.auth.user.username;
+      this.currentTutorial.editorname = this.$store.state.auth.user.username;
       this.currentTutorial.zone = this.currentTutorial.zone.toString();
       TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
         .then(() => {

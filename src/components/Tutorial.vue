@@ -63,7 +63,7 @@ export default {
         JSON.parse(JSON.stringify([this.currentTutorial]))
       );
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, this.currentTutorial.nokta_adi);
+      XLSX.utils.book_append_sheet(wb, ws, "Sorgu Sonucu");
       XLSX.writeFile(wb, fileName);
     },
   },

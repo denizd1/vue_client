@@ -20,11 +20,6 @@ class UploadFilesService {
         bus.$emit("alldone");
       });
   }
-  getFiles() {
-    return api.get("/tutorials/files", {
-      headers: { "x-access-token": user.accessToken },
-    });
-  }
 }
 
 export default new UploadFilesService();

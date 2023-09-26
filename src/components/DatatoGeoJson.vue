@@ -1,85 +1,79 @@
 <template>
-  <div style="background-color: #fff">
-    <v-btn depressed color="primary" text @click="dialog = true">
-      Alan Dosyası Yükle
-    </v-btn>
-    <v-dialog v-model="dialog" width="660" @keydown.esc="dialog = false">
-      <v-card>
-        <v-card-title class="grey lighten-2 mb-3">
-          Ruhsat alanı çizmek için .txt veya .kmz dosyasını yükleyiniz.
-          <v-spacer></v-spacer>
-          <v-btn icon @click="dialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
+  <v-dialog v-model="dialog" @keydown.esc="dialog = false" max-width="470">
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn color="primary" dark v-bind="attrs" v-on="on">
+        Alan Dosyası Yükle
+      </v-btn>
+    </template>
+    <v-card>
+      <v-card-title class="subtitle-2 mb-3">
+        Ruhsat alanı çizmek için .txt veya .kmz dosyasını yükleyiniz.
+        <v-spacer></v-spacer>
+        <v-btn icon @click="dialog = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
 
-        <v-card-text>
-          <v-file-input
-            v-model="filestoImport"
-            color="deep-purple accent-4"
-            counter
-            label="Dosya Seçimi"
-            multiple
-            prepend-icon="mdi-paperclip"
-            outlined
-            :show-size="1000"
-            accept=".txt, .kmz"
-          >
-            <template v-slot:selection="{ index, text }">
-              <v-chip
-                v-if="index < 2"
-                color="deep-purple accent-4"
-                dark
-                label
-                small
-              >
-                {{ text }}
-              </v-chip>
-
-              <span
-                v-else-if="index === 2"
-                class="text-overline grey--text text--darken-3 mx-2"
-              >
-                +{{ files.length - 2 }} File(s)
-              </span>
-            </template>
-          </v-file-input>
-          <v-row>
-            <v-col cols="4">
-              <v-select
-                item-text="datum"
-                :items="datums"
-                single-line
-                placeholder="Datum Seçiniz"
-                @change="selectedDatum = $event"
-              ></v-select>
-            </v-col>
-            <v-col cols="8" class="d-flex align-center justify-center">
-              <p class="text-subtitle-2" style="margin-bottom: 0px !important">
-                .kmz uzantılı dosyalarda datum seçimi gerekmemektedir.
-              </p></v-col
+      <v-card-text>
+        <v-file-input
+          v-model="filestoImport"
+          color="deep-purple accent-4"
+          counter
+          label="Dosya Seçimi"
+          multiple
+          prepend-icon="mdi-paperclip"
+          outlined
+          :show-size="1000"
+          accept=".txt, .kmz"
+        >
+          <template v-slot:selection="{ index, text }">
+            <v-chip
+              v-if="index < 2"
+              color="deep-purple accent-4"
+              dark
+              label
+              small
             >
-          </v-row>
-        </v-card-text>
+              {{ text }}
+            </v-chip>
 
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-alert
-            v-if="message"
-            class="mt-3"
-            dense
-            border="left"
-            type="warning"
+            <span
+              v-else-if="index === 2"
+              class="text-overline grey--text text--darken-3 mx-2"
+            >
+              +{{ files.length - 2 }} File(s)
+            </span>
+          </template>
+        </v-file-input>
+        <v-row>
+          <v-col cols="6">
+            <v-select
+              item-text="datum"
+              :items="datums"
+              single-line
+              placeholder="Datum Seçiniz"
+              @change="selectedDatum = $event"
+            ></v-select>
+          </v-col>
+          <v-col cols="6" class="d-flex align-center justify-center">
+            <p class="text-subtitle-2" style="margin-bottom: 0px !important">
+              .kmz uzantılı dosyalarda datum seçimi gerekmemektedir.
+            </p></v-col
           >
-            {{ message }}
-          </v-alert>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="importData()"> Tamam </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+        </v-row>
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions>
+        <v-alert v-if="message" class="mt-3" dense border="left" type="warning">
+          {{ message }}
+        </v-alert>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" text @click="importData()"> Tamam </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <script>
 import { bus } from "../main";
@@ -104,6 +98,12 @@ export default {
     };
   },
   watch: {
+    selectedDatum(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        // The selectedDatum has changed, set message to false
+        this.message = false;
+      }
+    },
     coordinates: {
       handler: function (coordinates) {
         if (coordinates != null) {
@@ -164,7 +164,7 @@ export default {
       return res;
     },
     importData() {
-      bus.$emit("clearMap");
+      // bus.$emit("clearMap");
       //close dialog if file is not selected
       if (this.filestoImport.length === 0) {
         this.dialog = false;

@@ -117,7 +117,7 @@ export default {
         "Elektrot Aralığı / Pot Aralığı (m)",
         "Dizilim Türü",
         "Seviye Sayısı",
-        "Profil Aralığı",
+        "Profil Aralığı / Uçuş Yönü",
         "A1",
         "A2",
         "A3",
@@ -151,6 +151,13 @@ export default {
           !key.includes("editorname")
       )
     );
+    //if this.newData['alt_yontem'] contains 'Havadan Manyetik Rejyonel', replace it with 'Havadan Manyetik'
+    if (this.newData["alt_yontem"].includes("Havadan Manyetik Rejyonel")) {
+      this.newData["alt_yontem"] = "Havadan Manyetik";
+    }
+    if (this.newData["alt_yontem"].includes("Havadan Radyometri Rejyonel")) {
+      this.newData["alt_yontem"] = "Havadan Radyometri";
+    }
   },
   methods: {
     onResize() {

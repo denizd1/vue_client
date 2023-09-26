@@ -54,6 +54,16 @@
           </v-list-item-icon>
           <v-list-item-title>Çalışmalar</v-list-item-title>
         </v-list-item>
+        <!-- <v-list-item
+          v-if="isUseradmin || isUsermoderator"
+          link
+          :to="{ name: 'rapor-dokumu' }"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-archive</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Rapor Dökümü</v-list-item-title>
+        </v-list-item> -->
         <v-list-item
           v-if="isUseradmin || isUsermoderator"
           link
@@ -168,17 +178,29 @@
             </v-list-item>
           </v-list>
         </v-list-group>
-
         <v-list-item v-if="showNavelement" class="justify-center">
           <v-btn
             color="success"
-            class="mr-4"
+            class="mr-4 mt-3"
             @click.stop="drawer = !drawer"
             @click="getResults"
           >
             Ara
           </v-btn>
-          <v-btn color="success" @click="clearNav"> Seçimleri Temizle </v-btn>
+          <!-- <v-btn
+            class="mt-3"
+            v-if="showNavelement"
+            color="primary"
+            @click="advancedSearch()"
+          >
+            Detaylı Arama
+          </v-btn> -->
+        </v-list-item>
+
+        <v-list-item v-if="showNavelement" class="justify-center">
+          <v-btn color="error" @click="clearNav" class="mt-3">
+            Seçimleri Temizle
+          </v-btn>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -278,8 +300,17 @@ export default {
         "Radyometri",
         "Suseptibilite",
         "Uydu Görüntüsü",
+        "Havadan Elektromanyetik",
         "Havadan Gravite",
         "Havadan Manyetik",
+        "Havadan Manyetik Rejyonel (1971 - 1989)",
+        "Havadan Manyetik Rejyonel (2017 - 2022)",
+        "Havadan Radyometri",
+        "Havadan Radyometri Rejyonel (2017 Öncesi)",
+        "Havadan Radyometri Rejyonel (2017 - 2022)",
+        "IHA (Manyetik)",
+        "IHA (Ortofoto)",
+        "IHA (Radyometri)",
         "2 Boyutlu Sismik Yansıma",
         "2 Boyutlu Sismik Kırılma",
         "Yer Radarı",
@@ -290,6 +321,9 @@ export default {
     };
   },
   methods: {
+    advancedSearch() {
+      bus.$emit("openAdvancedSearchDialog");
+    },
     deleteItem(item) {
       this.methodControl = this.methodControl.filter((find) => find !== item);
     },
