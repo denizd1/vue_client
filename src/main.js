@@ -20,7 +20,7 @@ Vue.use(VueParticles);
 Vue.use(Vuex);
 Vue.use(PerfectScrollbar);
 
-setupInterceptors(store);
+setupInterceptors(store, router);
 export const bus = new Vue();
 new Vue({
   router,

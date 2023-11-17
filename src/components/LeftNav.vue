@@ -7,7 +7,7 @@
       temporary
       app
       style="z-index: 200 !important"
-      width="25%"
+      width="35%"
     >
       <v-divider class="mt-0"></v-divider>
       <v-list v-if="!currentUser">
@@ -27,7 +27,7 @@
         <v-list-item link :to="{ name: 'profil' }">
           <v-list-item-content>
             <v-row>
-              <v-col sm="1" lg="2"
+              <v-col sm="1" lg="1"
                 ><v-avatar color="primary" size="36"
                   ><span class="white--text">{{
                     currentUser.username.split(".")[0].charAt(0) +
@@ -101,16 +101,222 @@
                 single-line
                 chips
                 multiple
+                @change="getDistinctValues('yontem')"
               >
                 <template #selection="selection">
                   <v-chip
-                    @click="deleteItem(selection.item)"
+                    @click="deleteItem(selection.item, 'yontem')"
                     v-text="selection.item"
                   ></v-chip> </template
               ></v-select>
             </v-list-item>
           </v-list>
         </v-list-group>
+        <v-list-group
+          prepend-icon="mdi-map-marker-path"
+          :value="false"
+          no-action
+          v-if="showNavelement && showCalismaAmaciSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Çalışma Amacı</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectworkType"
+              :items="calisma_amaci"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('amac')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'amac')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group
+          prepend-icon="mdi-calendar-month-outline"
+          :value="false"
+          no-action
+          v-if="showNavelement && showCalismaTarihiSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Çalışma Tarihi</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectWorkDate"
+              :items="calisma_tarihi"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('tarih')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'tarih')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+
+        <v-list-group
+          prepend-icon="mdi-format-list-numbered"
+          :value="false"
+          no-action
+          v-if="showNavelement && showProjeKoduSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Proje Kodu</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectprojectCode"
+              :items="proje_kodu"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('proje')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'proje')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group
+          prepend-icon="mdi-format-list-numbered"
+          :value="false"
+          no-action
+          v-if="showNavelement && showKuyuArsivNoSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Kuyu Arşiv No</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectlogno"
+              :items="kuyu_arsiv_no"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('kuyu')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'kuyu')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group
+          prepend-icon="mdi-format-list-numbered"
+          :value="false"
+          no-action
+          v-if="showNavelement && showJeofizikArsivNoSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Jeofizik Arşiv No</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectgeono"
+              :items="jeofizik_arsiv_no"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('jeofizik')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'jeofizik')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group
+          prepend-icon="mdi-format-list-numbered"
+          :value="false"
+          no-action
+          v-if="showNavelement && showDerlemeNoSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Derleme No</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectderleme"
+              :items="derleme_no"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('derleme')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'derleme')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group
+          prepend-icon="mdi-format-list-numbered"
+          :value="false"
+          no-action
+          v-if="showNavelement && showCdNoSelect"
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>CD No</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-select
+              v-model="selectcd"
+              :items="cd_no"
+              single-line
+              chips
+              multiple
+              @change="getDistinctValues('cd')"
+            >
+              <template #selection="selection">
+                <v-chip
+                  @click="deleteItem(selection.item, 'cd')"
+                  v-text="selection.item"
+                ></v-chip>
+              </template>
+            </v-select>
+          </v-list-item>
+        </v-list-group>
+
         <v-list-group
           prepend-icon="mdi-math-compass"
           :value="false"
@@ -187,14 +393,6 @@
           >
             Ara
           </v-btn>
-          <!-- <v-btn
-            class="mt-3"
-            v-if="showNavelement"
-            color="primary"
-            @click="advancedSearch()"
-          >
-            Detaylı Arama
-          </v-btn> -->
         </v-list-item>
 
         <v-list-item v-if="showNavelement" class="justify-center">
@@ -205,12 +403,17 @@
       </v-list>
     </v-navigation-drawer>
     <v-app-bar style="z-index: 6" flat app>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-spacer></v-spacer>
       <v-img
-        class="mta-logo mx-auto"
         src="../assets/logo2.png"
         alt="MTA logo"
+        max-height="50px"
+        max-width="50px"
+        class="mb-1"
+        contain
       ></v-img>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-spacer></v-spacer>
     </v-app-bar>
   </v-card>
 </template>
@@ -218,6 +421,7 @@
 import EventBus from "../common/EventBus";
 import { bus } from "../main";
 import api from "../services/api";
+import TutorialDataService from "../services/TutorialDataService";
 
 import citiesJson from "../../../app/cities_of_turkey.json";
 
@@ -232,6 +436,28 @@ export default {
       showNavelement: null,
       showNavmethod: null,
       showNavcity: null,
+      calisma_amaci: null,
+      calisma_tarihi: null,
+      proje_kodu: null,
+      kuyu_arsiv_no: null,
+      jeofizik_arsiv_no: null,
+      derleme_no: null,
+      cd_no: null,
+      selectworkType: null,
+      selectWorkDate: null,
+      selectprojectCode: null,
+      selectlogno: null,
+      selectgeono: null,
+      selectderleme: null,
+      selectcd: null,
+      showCalismaAmaciSelect: false,
+      showCalismaTarihiSelect: false,
+      showProjeKoduSelect: false,
+      showKuyuArsivNoSelect: false,
+      showJeofizikArsivNoSelect: false,
+      showDerlemeNoSelect: false,
+      showCdNoSelect: false,
+
       menuItems: [
         {
           title: "Kayıt Ol",
@@ -318,14 +544,134 @@ export default {
       methodControl: null,
       districtControl: null,
       cityControl: null,
+      show: false,
     };
   },
   methods: {
-    advancedSearch() {
-      bus.$emit("openAdvancedSearchDialog");
+    getDistinctValues(querytype) {
+      const params = {
+        column: [
+          "calisma_amaci",
+          "calisma_tarihi",
+          "proje_kodu",
+          "kuyu_arsiv_no",
+          "jeofizik_arsiv_no",
+          "derleme_no",
+          "cd_no",
+        ],
+      };
+      params["userStatus"] = this.$store.state.auth.user.roles.includes(
+        "ROLE_USER"
+      )
+        ? "user"
+        : null;
+      params["yontem"] = this.methodControl ? this.methodControl : null;
+      params["calisma_tarihi"] = this.selectWorkDate
+        ? this.selectWorkDate
+        : null;
+      params["calisma_amaci"] = this.selectworkType
+        ? this.selectworkType
+        : null;
+      params["proje_kodu"] = this.selectprojectCode
+        ? this.selectprojectCode
+        : null;
+      params["kuyu_arsiv_no"] = this.selectlogno ? this.selectlogno : null;
+      params["jeofizik_arsiv_no"] = this.selectgeono ? this.selectgeono : null;
+      params["derleme_no"] = this.selectderleme ? this.selectderleme : null;
+      params["cd_no"] = this.selectcd ? this.selectcd : null;
+      TutorialDataService.distinct(params)
+        .then((response) => {
+          // Define a mapping of querytype to selected values
+          const queryTypeToSelectedValues = {
+            yontem: [
+              "calisma_amaci",
+              "proje_kodu",
+              "kuyu_arsiv_no",
+              "jeofizik_arsiv_no",
+              "derleme_no",
+              "cd_no",
+              "calisma_tarihi",
+            ],
+            amac: [
+              "proje_kodu",
+              "kuyu_arsiv_no",
+              "jeofizik_arsiv_no",
+              "derleme_no",
+              "cd_no",
+              "calisma_tarihi",
+            ],
+            tarih: [
+              "proje_kodu",
+              "kuyu_arsiv_no",
+              "jeofizik_arsiv_no",
+              "derleme_no",
+              "cd_no",
+            ],
+            proje: [
+              "kuyu_arsiv_no",
+              "jeofizik_arsiv_no",
+              "derleme_no",
+              "cd_no",
+            ],
+            kuyu: ["jeofizik_arsiv_no", "derleme_no", "cd_no"],
+            jeofizik: ["derleme_no", "cd_no"],
+            derleme: ["cd_no"],
+          };
+
+          // Get the selected values based on the querytype
+          const selectedValues = queryTypeToSelectedValues[querytype];
+
+          // Update the data properties with the selected values
+          selectedValues.forEach((property) => {
+            if (property !== "calisma_tarihi") {
+              this[property] =
+                response.data[property] !== null
+                  ? response.data[property].filter((elem) => elem !== null)
+                  : null;
+            } else {
+              //fill calisma_tarihi with years from current year to 1935
+              this.calisma_tarihi = Array.from(
+                { length: new Date().getFullYear() - 1935 + 11 },
+                (v, k) => k + 1935
+              ).reverse();
+            }
+          });
+        })
+
+        .catch((e) => {
+          console.log(e);
+        });
     },
-    deleteItem(item) {
-      this.methodControl = this.methodControl.filter((find) => find !== item);
+    deleteItem(item, type) {
+      if (typeof type === "string") {
+        if (type === "yontem" && this.methodControl) {
+          this.methodControl = this.methodControl.filter(
+            (find) => find !== item
+          );
+        } else if (type === "tarih" && this.selectWorkDate) {
+          this.selectWorkDate = this.selectWorkDate.filter(
+            (find) => find !== item
+          );
+        } else if (type === "amac" && this.selectworkType) {
+          this.selectworkType = this.selectworkType.filter(
+            (find) => find !== item
+          );
+        } else if (type === "proje" && this.selectprojectCode) {
+          this.selectprojectCode = this.selectprojectCode.filter(
+            (find) => find !== item
+          );
+        } else if (type === "kuyu" && this.selectlogno) {
+          this.selectlogno = this.selectlogno.filter((find) => find !== item);
+        } else if (type === "jeofizik" && this.selectgeono) {
+          this.selectgeono = this.selectgeono.filter((find) => find !== item);
+        } else if (type === "derleme" && this.selectderleme) {
+          this.selectderleme = this.selectderleme.filter(
+            (find) => find !== item
+          );
+        } else if (type === "cd" && this.selectcd) {
+          this.selectcd = this.selectcd.filter((find) => find !== item);
+        }
+      }
     },
     async handleCityChange(event) {
       const response = await api.get(`/getGeoJson${0}`);
@@ -390,13 +736,30 @@ export default {
       this.$store.commit("searchParam/updateCity", this.cityControl);
       this.$store.commit("searchParam/updateDistrict", this.districtControl);
       this.$store.commit("searchParam/updateMethod", this.methodControl);
+      this.$store.commit("searchParam/updateWorkType", this.selectworkType);
+      this.$store.commit("searchParam/updateWorkDate", this.selectWorkDate);
+      this.$store.commit(
+        "searchParam/updateProjectCode",
+        this.selectprojectCode
+      );
+      this.$store.commit("searchParam/updateLogNo", this.selectlogno);
+      this.$store.commit("searchParam/updateGeoNo", this.selectgeono);
+      this.$store.commit("searchParam/updateDerleme", this.selectderleme);
+      this.$store.commit("searchParam/updateCd", this.selectcd);
 
       //bus.$emit("sendResults"); if only city or district or method is selected
       //bus.$emit("loading", true); if only city or district or method is selected
       if (
         this.cityControl !== null ||
         this.districtControl !== null ||
-        this.methodControl !== null
+        this.methodControl !== null ||
+        this.selectworkType !== null ||
+        this.selectWorkDate !== null ||
+        this.selectprojectCode !== null ||
+        this.selectlogno !== null ||
+        this.selectgeono !== null ||
+        this.selectderleme !== null ||
+        this.selectcd !== null
       ) {
         bus.$emit("sendResults");
         bus.$emit("loading", true);
@@ -407,6 +770,14 @@ export default {
       this.districtControl = null;
       this.fillDistrict = [];
       this.methodControl = null;
+      this.selectworkType = null;
+      this.selectWorkDate = null;
+      this.selectprojectCode = null;
+      this.selectlogno = null;
+      this.selectgeono = null;
+      this.selectderleme = null;
+      this.selectcd = null;
+      //de-select all scale controls
       for (let i = 0; i < this.scaleControls.length; i++) {
         this.scaleControls[i].checked = false;
       }
@@ -462,6 +833,130 @@ export default {
     EventBus.remove("logout");
   },
   watch: {
+    // Watch for changes in the calisma_tarihi data property
+    calisma_tarihi: {
+      handler(newValue) {
+        // Check if the new value is not null and has a length greater than 0
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          // Data is available, show the corresponding v-list-group or select
+          this.showCalismaTarihiSelect = true;
+        } else {
+          // Data is null or empty, hide the corresponding v-list-group or select
+          this.showCalismaTarihiSelect = false;
+          this.selectWorkDate = null;
+        }
+      },
+      deep: true,
+
+      immediate: true, // This will trigger the handler immediately when the component is created
+    },
+    // Add similar watchers for other data properties...
+    calisma_amaci: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.showCalismaAmaciSelect = true;
+        } else {
+          this.showCalismaAmaciSelect = false;
+          this.selectworkType = null;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    proje_kodu: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.showProjeKoduSelect = true;
+        } else {
+          this.showProjeKoduSelect = false;
+          this.selectprojectCode = null;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    kuyu_arsiv_no: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.showKuyuArsivNoSelect = true;
+        } else {
+          this.showKuyuArsivNoSelect = false;
+          this.selectlogno = null;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    jeofizik_arsiv_no: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.showJeofizikArsivNoSelect = true;
+        } else {
+          this.showJeofizikArsivNoSelect = false;
+          this.selectgeono = null;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    derleme_no: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.showDerlemeNoSelect = true;
+        } else {
+          this.showDerlemeNoSelect = false;
+          this.selectderleme = null;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    cd_no: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.showCdNoSelect = true;
+        } else {
+          this.showCdNoSelect = false;
+          this.selectcd = null;
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
+
     $route: function () {
       // Check if given route is true, if it is then hide Nav.
       if (this.$route.query.tab === "harita-gorunumu") {
@@ -473,11 +968,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.mta-logo {
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  left: 48%;
-}
-</style>

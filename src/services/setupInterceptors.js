@@ -1,13 +1,12 @@
 import axiosInstance from "./api";
 import TokenService from "./token.service";
 
-const setup = (store) => {
+const setup = (store, router) => {
   axiosInstance.interceptors.request.use(
     (config) => {
       const token = TokenService.getLocalAccessToken();
       if (token) {
-        // config.headers["Authorization"] = 'Bearer ' + token;  // for Spring Boot back-end
-        config.headers["x-access-token"] = token; // for Node.js Express back-end
+        config.headers["x-access-token"] = token;
       }
       return config;
     },
@@ -24,8 +23,11 @@ const setup = (store) => {
       const originalConfig = err.config;
 
       if (originalConfig.url !== "/auth/signin" && err.response) {
-        // Access Token was expired
-        if (err.response.status === 401 && !originalConfig._retry) {
+        if (err.response.status === 401 || err.response.status === 403) {
+          TokenService.removeUser();
+          store.dispatch("auth/logout");
+          router.push("/giris"); // Redirect to the login page
+        } else if (err.response.status === 401 && !originalConfig._retry) {
           originalConfig._retry = true;
 
           try {
@@ -38,8 +40,13 @@ const setup = (store) => {
             store.dispatch("auth/refreshToken", accessToken);
             TokenService.updateLocalAccessToken(accessToken);
 
+            // Reattempt the original request with the new token
+            originalConfig.headers["x-access-token"] = accessToken;
             return axiosInstance(originalConfig);
           } catch (_error) {
+            TokenService.removeUser();
+            store.dispatch("auth/logout");
+            router.push("/giris");
             return Promise.reject(_error);
           }
         }

@@ -9,7 +9,16 @@
       @update:center="centerUpdate"
       @update:zoom="zoomUpdate"
     >
-      <l-tile-layer :url="url" :attribution="attribution" />
+      <l-tile-layer
+        v-for="tileProvider in tileProviders"
+        :key="tileProvider.name"
+        :name="tileProvider.name"
+        :visible="tileProvider.visible"
+        :url="tileProvider.url"
+        :attribution="tileProvider.attribution"
+        layer-type="base"
+      />
+      <l-control-layers position="topright"></l-control-layers>
 
       <l-marker v-if="markerLatlong" :lat-lng="markerLatlong" />
       <l-polyline
@@ -40,6 +49,7 @@ import {
   LMarker,
   LPolyline,
   LControlScale,
+  LControlLayers,
 } from "vue2-leaflet";
 import { Icon } from "leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
@@ -64,6 +74,7 @@ export default {
     LMarker,
     LPolyline,
     LControlScale,
+    LControlLayers,
   },
   data() {
     return {
@@ -71,9 +82,29 @@ export default {
       polyline: null,
       zoom: 11.5,
       loading: false,
-      url: "http://10.68.19.137:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
-      attribution:
-        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      tileProviders: [
+        {
+          name: "Topoğrafya",
+          visible: true,
+          url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+          attribution:
+            'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        },
+        {
+          name: "Sokak",
+          visible: false,
+          attribution:
+            '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        },
+        {
+          name: "Uydu",
+          visible: false,
+          url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          attribution:
+            'Map data: &copy; <a href="http://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        },
+      ],
       currentZoom: 11.5,
       citiesLatLongjson: citiesLatLongjson,
       mapOptions: {

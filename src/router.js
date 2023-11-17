@@ -20,6 +20,7 @@ export const router = new Router({
           },
         ],
       },
+      //not use lazy load
       component: () => import("./components/TutorialsList"),
     },
     //rapor-dokumu

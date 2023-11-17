@@ -18,10 +18,19 @@
         :options="{ title: { false: 'Tam Ekran', true: 'Normal Görünüm' } }"
       />
       <v-icondefault></v-icondefault>
-      <l-tile-layer :url="url" :attribution="attribution" />
+      <l-tile-layer
+        v-for="tileProvider in tileProviders"
+        :key="tileProvider.name"
+        :name="tileProvider.name"
+        :visible="tileProvider.visible"
+        :url="tileProvider.url"
+        :attribution="tileProvider.attribution"
+        layer-type="base"
+      />
       <l-control :position="'topright'">
         <div class="coordinates" v-if="coordinates">{{ coordinates }}</div>
       </l-control>
+      <l-control-layers position="topright"></l-control-layers>
 
       <v-marker-cluster
         v-if="markerReady"
@@ -108,6 +117,7 @@ import {
   LControlScale,
   LIconDefault,
   LControl,
+  LControlLayers,
 } from "vue2-leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
 import api from "../services/api";
@@ -137,6 +147,7 @@ import heliIcon from "../assets/heli.png";
 import drone_magnetic from "../assets/drone_magnetic.png";
 import drone_ortophoto from "../assets/drone_ortophoto.png";
 import drone_radiometric from "../assets/drone_radiometric.png";
+
 /*
 Feature types:
   - point
@@ -223,6 +234,14 @@ function onEachFeature(feature, layer) {
         v.$store.commit("searchParam/updateCity", null);
         v.$store.commit("searchParam/updateDistrict", null);
         v.$store.commit("searchParam/updateCoords", null);
+        v.$store.commit("searchParam/updateWorkType", null);
+        v.$store.commit("searchParam/updateWorkDate", null);
+        v.$store.commit("searchParam/updateProjectCode", null);
+        v.$store.commit("searchParam/updateLogNo", null);
+        v.$store.commit("searchParam/updateGeoNo", null);
+        v.$store.commit("searchParam/updateDerleme", null);
+        v.$store.commit("searchParam/updateCd", null);
+
         let params = {};
         params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = v.$store.state.searchParam.yontem;
@@ -269,6 +288,13 @@ function onEachFeature(feature, layer) {
       v.$store.commit("searchParam/updateCity", feature.properties.name);
       v.$store.commit("searchParam/updateDistrict", null);
       v.$store.commit("searchParam/updateCoords", feature.geometry.coordinates);
+      v.$store.commit("searchParam/updateWorkType", null);
+      v.$store.commit("searchParam/updateWorkDate", null);
+      v.$store.commit("searchParam/updateProjectCode", null);
+      v.$store.commit("searchParam/updateLogNo", null);
+      v.$store.commit("searchParam/updateGeoNo", null);
+      v.$store.commit("searchParam/updateDerleme", null);
+      v.$store.commit("searchParam/updateCd", null);
       v.selectedCityparam = feature.properties.name;
       v.selectedDistrict = null;
 
@@ -290,6 +316,13 @@ function onEachFeature(feature, layer) {
           v.$store.commit("searchParam/updateCity", null);
           v.$store.commit("searchParam/updateDistrict", null);
           v.$store.commit("searchParam/updateCoords", null);
+          v.$store.commit("searchParam/updateWorkType", null);
+          v.$store.commit("searchParam/updateWorkDate", null);
+          v.$store.commit("searchParam/updateProjectCode", null);
+          v.$store.commit("searchParam/updateLogNo", null);
+          v.$store.commit("searchParam/updateGeoNo", null);
+          v.$store.commit("searchParam/updateDerleme", null);
+          v.$store.commit("searchParam/updateCd", null);
           let params = {};
           if (v.selectedJsonparam === 1) {
             params["geojson"] = e.target.feature.properties.Id;
@@ -339,6 +372,7 @@ export default {
     LControlScale,
     LControl,
     DatatoGeoJson,
+    LControlLayers,
     LControlFullscreen,
     "v-marker-cluster": Vue2LeafletMarkerCluster,
     "v-icondefault": LIconDefault,
@@ -352,11 +386,34 @@ export default {
       citiesLatLongjson: citiesLatLongjson,
       zoom: 6,
       center: [39.9208, 32.8541],
-      url: "http://10.68.19.137:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
+      //url: "http://10.68.19.137:8081/styles/basic-preview/{z}/{x}/{y}@3x.png",
       // url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", // Tile layer URL
 
-      attribution:
-        'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      // attribution:
+      //   'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      tileProviders: [
+        {
+          name: "Topoğrafya",
+          visible: true,
+          url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+          attribution:
+            'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        },
+        {
+          name: "Sokak",
+          visible: false,
+          attribution:
+            '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        },
+        {
+          name: "Uydu",
+          visible: false,
+          url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          attribution:
+            'Map data: &copy; <a href="http://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        },
+      ],
       currentZoom: 6,
       mapOptions: {
         zoomSnap: 0.5,
@@ -376,6 +433,13 @@ export default {
       geojsonSelector: false,
       addedPolygonLayer: null,
       editFeatureGroup: null,
+      calisma_amaci: null,
+      calisma_tarihi: null,
+      proje_kodu: null,
+      kuyu_arsiv_no: null,
+      jeofizik_arsiv_no: null,
+      derleme_no: null,
+      cd_no: null,
       clusterKey: 0,
       clusterOptions: {
         chunkedLoading: true,
@@ -435,6 +499,18 @@ export default {
           text: "Uydu Görüntüsü",
           icon: "/satellite.png",
         },
+        {
+          text: "500 m Aralıklı Uçuşlar",
+          icon: "/red.jpg",
+        },
+        {
+          text: "1000 m Aralıklı Uçuşlar",
+          icon: "/blue.jpg",
+        },
+        {
+          text: "Uçuş Olmayan Alanlar",
+          icon: "/black.jpg",
+        },
       ],
       geoJsonOptions: {
         onEachFeature: (feature, layer) => {
@@ -461,6 +537,7 @@ export default {
               iconRetinaUrl: seismicIcon,
               iconUrl: seismicIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -477,6 +554,7 @@ export default {
               iconRetinaUrl: emIcon,
               iconUrl: emIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -491,6 +569,7 @@ export default {
               iconRetinaUrl: heliIcon,
               iconUrl: heliIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -505,6 +584,7 @@ export default {
               iconRetinaUrl: welllogIcon,
               iconUrl: welllogIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -519,6 +599,7 @@ export default {
               iconRetinaUrl: gravIcon,
               iconUrl: gravIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -533,6 +614,7 @@ export default {
               iconRetinaUrl: magIcon,
               iconUrl: magIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -547,6 +629,7 @@ export default {
               iconRetinaUrl: radioIcon,
               iconUrl: radioIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -561,6 +644,7 @@ export default {
               iconRetinaUrl: satelliteIcon,
               iconUrl: satelliteIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -578,6 +662,7 @@ export default {
               iconRetinaUrl: airBorneIcon,
               iconUrl: airBorneIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -593,6 +678,7 @@ export default {
               iconRetinaUrl: susceptibilityIcon,
               iconUrl: susceptibilityIcon,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -611,6 +697,7 @@ export default {
               iconRetinaUrl: drone_magnetic,
               iconUrl: drone_magnetic,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -629,6 +716,7 @@ export default {
               iconRetinaUrl: drone_ortophoto,
               iconUrl: drone_ortophoto,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -647,6 +735,7 @@ export default {
               iconRetinaUrl: drone_radiometric,
               iconUrl: drone_radiometric,
               shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+              iconSize: [42, 42],
             });
             customicon = icon(
               Object.assign({}, Icon.Default.prototype.options, {
@@ -671,7 +760,6 @@ export default {
       this.markerReady = false;
     },
     onPolygonDrawn(event) {
-      this.removePolygonLayer();
       this.showGeojson = false;
       this.geojson = null;
       this.geojsonSelector = false;
@@ -720,11 +808,34 @@ export default {
     /*
     get data from data service
     */
-    dataService(city, district, selectedMethod, requestFlag) {
+    dataService(
+      city,
+      district,
+      selectedMethod,
+      jeofizik_arsiv_no,
+      calisma_amaci,
+      calisma_tarihi,
+      proje_kodu,
+      kuyu_arsiv_no,
+      derleme_no,
+      cd_no,
+      requestFlag
+    ) {
       this.polyline = [];
       this.markers = [];
       this.markerReady = false;
-      if (city || district || selectedMethod) {
+      if (
+        city ||
+        district ||
+        selectedMethod ||
+        jeofizik_arsiv_no ||
+        calisma_amaci ||
+        calisma_tarihi ||
+        proje_kodu ||
+        kuyu_arsiv_no ||
+        derleme_no ||
+        cd_no
+      ) {
         let params = {};
         this.polyline = [];
         this.markers = [];
@@ -737,6 +848,13 @@ export default {
         )
           ? "user"
           : null;
+        params["calisma_amaci"] = calisma_amaci;
+        params["calisma_tarihi"] = calisma_tarihi;
+        params["proje_kodu"] = proje_kodu;
+        params["kuyu_arsiv_no"] = kuyu_arsiv_no;
+        params["jeofizik_arsiv_no"] = jeofizik_arsiv_no;
+        params["derleme_no"] = derleme_no;
+        params["cd_no"] = cd_no;
         params["requestFlag"] = requestFlag ? requestFlag : null;
         TutorialDataService.findAllgetAll(params)
           .then((response) => {
@@ -808,6 +926,24 @@ export default {
           }
         });
       }
+    },
+    cleaner() {
+      this.polyline = [];
+      this.markers = [];
+      this.methodarr = [];
+      this.showGeojson = false;
+      this.geojson = null;
+      this.geojsonSelector = false;
+      this.$store.commit("searchParam/updateCity", null);
+      this.$store.commit("searchParam/updateDistrict", null);
+      this.$store.commit("searchParam/updateCoords", null);
+      this.$store.commit("searchParam/updateWorkType", null);
+      this.$store.commit("searchParam/updateWorkDate", null);
+      this.$store.commit("searchParam/updateProjectCode", null);
+      this.$store.commit("searchParam/updateLogNo", null);
+      this.$store.commit("searchParam/updateGeoNo", null);
+      this.$store.commit("searchParam/updateDerleme", null);
+      this.$store.commit("searchParam/updateCd", null);
     },
   },
 
@@ -883,6 +1019,13 @@ export default {
       var city = this.$store.state.searchParam.il;
       var district = this.$store.state.searchParam.ilce;
       var method = this.$store.state.searchParam.yontem;
+      this.calisma_amaci = this.$store.state.searchParam.calisma_amaci;
+      this.calisma_tarihi = this.$store.state.searchParam.calisma_tarihi;
+      this.proje_kodu = this.$store.state.searchParam.proje_kodu;
+      this.kuyu_arsiv_no = this.$store.state.searchParam.kuyu_arsiv_no;
+      this.jeofizik_arsiv_no = this.$store.state.searchParam.jeofizik_arsiv_no;
+      this.derleme_no = this.$store.state.searchParam.derleme_no;
+      this.cd_no = this.$store.state.searchParam.cd_no;
       this.markers = [];
       this.markerReady = false;
       if (method !== null) {
@@ -908,6 +1051,13 @@ export default {
 
       if (this.geojsonSelector === true) {
         let params = {};
+        params["calisma_amaci"] = this.calisma_amaci;
+        params["calisma_tarihi"] = this.calisma_tarihi;
+        params["proje_kodu"] = this.proje_kodu;
+        params["kuyu_arsiv_no"] = this.kuyu_arsiv_no;
+        params["jeofizik_arsiv_no"] = this.jeofizik_arsiv_no;
+        params["derleme_no"] = this.derleme_no;
+        params["cd_no"] = this.cd_no;
         params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = method;
         //this.polyline = [];
@@ -930,8 +1080,20 @@ export default {
           });
       }
       if (this.geojsonSelector === false) {
-        this.dataService(city, district, method, null);
-        bus.$emit("searchParam", city, district, method);
+        this.dataService(
+          city,
+          district,
+          method,
+          this.jeofizik_arsiv_no,
+          this.calisma_amaci,
+          this.calisma_tarihi,
+          this.proje_kodu,
+          this.kuyu_arsiv_no,
+          this.derleme_no,
+          this.cd_no,
+          null
+        );
+        bus.$emit("searchParam");
       }
 
       if (method === null || method === undefined) {
@@ -950,7 +1112,6 @@ export default {
     bus.$on("plotGeojson", (data, center, flag) => {
       if (flag === "geojsonFlag") {
         this.geojsonSelector = true;
-        this.removePolygonLayer();
       }
       // this.polyline = [];
       // this.markers = [];
@@ -967,24 +1128,14 @@ export default {
       this.showGeojson = true;
     });
     bus.$on("clearMap", () => {
-      this.polyline = [];
-      this.markers = [];
-      this.methodarr = [];
+      this.cleaner();
       bus.$emit("clearNavSelections");
       this.removePolygonLayer();
-
-      this.showGeojson = false;
-      this.geojson = null;
-      this.geojsonSelector = false;
     });
     bus.$on("clearAll", () => {
       bus.$emit("clearNavSelections");
-      this.polyline = [];
-      this.markers = [];
-      this.methodarr = [];
-      this.showGeojson = false;
-      this.geojson = null;
-      this.geojsonSelector = false;
+      this.cleaner();
+
       this.removePolygonLayer();
 
       this.clusterKey++;
@@ -993,23 +1144,29 @@ export default {
     });
     bus.$on("searchDatatoMap", (param) => {
       bus.$emit("clearMap");
-      this.methodarr = [];
-      this.polyline = [];
-      this.markers = [];
+      this.cleaner();
       this.selectedCityparam = null;
       this.selectedDistrict = null;
-      this.showGeojson = false;
-      this.geojsonSelector = false;
       this.removePolygonLayer();
-
-      this.geojson = null;
       this.clusterKey++;
-      this.dataService(param, null, null, "userSearch");
+      this.dataService(
+        param,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "userSearch"
+      );
     });
   },
 };
 </script>
-<style>
+<style scoped>
 .selected {
   fill-opacity: 0;
 }
@@ -1019,16 +1176,11 @@ export default {
 .pseudoClass {
   fill: #068d8d;
 }
-.leaflet-marker-icon {
-  width: 42px !important;
-  height: 42px !important;
-}
+
 .legend {
   padding: 5px;
   background: rgba(255, 255, 255, 0.8);
 }
-</style>
-<style module>
 .coordinates {
   background-color: white;
   padding: 5px;

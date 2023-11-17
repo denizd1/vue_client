@@ -122,6 +122,14 @@
               >
                 Excel Olarak İndir
               </v-btn>
+              <v-btn
+                class="mt-3 ml-3"
+                depressed
+                color="primary"
+                @click="exportExcel('kmlexport')"
+              >
+                KMZ İndir
+              </v-btn>
             </v-col>
           </v-row>
         </v-tab-item>
@@ -135,6 +143,7 @@ import TutorialDataService from "../services/TutorialDataService";
 // import SearchDetail from "./SearchDetail.vue";
 import TurkeyMap from "./TurkeyMap.vue";
 import { bus } from "../main";
+import JSZip from "jszip";
 
 export default {
   name: "tutorials-list",
@@ -153,8 +162,13 @@ export default {
       areaJson: null,
       loading: false,
       methodarr: null,
-      globalParams: null,
-      detailSearch: false,
+      calisma_amaci: null,
+      calisma_tarihi: null,
+      proje_kodu: null,
+      kuyu_arsiv_no: null,
+      jeofizik_arsiv_no: null,
+      derleme_no: null,
+      cd_no: null,
     };
   },
   components: {
@@ -279,6 +293,13 @@ export default {
       if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
         searchParams["userStatus"] = "user";
       }
+      searchParams["calisma_amaci"] = this.calisma_amaci;
+      searchParams["calisma_tarihi"] = this.calisma_tarihi;
+      searchParams["proje_kodu"] = this.proje_kodu;
+      searchParams["kuyu_arsiv_no"] = this.kuyu_arsiv_no;
+      searchParams["jeofizik_arsiv_no"] = this.jeofizik_arsiv_no;
+      searchParams["derleme_no"] = this.derleme_no;
+      searchParams["cd_no"] = this.cd_no;
       if (
         (this.selectedCity === null ||
           this.selectedCity === "" ||
@@ -299,35 +320,35 @@ export default {
     retrieveTutorials(searchTitle, event) {
       var params = null;
 
-      if (this.detailSearch === true) {
-        params = this.globalParams;
-        params.page = this.page - 1;
-        params.size = this.pageSize;
-        params.userStatus = this.isUser ? "user" : null;
-      } else {
-        if (event && event.isTrusted) {
-          this.$store.commit("searchParam/updateCoords", null);
-          this.$store.commit("searchParam/updateCity", null);
-          this.$store.commit("searchParam/updateDistrict", null);
-          this.methodarr = null;
-          bus.$emit("searchDatatoMap", searchTitle);
-          this.selectedCity = null;
-          this.selectedDistrict = null;
+      if (event && event.isTrusted) {
+        this.$store.commit("searchParam/updateCity", null);
+        this.$store.commit("searchParam/updateDistrict", null);
+        this.$store.commit("searchParam/updateCoords", null);
+        this.$store.commit("searchParam/updateWorkType", null);
+        this.$store.commit("searchParam/updateWorkDate", null);
+        this.$store.commit("searchParam/updateProjectCode", null);
+        this.$store.commit("searchParam/updateLogNo", null);
+        this.$store.commit("searchParam/updateGeoNo", null);
+        this.$store.commit("searchParam/updateDerleme", null);
+        this.$store.commit("searchParam/updateCd", null);
+        this.methodarr = null;
+        bus.$emit("searchDatatoMap", searchTitle);
+        this.selectedCity = null;
+        this.selectedDistrict = null;
 
-          params = {
-            il: searchTitle, // !!! il is just a placeholder for the searchTitle,
-            page: this.page - 1,
-            size: this.pageSize,
-            requestFlag: "userSearch",
-            userStatus: this.isUser ? "user" : null,
-          };
-        } else {
-          params = this.getRequestParams(
-            this.page,
-            this.pageSize,
-            this.methodarr
-          );
-        }
+        params = {
+          il: searchTitle, // !!! il is just a placeholder for the searchTitle,
+          page: this.page - 1,
+          size: this.pageSize,
+          requestFlag: "userSearch",
+          userStatus: this.isUser ? "user" : null,
+        };
+      } else {
+        params = this.getRequestParams(
+          this.page,
+          this.pageSize,
+          this.methodarr
+        );
 
         if (!event && this.areaJson != null) {
           params["areaJson"] = this.areaJson;
@@ -430,75 +451,172 @@ export default {
         console.error("Error exporting data:", error);
       }
     },
+    convertToKML(geoJson) {
+      let kml = `<?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+    <name>ProjectHub KMZ Results</name>
+    `;
+
+      // Process GeoJSON features
+      geoJson.features.forEach((feature) => {
+        const name = feature.properties.nokta_adi; // Assuming nokta_adi contains the point name
+        const projectCode = feature.properties.proje_kodu; // Assuming proje_kodu contains the project code
+        if (feature.geometry.type === "Point") {
+          const coordinates = feature.geometry.coordinates;
+
+          kml += `<Placemark><name>${name} - ${projectCode}</name><Point><coordinates>${coordinates[0]},${coordinates[1]},0</coordinates></Point></Placemark>`;
+        } else if (feature.geometry.type === "LineString") {
+          const coordinates = this.extractCoordinates(
+            feature.geometry.coordinates
+          );
+          // Define a style for LineStrings (change the color and width as needed)
+          kml += `
+            <Style id="lineStyle">
+                <LineStyle>
+                    <color>ff0000ff</color> <!-- Red color (AABBGGRR format) -->
+                    <width>5</width> <!-- Increase line width for bold appearance -->
+                </LineStyle>
+            </Style>
+            <Placemark>
+              <name>${name} - ${projectCode}</name> <!-- Include project code in the LineString name -->
+                <styleUrl>#lineStyle</styleUrl>
+                <LineString>
+                    <coordinates>${coordinates}</coordinates>
+                </LineString>
+            </Placemark>
+        `;
+        } else if (feature.geometry.type === "Polygon") {
+          const coordinates = this.extractCoordinates(
+            feature.geometry.coordinates[0]
+          );
+          kml += `<Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;
+        }
+      });
+
+      kml += `</Document></kml>`;
+
+      return kml;
+    },
+    convertAndDownload(resPoints) {
+      const zip = new JSZip();
+
+      // Assuming 'geoJsonResponse' contains your GeoJSON object
+      const geoJsonResponse = resPoints; // Replace this with your actual GeoJSON response
+
+      // Convert GeoJSON to KML
+      const kmlData = this.convertToKML(geoJsonResponse);
+
+      // Add the KML content to the ZIP archive
+      zip.file("data.kml", kmlData);
+
+      // Generate the KMZ file
+      return zip
+        .generateAsync({ type: "blob" })
+        .then((blob) => {
+          // Trigger download
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "sonuclar" + new Date().toLocaleDateString() + ".kmz"; // Set the filename for the downloaded file
+          link.click();
+        })
+        .then(() => {
+          this.loading = false; // Optionally, update loading state
+        });
+    },
+    extractCoordinates(coordinates) {
+      return coordinates.map((coord) => coord.reverse().join(",")).join(" ");
+    },
+    addLinestoCollection(res) {
+      res.resLines.forEach((lineObject) => {
+        const lineCoordinates = lineObject.line;
+
+        const lineStringFeature = {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: lineCoordinates,
+          },
+          properties: {
+            nokta_adi: lineObject.nokta_adi,
+            yontem: lineObject.yontem,
+            alt_yontem: lineObject.alt_yontem,
+            proje_kodu: lineObject.proje_kodu,
+          },
+        };
+
+        res.resPoints.features.push(lineStringFeature);
+      });
+      this.convertAndDownload(res.resPoints);
+    },
 
     exportExcel(searchTitle) {
       this.loading = true;
       var excelParams = null;
-      if (this.detailSearch === true) {
-        excelParams = this.globalParams;
-        excelParams.requestFlag = "excel";
-        excelParams.userStatus = this.$store.state.auth.user.roles.includes(
-          "ROLE_USER"
-        )
-          ? "user"
-          : null;
 
+      excelParams = {};
+      if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
+        excelParams["userStatus"] = "user";
+      }
+      excelParams["yontem"] = this.methodarr ? this.methodarr : null;
+      excelParams["calisma_amaci"] = this.calisma_amaci;
+      excelParams["calisma_tarihi"] = this.calisma_tarihi;
+      excelParams["proje_kodu"] = this.proje_kodu;
+      excelParams["kuyu_arsiv_no"] = this.kuyu_arsiv_no;
+      excelParams["jeofizik_arsiv_no"] = this.jeofizik_arsiv_no;
+      excelParams["derleme_no"] = this.derleme_no;
+      excelParams["cd_no"] = this.cd_no;
+      if (searchTitle !== "kmlexport") {
+        excelParams["requestFlag"] = "excel";
+      }
+      if (this.areaJson == null) {
+        if (searchTitle && searchTitle !== "kmlexport") {
+          excelParams["il"] =
+            this.$store.state.searchParam.il != null
+              ? this.$store.state.searchParam.il
+              : searchTitle;
+        }
         TutorialDataService.findAllgetAll(excelParams)
           .then((response) => {
-            // Handle the Blob response
-            this.handleBlobResponse(response);
-            this.loading = false; // Optionally, update loading state
+            if (searchTitle === "kmlexport") {
+              console.log(response.data);
+              this.addLinestoCollection(response.data);
+            } else {
+              // Handle the Blob response
+              this.handleBlobResponse(response);
+              this.loading = false; // Optionally, update loading state
+            }
           })
           .catch((error) => {
             console.error(error);
             this.loading = false; // Optionally, update loading state
           });
-      } else {
-        excelParams = {};
-        if (this.$store.state.auth.user.roles.includes("ROLE_USER")) {
-          excelParams["userStatus"] = "user";
-        }
-        excelParams["yontem"] = this.methodarr ? this.methodarr : null;
-        excelParams["requestFlag"] = "excel";
-        if (this.areaJson == null) {
-          if (searchTitle) {
-            excelParams["il"] =
-              this.$store.state.searchParam.il != null
-                ? this.$store.state.searchParam.il
-                : searchTitle;
-          }
-          TutorialDataService.findAllgetAll(excelParams)
-            .then((response) => {
-              // Handle the Blob response
-              this.handleBlobResponse(response);
-              this.loading = false; // Optionally, update loading state
-            })
-            .catch((error) => {
-              console.error(error);
-              this.loading = false; // Optionally, update loading state
-            });
-        }
-        if (this.areaJson != null) {
-          var reg = /^\d+$/;
+      }
+      if (this.areaJson != null) {
+        var reg = /^\d+$/;
 
-          if (reg.test(this.areaJson)) {
-            excelParams["geojson"] = this.areaJson;
-          } else if (this.areaJson.isArray) {
-            excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
-          } else {
-            excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
-          }
-          TutorialDataService.findAllGeo(excelParams)
-            .then((response) => {
+        if (reg.test(this.areaJson)) {
+          excelParams["geojson"] = this.areaJson;
+        } else if (this.areaJson.isArray) {
+          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+        } else {
+          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+        }
+        TutorialDataService.findAllGeo(excelParams)
+          .then((response) => {
+            if (searchTitle === "kmlexport") {
+              console.log(response.data);
+              this.addLinestoCollection(response.data);
+            } else {
               // Handle the Blob response
               this.handleBlobResponse(response);
               this.loading = false; // Optionally, update loading state
-            })
-            .catch((error) => {
-              console.error(error);
-              this.loading = false; // Optionally, update loading state
-            });
-        }
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            this.loading = false; // Optionally, update loading state
+          });
       }
     },
   },
@@ -507,13 +625,6 @@ export default {
     bus.$emit("renderMap");
     this.retrieveTutorials();
 
-    bus.$on("search", (params) => {
-      this.globalParams = params;
-      this.detailSearch = true;
-      this.retrieveTutorials();
-      this.componentKey += 1;
-    });
-
     bus.$on("searchParam", () => {
       this.detailSearch = false;
       this.areaJson = null;
@@ -521,6 +632,13 @@ export default {
       this.searchTitle = this.$store.state.searchParam.il;
       this.selectedCity = this.$store.state.searchParam.il;
       this.selectedDistrict = this.$store.state.searchParam.ilce;
+      this.calisma_amaci = this.$store.state.searchParam.calisma_amaci;
+      this.calisma_tarihi = this.$store.state.searchParam.calisma_tarihi;
+      this.proje_kodu = this.$store.state.searchParam.proje_kodu;
+      this.kuyu_arsiv_no = this.$store.state.searchParam.kuyu_arsiv_no;
+      this.jeofizik_arsiv_no = this.$store.state.searchParam.jeofizik_arsiv_no;
+      this.derleme_no = this.$store.state.searchParam.derleme_no;
+      this.cd_no = this.$store.state.searchParam.cd_no;
       if (this.$store.state.searchParam.ilce != null) {
         this.searchTitle = this.selectedDistrict;
       }
@@ -531,16 +649,23 @@ export default {
       this.componentKey += 1;
     });
     bus.$on("clearAll", (flag) => {
-      this.detailSearch = false;
-
       this.tutorials = [];
       this.searchTitle = "";
       this.areaJson = null;
       this.methodarr = null;
       if (flag === "fullClean") {
+        this.$store.commit("searchParam/updateMethod", null);
         this.$store.commit("searchParam/updateCity", null);
         this.$store.commit("searchParam/updateDistrict", null);
-        this.$store.commit("searchParam/updateMethod", null);
+        this.$store.commit("searchParam/updateCoords", null);
+        this.$store.commit("searchParam/updateWorkType", null);
+        this.$store.commit("searchParam/updateWorkDate", null);
+        this.$store.commit("searchParam/updateProjectCode", null);
+        this.$store.commit("searchParam/updateLogNo", null);
+        this.$store.commit("searchParam/updateGeoNo", null);
+        this.$store.commit("searchParam/updateDerleme", null);
+        this.$store.commit("searchParam/updateCd", null);
+
         this.selectedCity = null;
         this.selectedDistrict = null;
         this.methodarr = null;
@@ -553,8 +678,6 @@ export default {
       // bus.$emit("clearNav");
     });
     bus.$on("areaJson", (data) => {
-      this.detailSearch = false;
-
       this.areaJson = data;
       this.searchTitle = "";
       this.methodarr = this.$store.state.searchParam.yontem;
