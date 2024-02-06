@@ -1,5 +1,6 @@
 <template>
   <v-row class="justify-center">
+    <password-reset ref="passwordReset"></password-reset>
     <v-col cols="8" md="4">
       <v-tabs
         dark
@@ -45,7 +46,7 @@
                 v-on:keydown.native.enter="validate"
                 required
               ></v-text-field>
-              <div class="text-center">
+              <v-card-actions class="justify-center">
                 <v-btn
                   :disabled="!valid"
                   color="success"
@@ -54,7 +55,10 @@
                 >
                   Giriş Yap
                 </v-btn>
-              </div>
+                <v-btn color="warning" class="mr-4" @click="forgotPassword">
+                  Şifremi Unuttum
+                </v-btn>
+              </v-card-actions>
               <v-alert
                 v-if="message"
                 class="mt-3"
@@ -65,12 +69,9 @@
                 {{ message }}
               </v-alert>
             </v-form>
-            <p
-              style="margin: 20px 0 20px 0"
-              class="font-weight-thin text-center"
-            >
+            <div class="font-weight-thin text-center mt-3 mb-3">
               ProjectHub | MTA Jeofizik
-            </p>
+            </div>
             <v-img
               class="mx-auto"
               width="120"
@@ -90,6 +91,7 @@
 <script>
 import User from "../models/user";
 import Register from "./Register.vue";
+import PasswordReset from "./PasswordReset.vue";
 
 export default {
   name: "Login",
@@ -105,6 +107,7 @@ export default {
   },
   components: {
     Register,
+    PasswordReset,
   },
   computed: {
     tab: {
@@ -128,6 +131,9 @@ export default {
     }
   },
   methods: {
+    forgotPassword() {
+      this.$refs.passwordReset.show = true;
+    },
     validate() {
       if (!this.$refs.form.validate()) {
         return;

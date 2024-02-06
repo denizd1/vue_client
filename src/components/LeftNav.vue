@@ -101,7 +101,6 @@
                 single-line
                 chips
                 multiple
-                @change="getDistinctValues('yontem')"
               >
                 <template #selection="selection">
                   <v-chip
@@ -130,7 +129,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('amac')"
             >
               <template #selection="selection">
                 <v-chip
@@ -159,7 +157,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('tarih')"
             >
               <template #selection="selection">
                 <v-chip
@@ -189,7 +186,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('proje')"
             >
               <template #selection="selection">
                 <v-chip
@@ -218,7 +214,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('kuyu')"
             >
               <template #selection="selection">
                 <v-chip
@@ -247,7 +242,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('jeofizik')"
             >
               <template #selection="selection">
                 <v-chip
@@ -276,7 +270,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('derleme')"
             >
               <template #selection="selection">
                 <v-chip
@@ -305,7 +298,6 @@
               single-line
               chips
               multiple
-              @change="getDistinctValues('cd')"
             >
               <template #selection="selection">
                 <v-chip
@@ -420,7 +412,7 @@
 <script>
 import EventBus from "../common/EventBus";
 import { bus } from "../main";
-import api from "../services/api";
+// import api from "../services/api";
 import TutorialDataService from "../services/TutorialDataService";
 
 import citiesJson from "../../../app/cities_of_turkey.json";
@@ -560,6 +552,8 @@ export default {
           "cd_no",
         ],
       };
+      params["il"] = this.cityControl ? this.cityControl : null;
+      params["ilce"] = this.districtControl ? this.districtControl : null;
       params["userStatus"] = this.$store.state.auth.user.roles.includes(
         "ROLE_USER"
       )
@@ -579,6 +573,13 @@ export default {
       params["jeofizik_arsiv_no"] = this.selectgeono ? this.selectgeono : null;
       params["derleme_no"] = this.selectderleme ? this.selectderleme : null;
       params["cd_no"] = this.selectcd ? this.selectcd : null;
+      if (
+        this.cityControl === null &&
+        this.districtControl === null &&
+        this.$store.state.searchParam.coords
+      ) {
+        params["geojson"] = this.$store.state.searchParam.coords;
+      }
       TutorialDataService.distinct(params)
         .then((response) => {
           // Define a mapping of querytype to selected values
@@ -673,23 +674,24 @@ export default {
         }
       }
     },
-    async handleCityChange(event) {
-      const response = await api.get(`/getGeoJson${0}`);
-
-      const data = await response.data;
-      this.$nextTick(() => {
-        data.features.find((item) => {
-          if (item.properties.name === event) {
-            this.$store.commit(
-              "searchParam/updateCoords",
-              item.geometry.coordinates
-            );
-          }
-        });
-      });
-
+    handleCityChange(event) {
       this.$store.commit("searchParam/updateCity", event);
       this.$store.commit("searchParam/updateDistrict", null);
+      this.$store.commit("searchParam/updateCoords", null);
+      // const response = await api.get(`/getGeoJson${0}`);
+
+      // const data = await response.data;
+      // this.$nextTick(() => {
+      //   data.features.find((item) => {
+      //     if (item.properties.name === event) {
+      //       this.$store.commit(
+      //         "searchParam/updateCoords",
+      //         item.geometry.coordinates
+      //       );
+      //     }
+      //   });
+      // });
+
       this.districtControl = null;
 
       for (let i = 0; i < this.cities.length; i++) {
@@ -702,6 +704,8 @@ export default {
       // self.district_id = event;
     },
     handleDistrictChange() {
+      this.$store.commit("searchParam/updateCoords", null);
+
       for (let i = 0; i < this.scaleControls.length; i++) {
         if (
           this.scaleControls[i].name === "iller" &&
@@ -730,9 +734,6 @@ export default {
       }
     },
     getResults() {
-      if (this.cityControl === null || this.cityControl === undefined) {
-        this.$store.commit("searchParam/updateCoords", null);
-      }
       this.$store.commit("searchParam/updateCity", this.cityControl);
       this.$store.commit("searchParam/updateDistrict", this.districtControl);
       this.$store.commit("searchParam/updateMethod", this.methodControl);
@@ -766,6 +767,13 @@ export default {
       }
     },
     clearNav() {
+      this.calisma_amaci = null;
+      this.calisma_tarihi = null;
+      this.proje_kodu = null;
+      this.kuyu_arsiv_no = null;
+      this.jeofizik_arsiv_no = null;
+      this.derleme_no = null;
+      this.cd_no = null;
       this.cityControl = null;
       this.districtControl = null;
       this.fillDistrict = [];
@@ -833,6 +841,197 @@ export default {
     EventBus.remove("logout");
   },
   watch: {
+    methodControl: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectworkType = null;
+          this.selectWorkDate = null;
+          this.selectprojectCode = null;
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.getDistinctValues("yontem");
+        } else {
+          this.methodControl = null;
+          this.selectworkType = null;
+          this.selectWorkDate = null;
+          this.selectprojectCode = null;
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.showCalismaTarihiSelect = false;
+          this.showCalismaAmaciSelect = false;
+          this.showProjeKoduSelect = false;
+          this.showKuyuArsivNoSelect = false;
+          this.showJeofizikArsivNoSelect = false;
+          this.showDerlemeNoSelect = false;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    selectworkType: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectWorkDate = null;
+          this.selectprojectCode = null;
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.getDistinctValues("amac");
+        } else {
+          this.selectWorkDate = null;
+          this.selectprojectCode = null;
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.showCalismaTarihiSelect = false;
+          this.showProjeKoduSelect = false;
+          this.showKuyuArsivNoSelect = false;
+          this.showJeofizikArsivNoSelect = false;
+          this.showDerlemeNoSelect = false;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    selectWorkDate: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectprojectCode = null;
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.getDistinctValues("tarih");
+        } else {
+          this.selectprojectCode = null;
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.showProjeKoduSelect = false;
+          this.showKuyuArsivNoSelect = false;
+          this.showJeofizikArsivNoSelect = false;
+          this.showDerlemeNoSelect = false;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    selectprojectCode: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.getDistinctValues("proje");
+        } else {
+          this.selectlogno = null;
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.showKuyuArsivNoSelect = false;
+          this.showJeofizikArsivNoSelect = false;
+          this.showDerlemeNoSelect = false;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    selectlogno: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.getDistinctValues("kuyu");
+        } else {
+          this.selectgeono = null;
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.showJeofizikArsivNoSelect = false;
+          this.showDerlemeNoSelect = false;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    selectgeono: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.getDistinctValues("jeofizik");
+        } else {
+          this.selectderleme = null;
+          this.selectcd = null;
+          this.showDerlemeNoSelect = false;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+    selectderleme: {
+      handler(newValue) {
+        if (
+          newValue !== null &&
+          Array.isArray(newValue) &&
+          newValue.some((item) => item !== null)
+        ) {
+          this.selectcd = null;
+          this.getDistinctValues("derleme");
+        } else {
+          this.selectcd = null;
+          this.showCdNoSelect = false;
+        }
+      },
+      deep: true,
+
+      immediate: true,
+    },
+
     // Watch for changes in the calisma_tarihi data property
     calisma_tarihi: {
       handler(newValue) {

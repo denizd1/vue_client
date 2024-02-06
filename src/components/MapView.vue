@@ -53,7 +53,6 @@ import {
 } from "vue2-leaflet";
 import { Icon } from "leaflet";
 import { ProfilePlotter } from "../common/ProfilePlotter.js";
-import citiesLatLongjson from "../../../app/cities_of_turkey.json";
 
 // import * as L from "leaflet";
 delete Icon.Default.prototype._getIconUrl;
@@ -106,7 +105,6 @@ export default {
         },
       ],
       currentZoom: 11.5,
-      citiesLatLongjson: citiesLatLongjson,
       mapOptions: {
         zoomSnap: 0.5,
       },

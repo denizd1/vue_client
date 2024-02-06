@@ -1,6 +1,6 @@
 <template>
   <v-app style="background: transparent">
-    <v-overlay style="z-index: 66" v-if="loading">
+    <v-overlay style="z-index: 400" v-if="loading">
       <v-layout align-center justify-center column fill-height>
         <v-flex row align-center>
           <v-progress-circular
@@ -41,7 +41,7 @@
       :class="{ withBG: isLoginScreen }"
       color="#dedede"
       :particleOpacity="0.7"
-      :particlesNumber="300"
+      :particlesNumber="150"
       shapeType="circle"
       :particleSize="4"
       linesColor="#dedede"

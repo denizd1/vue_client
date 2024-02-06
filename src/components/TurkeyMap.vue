@@ -29,6 +29,14 @@
       />
       <l-control :position="'topright'">
         <div class="coordinates" v-if="coordinates">{{ coordinates }}</div>
+        <!-- need a small button for on/off to show faults -->
+        <!-- text will be 'Fayları Göster' if button is off, 'Fayları Gizle' when button is on -->
+        <!-- also needs to trigger a method when turned on -->
+        <!-- <v-btn class="mt-3" color="primary" @click="showFaults = !showFaults">
+          <v-icon v-if="!showFaults">mdi-eye</v-icon>
+          <v-icon v-else>mdi-eye-off</v-icon>
+          <span>{{ showFaults ? "Faylar" : "Faylar" }}</span>
+        </v-btn> -->
       </l-control>
       <l-control-layers position="topright"></l-control-layers>
 
@@ -56,6 +64,11 @@
         :geojson="geojson"
         :options="options"
       />
+      <!-- <l-geo-json
+        ref="activeFaults"
+        v-if="showFaults"
+        :geojson="faultsGeojson"
+      /> -->
 
       <l-control-scale
         position="topright"
@@ -170,25 +183,10 @@ Feature types:
 
 function onEachFeature(feature, layer) {
   var v = this;
-  var besyusucus = [
-    12, 15, 19, 16, 13, 130, 131, 138, 166, 167, 168, 169, 170, 171, 172, 174,
-    207, 208, 209, 210, 248, 249, 250, 251, 1, 3, 252, 291, 290, 4, 327, 326,
-    325, 329, 330, 331, 356, 357, 39, 42, 45, 48, 43, 46, 49, 52, 149, 150, 151,
-    152, 153, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 218, 219, 220,
-    221, 222, 223, 224, 225, 226, 227, 257, 258, 259, 260, 262, 263, 264, 265,
-    266, 267, 268, 269, 270, 271, 299, 300, 301, 302, 306, 307, 313, 334, 335,
-    336, 337, 338,
-  ];
-  var noflight = [
-    289, 7, 11, 14, 17, 20, 56, 10, 6, 21, 23, 25, 27, 29, 31, 33, 59, 61, 63,
-    65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 90, 9, 24, 26, 88, 89, 91,
-    127, 128, 164, 201, 242, 238, 240, 165, 203, 204, 244, 245, 280, 241, 243,
-    279, 318, 354, 385, 386, 387, 388, 389, 390, 391, 413, 417, 418, 419, 420,
-    421, 422, 426, 427, 428, 434,
-  ];
 
   if (v.wordFlag === true) {
-    if (besyusucus.includes(feature.properties.fid)) {
+    //each feature has a property called ucus. if ucus=500 use style with red fill color, if ucus=0 use black
+    if (feature.properties.ucus === 500) {
       layer.setStyle({
         weight: 2,
         color: "#ECEFF1",
@@ -196,10 +194,7 @@ function onEachFeature(feature, layer) {
         fillColor: "red",
         fillOpacity: 0.4,
       });
-    } else if (
-      noflight.includes(feature.properties.fid) ||
-      feature.properties.fid > 437
-    ) {
+    } else if (feature.properties.ucus === 0) {
       layer.setStyle({
         weight: 2,
         color: "#ECEFF1",
@@ -241,6 +236,10 @@ function onEachFeature(feature, layer) {
         v.$store.commit("searchParam/updateGeoNo", null);
         v.$store.commit("searchParam/updateDerleme", null);
         v.$store.commit("searchParam/updateCd", null);
+        v.$store.commit(
+          "searchParam/updateCoords",
+          v.geojson.features[0].geometry.coordinates[0]
+        );
 
         let params = {};
         params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
@@ -275,6 +274,10 @@ function onEachFeature(feature, layer) {
     });
   } else if (feature.properties.mytag && feature.properties.mytag == "Cities") {
     layer._leaflet_id = feature.properties.name;
+    layer.bindTooltip("<div>" + feature.properties.name + "</div>", {
+      permanent: false,
+      sticky: true,
+    });
     layer.on("click", function (e) {
       document.querySelectorAll(".leaflet-interactive").forEach((el) => {
         el.classList.add("pseudoClass");
@@ -287,7 +290,7 @@ function onEachFeature(feature, layer) {
       // bus.$emit("searchParam", feature.properties.name);
       v.$store.commit("searchParam/updateCity", feature.properties.name);
       v.$store.commit("searchParam/updateDistrict", null);
-      v.$store.commit("searchParam/updateCoords", feature.geometry.coordinates);
+      // v.$store.commit("searchParam/updateCoords", feature.geometry.coordinates);
       v.$store.commit("searchParam/updateWorkType", null);
       v.$store.commit("searchParam/updateWorkDate", null);
       v.$store.commit("searchParam/updateProjectCode", null);
@@ -308,6 +311,10 @@ function onEachFeature(feature, layer) {
       bus.$emit("loading", true);
     });
   } else {
+    layer.bindTooltip("<div>" + feature.properties.STD_ID1 + "</div>", {
+      permanent: false,
+      sticky: true,
+    });
     layer.on({
       click: function (e) {
         if (!e.target.feature.properties.Name) {
@@ -323,6 +330,11 @@ function onEachFeature(feature, layer) {
           v.$store.commit("searchParam/updateGeoNo", null);
           v.$store.commit("searchParam/updateDerleme", null);
           v.$store.commit("searchParam/updateCd", null);
+          v.$store.commit(
+            "searchParam/updateCoords",
+            e.target.feature.geometry.coordinates[0]
+          );
+
           let params = {};
           if (v.selectedJsonparam === 1) {
             params["geojson"] = e.target.feature.properties.Id;
@@ -747,6 +759,9 @@ export default {
           }
         },
       },
+      newgeojson: null,
+      showFaults: false,
+      faultsGeojson: null,
     };
   },
   methods: {
@@ -796,8 +811,6 @@ export default {
         this.geojsonSelector = true;
 
         bus.$emit("sendResults");
-
-        bus.$emit("areaJson", newgeojson.features);
       });
     },
     updateCoordinates(event) {
@@ -1049,6 +1062,29 @@ export default {
       this.markers = [];
       this.markerReady = false;
 
+      if (this.$store.state.searchParam.coords !== null) {
+        this.geojsonSelector = true;
+        this.newgeojson = {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {
+                mytag: "datdat",
+                name: "datdat",
+                tessellate: true,
+              },
+              geometry: {
+                type: "Polygon",
+                coordinates: [this.$store.state.searchParam.coords],
+              },
+            },
+          ],
+        };
+      } else {
+        this.newgeojson = null;
+      }
+
       if (this.geojsonSelector === true) {
         let params = {};
         params["calisma_amaci"] = this.calisma_amaci;
@@ -1058,11 +1094,18 @@ export default {
         params["jeofizik_arsiv_no"] = this.jeofizik_arsiv_no;
         params["derleme_no"] = this.derleme_no;
         params["cd_no"] = this.cd_no;
-        params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = method;
+
+        if (this.newgeojson !== null) {
+          params["geojson"] =
+            this.newgeojson.features[0].geometry.coordinates[0];
+          bus.$emit("areaJson", this.newgeojson.features);
+        } else {
+          params["geojson"] = this.geojson.features[0].geometry.coordinates[0];
+          bus.$emit("areaJson", this.geojson.features);
+        }
         //this.polyline = [];
         //this.markers = [];
-        bus.$emit("areaJson", this.geojson.features);
         TutorialDataService.findAllGeo(params)
           .then((response) => {
             this.markers = response.data.resPoints;
@@ -1163,6 +1206,16 @@ export default {
         "userSearch"
       );
     });
+  },
+  // now need to watch the showFaults variable and add/remove the faults layer
+  watch: {
+    showFaults: function (newVal) {
+      if (newVal && this.faultsGeojson === null) {
+        api.get("/getGeoJson2").then((response) => {
+          this.faultsGeojson = response.data;
+        });
+      }
+    },
   },
 };
 </script>

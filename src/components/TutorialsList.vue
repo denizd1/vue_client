@@ -43,6 +43,7 @@
                 "
                 v-model="searchTitle"
                 label="Arama"
+                ref="TextField"
               ></v-text-field>
             </v-col>
             <v-col cols="2" md="1">
@@ -570,11 +571,18 @@ export default {
         excelParams["requestFlag"] = "excel";
       }
       if (this.areaJson == null) {
-        if (searchTitle && searchTitle !== "kmlexport") {
+        if (searchTitle) {
+          var searchit = null;
+          if (searchTitle === "kmlexport") {
+            //get text input value
+            searchit = this.$refs.TextField.value;
+          } else {
+            searchit = searchTitle;
+          }
           excelParams["il"] =
             this.$store.state.searchParam.il != null
               ? this.$store.state.searchParam.il
-              : searchTitle;
+              : searchit;
         }
         TutorialDataService.findAllgetAll(excelParams)
           .then((response) => {
@@ -593,15 +601,22 @@ export default {
           });
       }
       if (this.areaJson != null) {
-        var reg = /^\d+$/;
-
-        if (reg.test(this.areaJson)) {
-          excelParams["geojson"] = this.areaJson;
-        } else if (this.areaJson.isArray) {
+        // var reg = /^\d+$/;
+        if (Array.isArray(this.areaJson)) {
           excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
         } else {
-          excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+          excelParams["geojson"] = this.areaJson.geometry.coordinates[0];
         }
+
+        // if (reg.test(this.areaJson)) {
+        //   console.log(this.areaJson);
+        //   // if (Array.isArray(this.areaJson)) {
+        //   //   excelParams["geojson"] = this.areaJson[0].geometry.coordinates[0];
+        //   // } else {
+        //   //   excelParams["geojson"] = this.areaJson.geometry.coordinates[0];
+        //   // }
+        // }
+
         TutorialDataService.findAllGeo(excelParams)
           .then((response) => {
             if (searchTitle === "kmlexport") {
@@ -678,6 +693,13 @@ export default {
       // bus.$emit("clearNav");
     });
     bus.$on("areaJson", (data) => {
+      this.calisma_amaci = this.$store.state.searchParam.calisma_amaci;
+      this.calisma_tarihi = this.$store.state.searchParam.calisma_tarihi;
+      this.proje_kodu = this.$store.state.searchParam.proje_kodu;
+      this.kuyu_arsiv_no = this.$store.state.searchParam.kuyu_arsiv_no;
+      this.jeofizik_arsiv_no = this.$store.state.searchParam.jeofizik_arsiv_no;
+      this.derleme_no = this.$store.state.searchParam.derleme_no;
+      this.cd_no = this.$store.state.searchParam.cd_no;
       this.areaJson = data;
       this.searchTitle = "";
       this.methodarr = this.$store.state.searchParam.yontem;

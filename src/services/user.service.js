@@ -8,6 +8,12 @@ class UserService {
   updateUser(data) {
     return api.put("/users/updateUser", data);
   }
+  forgotPassword(email) {
+    return api.put("/users/forgotPassword", { email });
+  }
+  resetPassword(params) {
+    return api.put("/users/resetPassword", params);
+  }
 }
 //update user roles
 
