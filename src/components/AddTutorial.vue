@@ -169,7 +169,7 @@ export default {
       }
       this.loading = true;
 
-      UploadService.upload(this.currentFile, () => {})
+      UploadService.upload(this.currentFile)
 
         .then(() => {
           this.submitted = true;

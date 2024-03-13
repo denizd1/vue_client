@@ -8,6 +8,8 @@
           v-model="currentTutorial[key]"
           :key="index"
           :label="headers[index]"
+          append-icon="mdi-delete"
+          @click:append="deleteField(key)"
         ></v-text-field>
       </template>
 
@@ -45,11 +47,36 @@
       >
         Sil
       </v-btn>
+      <!-- a button to open a modal -->
+      <v-btn color="primary" small @click="dialog = true" class="mr-2">
+        Yeni Bilgi Ekle
+      </v-btn>
 
       <v-btn color="success" small @click="updateTutorial"> Güncelle </v-btn>
     </v-form>
 
     <p class="mt-3">{{ message }}</p>
+    <v-dialog v-model="dialog" max-width="470">
+      <v-card>
+        <v-card-title class="headline">Yeni Bilgi Ekle</v-card-title>
+        <v-card-text>
+          <template v-for="(val, key, index) in emptyFields">
+            <v-text-field
+              v-model="currentTutorial[key]"
+              :label="key"
+              :key="index"
+            ></v-text-field>
+          </template>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="dialog = false">
+            Kapat
+          </v-btn>
+          <v-btn color="blue darken-1" text @click="addNewInfo"> Ekle </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-col>
 </template>
 
@@ -69,6 +96,8 @@ export default {
       newData: null,
       message: "",
       hidebuttons: true,
+      dialog: false,
+      emptyFields: [],
       headers: [
         "Nokta/Kuyu/Profil Adı",
         "Yöntem",
@@ -150,6 +179,40 @@ export default {
     };
   },
   methods: {
+    deleteField(key) {
+      this.currentTutorial[key] = null;
+    },
+    addNewInfo() {
+      // Close the dialog
+      this.dialog = false;
+
+      this.newData = Object.fromEntries(
+        Object.entries(this.currentTutorial).filter(
+          ([key]) =>
+            !key.includes("id") &&
+            !key.includes("updatedAt") &&
+            !key.includes("createdAt") &&
+            !key.includes("published") &&
+            !key.includes("lat") &&
+            !key.includes("lon") &&
+            !key.includes("editorname")
+        )
+      );
+      // Update emptyFields with the keys of empty fields
+      this.emptyFields = Object.fromEntries(
+        Object.entries(this.currentTutorial).filter(
+          ([key, value]) =>
+            (value === null || value === "") &&
+            !key.includes("id") &&
+            !key.includes("updatedAt") &&
+            !key.includes("createdAt") &&
+            !key.includes("published") &&
+            !key.includes("lat") &&
+            !key.includes("lon") &&
+            !key.includes("editorname")
+        )
+      );
+    },
     updatePublished(status) {
       var data = {
         published: status,
@@ -416,6 +479,20 @@ export default {
           vm.newData = Object.fromEntries(
             Object.entries(vm.currentTutorial).filter(
               ([key]) =>
+                !key.includes("id") &&
+                !key.includes("updatedAt") &&
+                !key.includes("createdAt") &&
+                !key.includes("published") &&
+                !key.includes("lat") &&
+                !key.includes("lon") &&
+                !key.includes("editorname")
+            )
+          );
+          // Get empty fields only
+          vm.emptyFields = Object.fromEntries(
+            Object.entries(vm.currentTutorial).filter(
+              ([key, value]) =>
+                (value === null || value === "") &&
                 !key.includes("id") &&
                 !key.includes("updatedAt") &&
                 !key.includes("createdAt") &&
