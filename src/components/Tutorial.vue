@@ -6,8 +6,21 @@
 
     <v-col cols="12" md="8" style="z-index: 4" class="text-right">
       <map-view :currentTutorial="currentTutorial"></map-view>
-      <v-btn class="mt-3 mr-3" depressed color="primary" @click="exportExcel">
-        Excel Olarak İndir
+      <v-btn
+        class="mt-3 mr-3"
+        depressed
+        color="primary"
+        @click="exportExcel('xcelxport')"
+      >
+        Excel İndir
+      </v-btn>
+      <v-btn
+        class="mt-3 mr-3"
+        depressed
+        color="primary"
+        @click="exportExcel('kmlexport')"
+      >
+        KMZ İndir
       </v-btn>
       <v-btn
         v-if="visibility"
@@ -28,6 +41,7 @@ import TutorialDataService from "../services/TutorialDataService";
 import MapView from "./MapView.vue";
 import DetailTable from "./DetailTable.vue";
 import { bus } from "../main";
+import { addLinestoCollection } from "../common/KmzExport.js";
 
 export default {
   name: "tutorial",
@@ -49,7 +63,36 @@ export default {
         params: { id: this.currentTutorial.id },
       });
     },
-    exportExcel() {
+    exportExcel(param) {
+      if (param === "kmlexport") {
+        // need to send a geojson object
+        let point = {
+          type: "Feature",
+          properties: {
+            nokta_adi: this.currentTutorial.nokta_adi,
+            yontem: this.currentTutorial.yontem,
+            alt_yontem: this.currentTutorial.alt_yontem,
+            calisma_tarihi: this.currentTutorial.calisma_tarihi,
+            calisma_amaci: this.currentTutorial.calisma_amaci,
+            proje_kodu: this.currentTutorial.proje_kodu,
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [this.currentTutorial.lat, this.currentTutorial.lon],
+          },
+        };
+        //a featurecollection is needed. contains point as a feature
+        let featureCollection = {
+          type: "FeatureCollection",
+          features: [point],
+        };
+        let resdata = { resPoints: featureCollection, resLines: [] };
+        addLinestoCollection(resdata);
+      } else if (param === "xcelxport") {
+        this.exportExcelFile();
+      }
+    },
+    exportExcelFile() {
       const XLSX = require("xlsx");
       const fileName = this.currentTutorial.nokta_adi + ".xlsx";
 
@@ -67,6 +110,7 @@ export default {
       XLSX.writeFile(wb, fileName);
     },
   },
+
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       var thisPerson = vm.$store.state.auth.user;
