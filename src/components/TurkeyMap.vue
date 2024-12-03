@@ -12,11 +12,25 @@
       @update:zoom="zoomUpdate"
       @mousemove="updateCoordinates"
       @draw:created="onPolygonDrawn"
+      @polylinemeasure:toggle="handleToggle"
+      @polylinemeasure:start="handleStart"
+      @polylinemeasure:resume="handleResume"
+      @polylinemeasure:finish="handleFinish"
+      @polylinemeasure:clear="handleClear"
+      @polylinemeasure:add="handleAdd"
+      @polylinemeasure:insert="handleInsert"
+      @polylinemeasure:move="handleMove"
+      @polylinemeasure:remove="handleRemove"
     >
       <l-control-fullscreen
         position="topleft"
         :options="{ title: { false: 'Tam Ekran', true: 'Normal Görünüm' } }"
       />
+      <l-control-polyline-measure
+        :options="{ showUnitControl: true }"
+        position="topleft"
+      />
+
       <v-icondefault></v-icondefault>
       <l-tile-layer
         v-for="tileProvider in tileProviders"
@@ -120,6 +134,8 @@
 </template>
 
 <script>
+import LControlPolylineMeasure from "vue2-leaflet-polyline-measure";
+
 import Vue2LeafletMarkerCluster from "vue2-leaflet-markercluster";
 import TutorialDataService from "../services/TutorialDataService";
 import {
@@ -386,6 +402,7 @@ export default {
     DatatoGeoJson,
     LControlLayers,
     LControlFullscreen,
+    LControlPolylineMeasure,
     "v-marker-cluster": Vue2LeafletMarkerCluster,
     "v-icondefault": LIconDefault,
   },
@@ -762,9 +779,40 @@ export default {
       newgeojson: null,
       showFaults: false,
       faultsGeojson: null,
+      eventDescriptions: [],
     };
   },
   methods: {
+    addEvent(desc) {
+      this.eventDescriptions.push(desc);
+    },
+    handleToggle(e) {
+      this.addEvent(`Toggled: ${e.sttus}`);
+    },
+    handleStart(currentLine) {
+      this.addEvent(`Started: Initial distance ${currentLine.distance}`);
+    },
+    handleResume(currentLine) {
+      this.addEvent(`Resumed: Current distance ${currentLine.distance}`);
+    },
+    handleFinish(currentLine) {
+      this.addEvent(`Finished: Total distance ${currentLine.distance}`);
+    },
+    handleClear() {
+      this.addEvent("Cleared");
+    },
+    handleAdd(e) {
+      this.addEvent(`Added point: ${e.latlng}`);
+    },
+    handleInsert(e) {
+      this.addEvent(`Inserted point: ${e.latlng}`);
+    },
+    handleMove(e) {
+      this.addEvent(`Moved point: ${e.latlng} to ${e.sourceTarget._latlng}`);
+    },
+    handleRemove(e) {
+      this.addEvent(`Removed point: ${e.latlng}`);
+    },
     removePolygonLayer() {
       if (this.addedPolygonLayer) {
         this.editFeatureGroup.removeLayer(this.addedPolygonLayer);
@@ -957,6 +1005,13 @@ export default {
       this.$store.commit("searchParam/updateGeoNo", null);
       this.$store.commit("searchParam/updateDerleme", null);
       this.$store.commit("searchParam/updateCd", null);
+    },
+  },
+  computed: {
+    events() {
+      return this.eventDescriptions
+        .map((desc, idx) => ({ order: idx + 1, desc }))
+        .reverse();
     },
   },
 

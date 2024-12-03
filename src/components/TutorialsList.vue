@@ -468,6 +468,7 @@ export default {
       excelParams["jeofizik_arsiv_no"] = this.jeofizik_arsiv_no;
       excelParams["derleme_no"] = this.derleme_no;
       excelParams["cd_no"] = this.cd_no;
+      console.log(excelParams);
       if (searchTitle !== "kmlexport") {
         excelParams["requestFlag"] = "excel";
       }
@@ -483,6 +484,10 @@ export default {
           excelParams["il"] =
             this.$store.state.searchParam.il != null
               ? this.$store.state.searchParam.il
+              : searchit;
+          excelParams["ilce"] =
+            this.$store.state.searchParam.ilce != null
+              ? this.$store.state.searchParam.ilce
               : searchit;
         }
         TutorialDataService.findAllgetAll(excelParams)
