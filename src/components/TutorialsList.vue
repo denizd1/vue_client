@@ -318,6 +318,7 @@ export default {
       retrieve tutorials from server
     */
     retrieveTutorials(searchTitle, event) {
+      this.loading = true;
       var params = null;
 
       if (event && event.isTrusted) {
@@ -361,6 +362,7 @@ export default {
           this.tutorials = tutorials.map(this.getDisplayTutorial);
           this.totalPages = totalPages;
           this.tutorialCount = totalItems;
+          this.loading = false; // Optionally, update loading state
         })
         .catch((e) => {
           console.log(e);

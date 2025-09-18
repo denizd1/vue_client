@@ -81,6 +81,25 @@ export const router = new Router({
       },
       component: () => import("./components/Tutorial"),
     },
+    // {
+    //   path: "/rapor/:id",
+    //   name: "rapor",
+    //   meta: {
+    //     requiresAuth: true,
+    //     breadCrumb() {
+    //       return [
+    //         {
+    //           text: "Anasayfa",
+    //           to: { name: "calismalar" },
+    //         },
+    //         {
+    //           text: "Rapor Detay",
+    //         },
+    //       ];
+    //     },
+    //   },
+    //   component: () => import("./components/RaporDetay"),
+    // },
     {
       path: "/ekle",
       name: "ekle",

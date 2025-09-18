@@ -60,7 +60,7 @@
           :to="{ name: 'rapor-dokumu' }"
         >
           <v-list-item-icon>
-            <v-icon>mdi-archive</v-icon>
+            <v-icon>mdi-newspaper</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Rapor Dökümü</v-list-item-title>
         </v-list-item> -->

@@ -244,14 +244,14 @@ function onEachFeature(feature, layer) {
 
         v.$store.commit("searchParam/updateCity", null);
         v.$store.commit("searchParam/updateDistrict", null);
-        v.$store.commit("searchParam/updateCoords", null);
-        v.$store.commit("searchParam/updateWorkType", null);
-        v.$store.commit("searchParam/updateWorkDate", null);
-        v.$store.commit("searchParam/updateProjectCode", null);
-        v.$store.commit("searchParam/updateLogNo", null);
-        v.$store.commit("searchParam/updateGeoNo", null);
-        v.$store.commit("searchParam/updateDerleme", null);
-        v.$store.commit("searchParam/updateCd", null);
+        // v.$store.commit("searchParam/updateCoords", null);
+        // v.$store.commit("searchParam/updateWorkType", null);
+        // v.$store.commit("searchParam/updateWorkDate", null);
+        // v.$store.commit("searchParam/updateProjectCode", null);
+        // v.$store.commit("searchParam/updateLogNo", null);
+        // v.$store.commit("searchParam/updateGeoNo", null);
+        // v.$store.commit("searchParam/updateDerleme", null);
+        // v.$store.commit("searchParam/updateCd", null);
         v.$store.commit(
           "searchParam/updateCoords",
           v.geojson.features[0].geometry.coordinates[0]
@@ -260,6 +260,7 @@ function onEachFeature(feature, layer) {
         let params = {};
         params["geojson"] = v.geojson.features[0].geometry.coordinates[0];
         params["yontem"] = v.$store.state.searchParam.yontem;
+        params["calisma_tarihi"] = v.$store.state.searchParam.calisma_tarihi;
         params["userStatus"] = v.$store.state.auth.user.roles.includes(
           "ROLE_USER"
         )
@@ -307,13 +308,13 @@ function onEachFeature(feature, layer) {
       v.$store.commit("searchParam/updateCity", feature.properties.name);
       v.$store.commit("searchParam/updateDistrict", null);
       // v.$store.commit("searchParam/updateCoords", feature.geometry.coordinates);
-      v.$store.commit("searchParam/updateWorkType", null);
-      v.$store.commit("searchParam/updateWorkDate", null);
-      v.$store.commit("searchParam/updateProjectCode", null);
-      v.$store.commit("searchParam/updateLogNo", null);
-      v.$store.commit("searchParam/updateGeoNo", null);
-      v.$store.commit("searchParam/updateDerleme", null);
-      v.$store.commit("searchParam/updateCd", null);
+      // v.$store.commit("searchParam/updateWorkType", null);
+      // v.$store.commit("searchParam/updateWorkDate", null);
+      // v.$store.commit("searchParam/updateProjectCode", null);
+      // v.$store.commit("searchParam/updateLogNo", null);
+      // v.$store.commit("searchParam/updateGeoNo", null);
+      // v.$store.commit("searchParam/updateDerleme", null);
+      // v.$store.commit("searchParam/updateCd", null);
       v.selectedCityparam = feature.properties.name;
       v.selectedDistrict = null;
 
@@ -339,13 +340,13 @@ function onEachFeature(feature, layer) {
           v.$store.commit("searchParam/updateCity", null);
           v.$store.commit("searchParam/updateDistrict", null);
           v.$store.commit("searchParam/updateCoords", null);
-          v.$store.commit("searchParam/updateWorkType", null);
-          v.$store.commit("searchParam/updateWorkDate", null);
-          v.$store.commit("searchParam/updateProjectCode", null);
-          v.$store.commit("searchParam/updateLogNo", null);
-          v.$store.commit("searchParam/updateGeoNo", null);
-          v.$store.commit("searchParam/updateDerleme", null);
-          v.$store.commit("searchParam/updateCd", null);
+          // v.$store.commit("searchParam/updateWorkType", null);
+          // v.$store.commit("searchParam/updateWorkDate", null);
+          // v.$store.commit("searchParam/updateProjectCode", null);
+          // v.$store.commit("searchParam/updateLogNo", null);
+          // v.$store.commit("searchParam/updateGeoNo", null);
+          // v.$store.commit("searchParam/updateDerleme", null);
+          // v.$store.commit("searchParam/updateCd", null);
           v.$store.commit(
             "searchParam/updateCoords",
             e.target.feature.geometry.coordinates[0]
@@ -360,6 +361,7 @@ function onEachFeature(feature, layer) {
             bus.$emit("areaJson", e.target.feature);
           }
           params["yontem"] = v.$store.state.searchParam.yontem;
+          params["calisma_tarihi"] = v.$store.state.searchParam.calisma_tarihi;
           params["userStatus"] = v.$store.state.auth.user.roles.includes(
             "ROLE_USER"
           )

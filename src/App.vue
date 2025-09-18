@@ -131,7 +131,7 @@ export default {
   color: #fff;
 }
 .withBG {
-  background-image: url("./assets/bg/2.jpg");
+  background-image: url("./assets/bg/bg.jpg");
   background-position: bottom;
   background-repeat: no-repeat;
   background-color: black;
