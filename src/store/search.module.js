@@ -13,6 +13,7 @@ const initialState = {
   jeofizik_arsiv_no: null,
   derleme_no: null,
   cd_no: null,
+  searchText: null,
 };
 
 export const searchParam = {
@@ -51,6 +52,9 @@ export const searchParam = {
     },
     updateCd(state, payload) {
       state.cd_no = payload;
+    },
+    updateSearchText(state, payload) {
+      state.searchText = payload;
     },
   },
 };

@@ -1,178 +1,139 @@
 import api from "./api";
 
-class TutorialDataService {
-  getAll(params) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.get(
-        "/tutorials",
-        { params },
-        { headers: { "x-access-token": user.accessToken } }
-      );
-    } else {
-      // Handle the case when the user is not logged in
-      // You might want to return a promise that resolves to an empty response or handle it in some other way
-      return Promise.resolve(null);
-    }
-  }
-
-  findAllgetAll(params) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (params && params.requestFlag === "excel") {
-        return api.get("/tutorials/getall", {
-          params,
-          headers: {
-            "x-access-token": user.accessToken,
-            "Content-Type":
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Custom content type for Excel download
-          },
-          responseType: "blob", // Important
-        });
-      } else {
-        return api.get("/tutorials/getall", {
-          params,
-          headers: {
-            "x-access-token": user.accessToken,
-            // Other headers for non-Excel requests
-          },
-        });
-      }
-    } else {
-      // Handle the case when the user is not logged in
-      // You might want to return a promise that resolves to an empty response or handle it in some other way
-      return Promise.resolve(null);
-    }
-  }
-  findAllGeo(params) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (params && params.requestFlag === "excel") {
-        return api.get("/tutorials/findAllGeo", {
-          params,
-          headers: {
-            "x-access-token": user.accessToken,
-            "Content-Type":
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Custom content type for Excel download
-          },
-          responseType: "blob", // Important
-        });
-      } else {
-        return api.get("/tutorials/findAllGeo", {
-          params,
-          headers: {
-            "x-access-token": user.accessToken,
-            // Other headers for non-Excel requests
-          },
-        });
-      }
-    } else {
-      // Handle the case when the user is not logged in
-      // You might want to return a promise that resolves to an empty response or handle it in some other way
-      return Promise.resolve(null);
-    }
-  }
-
-  get(id) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.get(`/tutorials/${id}`, {
-        headers: { "x-access-token": user.accessToken },
-      });
-    } else {
-      // Handle the case when the user is not logged in
-      // You might want to return a promise that resolves to an empty response or handle it in some other way
-      return Promise.resolve(null);
-    }
-  }
-
-  getAllunPublished(params) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.get(
-        "/tutorials/unpublished",
-        { params },
-        { headers: { "x-access-token": user.accessToken } }
-      );
-    } else {
-      // Handle the case when the user is not logged in
-      // You might want to return a promise that resolves to an empty response or handle it in some other way
-      return Promise.resolve(null);
-    }
-  }
-  //make create function asynchronus to wait for the response
-
-  update(id, data) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.put(`/tutorials/${id}`, data, {
-        headers: { "x-access-token": user.accessToken },
-      });
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-
-  delete(id) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.delete(`/tutorials/${id}`, {
-        headers: { "x-access-token": user.accessToken },
-      });
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-
-  // deleteAll() {
-  //   return api.delete(`/tutorials`, {
-  //     headers: { "x-access-token": user.accessToken },
-  //   });
-  // }
-
-  //get distinct
-  distinct(params) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.get(
-        "/tutorials/distinct",
-        { params },
-        {
-          headers: { "x-access-token": user.accessToken },
-        }
-      );
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-
-  //get number of tutorials for each alt_yontem
-  AltYontemCount() {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.get("/tutorials/AltYontemCount", {
-        headers: { "x-access-token": user.accessToken },
-      });
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-
-  findByTitle(title) {
-    if (isLoggedIn()) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      return api.get(`/tutorials?title=${title}`, {
-        headers: { "x-access-token": user.accessToken },
-      });
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-}
-// Function to check if the user is logged in
+// Yardımcı fonksiyonlar (sınıf dışına)
 function isLoggedIn() {
   const user = JSON.parse(localStorage.getItem("user"));
   return user && user.accessToken;
+}
+
+function getAuthHeaders() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user && user.accessToken ? { "x-access-token": user.accessToken } : {};
+}
+
+class TutorialDataService {
+  // ======================
+  // 1) Genel Liste
+  // ======================
+  getAll(params) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.get("/tutorials", { params, headers: getAuthHeaders() });
+  }
+
+  // ======================
+  // 2) Tüm Kayıtlar (Excel veya normal)
+  // ======================
+  findAllgetAll(params) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+
+    const config = {
+      params,
+      headers: getAuthHeaders(),
+    };
+
+    // Excel export isteği
+    if (params?.requestFlag === "excel") {
+      config.responseType = "blob";
+      config.headers["Content-Type"] = "application/json";
+    }
+
+    return api.get("/tutorials/getall", config);
+  }
+
+  // ======================
+  // 3) Geo tabanlı kayıtlar (Excel dahil)
+  // ======================
+  findAllGeo(params) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+
+    const config = {
+      params,
+      headers: getAuthHeaders(),
+    };
+
+    if (params?.requestFlag === "excel") {
+      config.responseType = "blob";
+      config.headers["Content-Type"] = "application/json";
+    }
+
+    return api.get("/tutorials/findAllGeo", config);
+  }
+
+  // ======================
+  // 4) Tek kayıt
+  // ======================
+  get(id) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.get(`/tutorials/${id}`, { headers: getAuthHeaders() });
+  }
+
+  // ======================
+  // 5) Yayında olmayanlar
+  // ======================
+  getAllunPublished(params) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.get("/tutorials/unpublished", {
+      params,
+      headers: getAuthHeaders(),
+    });
+  }
+
+  // ======================
+  // 6) Güncelle
+  // ======================
+  update(id, data) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.put(`/tutorials/${id}`, data, { headers: getAuthHeaders() });
+  }
+
+  // ======================
+  // 7) Sil
+  // ======================
+  delete(id) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.delete(`/tutorials/${id}`, { headers: getAuthHeaders() });
+  }
+
+  // ======================
+  // 8) Distinct filtre değerleri
+  // ======================
+  distinct(params) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.get("/tutorials/distinct", {
+      params,
+      headers: getAuthHeaders(),
+    });
+  }
+
+  // ======================
+  // 9) Alt yöntem sayısı
+  // ======================
+  AltYontemCount() {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.get("/tutorials/AltYontemCount", {
+      headers: getAuthHeaders(),
+    });
+  }
+
+  // ======================
+  // 8) 🔥 Toplu Silme (Yeni)
+  // ======================
+  bulkDelete(data) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.post("/tutorials/bulk-delete", data, {
+      headers: getAuthHeaders(),
+    });
+  }
+
+  // ======================
+  // 10) Title’a göre arama
+  // ======================
+  findByTitle(title) {
+    if (!isLoggedIn()) return Promise.resolve(null);
+    return api.get(`/tutorials?title=${title}`, {
+      headers: getAuthHeaders(),
+    });
+  }
 }
 
 export default new TutorialDataService();

@@ -376,6 +376,17 @@
             </v-list-item>
           </v-list>
         </v-list-group>
+        <v-list-item v-if="showNavelement">
+          <v-text-field
+            v-model="searchText"
+            label="Kelime ile ara"
+            append-icon="mdi-magnify"
+            dense
+            clearable
+            hide-details
+            @keyup.enter="triggerSearch"
+          ></v-text-field>
+        </v-list-item>
         <v-list-item v-if="showNavelement" class="justify-center">
           <v-btn
             color="success"
@@ -412,6 +423,7 @@
 <script>
 import EventBus from "../common/EventBus";
 import { bus } from "../main";
+import { mapState } from "vuex";
 // import api from "../services/api";
 import TutorialDataService from "../services/TutorialDataService";
 
@@ -449,6 +461,7 @@ export default {
       showJeofizikArsivNoSelect: false,
       showDerlemeNoSelect: false,
       showCdNoSelect: false,
+      searchText: "",
 
       menuItems: [
         {
@@ -747,6 +760,7 @@ export default {
       this.$store.commit("searchParam/updateGeoNo", this.selectgeono);
       this.$store.commit("searchParam/updateDerleme", this.selectderleme);
       this.$store.commit("searchParam/updateCd", this.selectcd);
+      this.$store.commit("searchParam/updateSearchText", this.searchText);
 
       //bus.$emit("sendResults"); if only city or district or method is selected
       //bus.$emit("loading", true); if only city or district or method is selected
@@ -760,7 +774,8 @@ export default {
         this.selectlogno !== null ||
         this.selectgeono !== null ||
         this.selectderleme !== null ||
-        this.selectcd !== null
+        this.selectcd !== null ||
+        (this.searchText && this.searchText.trim() !== "")
       ) {
         bus.$emit("sendResults");
         bus.$emit("loading", true);
@@ -785,6 +800,8 @@ export default {
       this.selectgeono = null;
       this.selectderleme = null;
       this.selectcd = null;
+      this.searchText = "";
+      this.$store.commit("searchParam/updateSearchText", null);
       //de-select all scale controls
       for (let i = 0; i < this.scaleControls.length; i++) {
         this.scaleControls[i].checked = false;
@@ -807,6 +824,23 @@ export default {
         return this.currentUser.roles.includes("ROLE_MODERATOR");
       }
       return false;
+    },
+    ...mapState(["auth"]), // keep your existing computed props
+
+    combinedFilters() {
+      return {
+        city: this.cityControl,
+        district: this.districtControl,
+        methods: this.methodControl,
+        workType: this.selectworkType,
+        workDate: this.selectWorkDate,
+        projectCode: this.selectprojectCode,
+        logNo: this.selectlogno,
+        geoNo: this.selectgeono,
+        derleme: this.selectderleme,
+        cd: this.selectcd,
+        searchText: this.searchText ? this.searchText.trim() : null,
+      };
     },
   },
   mounted() {

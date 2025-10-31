@@ -272,8 +272,9 @@ function onEachFeature(feature, layer) {
         v.clusterKey++;
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            v.markers = response.data.resPoints;
-            v.polyline = response.data.resLines;
+            let data = response.data;
+            v.markers = data.resPoints || data; // ✅ FeatureCollection garanti
+            v.polyline = data.resLines || [];
           })
           .then(() => {
             v.clusterKey++;
@@ -332,34 +333,60 @@ function onEachFeature(feature, layer) {
       permanent: false,
       sticky: true,
     });
+
     layer.on({
       click: function (e) {
         if (!e.target.feature.properties.Name) {
           bus.$emit("loading", true);
 
+          // 🔧 Vuex filtrelerini sıfırla
           v.$store.commit("searchParam/updateCity", null);
           v.$store.commit("searchParam/updateDistrict", null);
           v.$store.commit("searchParam/updateCoords", null);
-          // v.$store.commit("searchParam/updateWorkType", null);
-          // v.$store.commit("searchParam/updateWorkDate", null);
-          // v.$store.commit("searchParam/updateProjectCode", null);
-          // v.$store.commit("searchParam/updateLogNo", null);
-          // v.$store.commit("searchParam/updateGeoNo", null);
-          // v.$store.commit("searchParam/updateDerleme", null);
-          // v.$store.commit("searchParam/updateCd", null);
+
+          const geom = e.target.feature.geometry;
+          if (!geom) {
+            console.warn("No geometry found on clicked feature");
+            bus.$emit("loading", false);
+            return;
+          }
+
+          // ✅ Polygon / MultiPolygon normalize et
+          let geometryToSend = null;
+          if (geom.type === "Polygon") {
+            geometryToSend = geom;
+          } else if (
+            geom.type === "MultiPolygon" &&
+            geom.coordinates.length > 0
+          ) {
+            geometryToSend = {
+              type: "Polygon",
+              coordinates: geom.coordinates[0],
+            };
+          } else {
+            console.warn("Unsupported geometry type:", geom.type);
+            bus.$emit("loading", false);
+            return;
+          }
+
+          // 🔧 Vuex'e koordinatları kaydet (haritada gösterim için)
           v.$store.commit(
             "searchParam/updateCoords",
-            e.target.feature.geometry.coordinates[0]
+            geometryToSend.coordinates[0]
           );
 
+          // 🧩 Backend parametreleri
           let params = {};
-          if (v.selectedJsonparam === 1) {
+          if (v.selectedJsonparam === 1 && e.target.feature.properties.Id) {
+            // ✅ Eski mantık: ID gönder
             params["geojson"] = e.target.feature.properties.Id;
             bus.$emit("areaJson", e.target.feature.properties.Id);
           } else {
-            params["geojson"] = e.target.feature.geometry.coordinates[0];
-            bus.$emit("areaJson", e.target.feature);
+            // ✅ Yeni mantık: koordinat gönder
+            params["geojson"] = geometryToSend.coordinates[0];
+            bus.$emit("areaJson", geometryToSend);
           }
+
           params["yontem"] = v.$store.state.searchParam.yontem;
           params["calisma_tarihi"] = v.$store.state.searchParam.calisma_tarihi;
           params["userStatus"] = v.$store.state.auth.user.roles.includes(
@@ -367,14 +394,20 @@ function onEachFeature(feature, layer) {
           )
             ? "user"
             : null;
+
+          // 🔄 Haritadaki layer'ları sıfırla
           v.polyline = [];
           v.markers = [];
           v.markerReady = false;
           v.clusterKey++;
+
+          // 🚀 Backend çağrısı
           TutorialDataService.findAllGeo(params)
             .then((response) => {
-              v.markers = response.data.resPoints;
-              v.polyline = response.data.resLines;
+              let data = response.data;
+              if (data.resPoints) data = data.resPoints; // her iki formatı destekle
+              v.markers = data;
+              v.polyline = response.data.resLines || [];
             })
             .then(() => {
               v.clusterKey++;
@@ -383,9 +416,9 @@ function onEachFeature(feature, layer) {
             .then(() => {
               bus.$emit("loading", false);
             })
-
             .catch((e) => {
-              console.log(e);
+              console.error("findAllGeo error:", e);
+              bus.$emit("loading", false);
             });
         }
       },
@@ -781,6 +814,7 @@ export default {
       newgeojson: null,
       showFaults: false,
       faultsGeojson: null,
+      searchText: "",
       eventDescriptions: [],
     };
   },
@@ -882,6 +916,7 @@ export default {
       kuyu_arsiv_no,
       derleme_no,
       cd_no,
+      searchText,
       requestFlag
     ) {
       this.polyline = [];
@@ -897,7 +932,8 @@ export default {
         proje_kodu ||
         kuyu_arsiv_no ||
         derleme_no ||
-        cd_no
+        cd_no ||
+        searchText
       ) {
         let params = {};
         this.polyline = [];
@@ -918,12 +954,24 @@ export default {
         params["jeofizik_arsiv_no"] = jeofizik_arsiv_no;
         params["derleme_no"] = derleme_no;
         params["cd_no"] = cd_no;
+        params["searchText"] = searchText;
         params["requestFlag"] = requestFlag ? requestFlag : null;
         TutorialDataService.findAllgetAll(params)
           .then((response) => {
-            this.markers = response.data.resPoints;
-            this.polyline = response.data.resLines;
+            // Backend farklı formatlar döndürebiliyor: resPoints veya doğrudan FeatureCollection
+            let data = response.data;
+
+            if (data.resPoints) {
+              // Normal mod (küçük dataset)
+              this.markers = data.resPoints;
+              this.polyline = data.resLines || [];
+            } else {
+              // Lite mod (büyük dataset)
+              this.markers = data; // doğrudan FeatureCollection
+              this.polyline = [];
+            }
           })
+
           .then(() => {
             this.clusterKey++;
             this.markerReady = true;
@@ -1007,6 +1055,7 @@ export default {
       this.$store.commit("searchParam/updateGeoNo", null);
       this.$store.commit("searchParam/updateDerleme", null);
       this.$store.commit("searchParam/updateCd", null);
+      this.$store.commit("searchParam/updateSearchText", null);
     },
   },
   computed: {
@@ -1096,6 +1145,7 @@ export default {
       this.jeofizik_arsiv_no = this.$store.state.searchParam.jeofizik_arsiv_no;
       this.derleme_no = this.$store.state.searchParam.derleme_no;
       this.cd_no = this.$store.state.searchParam.cd_no;
+      this.searchText = this.$store.state.searchParam.searchText;
       this.markers = [];
       this.markerReady = false;
       if (method !== null) {
@@ -1152,6 +1202,7 @@ export default {
         params["derleme_no"] = this.derleme_no;
         params["cd_no"] = this.cd_no;
         params["yontem"] = method;
+        params["searchText"] = this.searchText;
 
         if (this.newgeojson !== null) {
           params["geojson"] =
@@ -1165,8 +1216,10 @@ export default {
         //this.markers = [];
         TutorialDataService.findAllGeo(params)
           .then((response) => {
-            this.markers = response.data.resPoints;
-            this.polyline = response.data.resLines;
+            let data = response.data;
+            if (data.resPoints) data = data.resPoints; // her iki formatı destekle
+            this.markers = data;
+            this.polyline = response.data.resLines || [];
           })
           .then(() => {
             this.clusterKey++;
@@ -1191,6 +1244,7 @@ export default {
           this.kuyu_arsiv_no,
           this.derleme_no,
           this.cd_no,
+          this.searchText,
           null
         );
         bus.$emit("searchParam");
