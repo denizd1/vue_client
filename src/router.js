@@ -44,6 +44,25 @@ export const router = new Router({
       component: () => import("./components/RaporDokumu"),
     },
     {
+      path: "/proje-bilgileri",
+      name: "rapormethod",
+      meta: {
+        requiresAuth: true,
+        breadCrumb() {
+          return [
+            {
+              text: "Anasayfa",
+              to: { name: "calismalar" },
+            },
+            {
+              text: "Proje Bilgileri",
+            },
+          ];
+        },
+      },
+      component: () => import("./components/RaporMethod"),
+    },
+    {
       path: "/calismalar/duzenle/:id",
       name: "duzenle",
       meta: {

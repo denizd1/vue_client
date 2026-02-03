@@ -60,10 +60,20 @@
           :to="{ name: 'rapor-dokumu' }"
         >
           <v-list-item-icon>
-            <v-icon>mdi-newspaper</v-icon>
+            <v-icon>mdi-chart-box-multiple-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Rapor Dökümü</v-list-item-title>
         </v-list-item> -->
+        <v-list-item
+          v-if="isUseradmin || isUsermoderator"
+          link
+          :to="{ name: 'rapormethod' }"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-newspaper</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Proje Bilgileri</v-list-item-title>
+        </v-list-item>
         <v-list-item
           v-if="isUseradmin || isUsermoderator"
           link
@@ -384,7 +394,6 @@
             dense
             clearable
             hide-details
-            @keyup.enter="triggerSearch"
           ></v-text-field>
         </v-list-item>
         <v-list-item v-if="showNavelement" class="justify-center">
@@ -568,7 +577,7 @@ export default {
       params["il"] = this.cityControl ? this.cityControl : null;
       params["ilce"] = this.districtControl ? this.districtControl : null;
       params["userStatus"] = this.$store.state.auth.user.roles.includes(
-        "ROLE_USER"
+        "ROLE_USER",
       )
         ? "user"
         : null;
@@ -646,7 +655,7 @@ export default {
               //fill calisma_tarihi with years from current year to 1935
               this.calisma_tarihi = Array.from(
                 { length: new Date().getFullYear() - 1935 + 11 },
-                (v, k) => k + 1935
+                (v, k) => k + 1935,
               ).reverse();
             }
           });
@@ -660,19 +669,19 @@ export default {
       if (typeof type === "string") {
         if (type === "yontem" && this.methodControl) {
           this.methodControl = this.methodControl.filter(
-            (find) => find !== item
+            (find) => find !== item,
           );
         } else if (type === "tarih" && this.selectWorkDate) {
           this.selectWorkDate = this.selectWorkDate.filter(
-            (find) => find !== item
+            (find) => find !== item,
           );
         } else if (type === "amac" && this.selectworkType) {
           this.selectworkType = this.selectworkType.filter(
-            (find) => find !== item
+            (find) => find !== item,
           );
         } else if (type === "proje" && this.selectprojectCode) {
           this.selectprojectCode = this.selectprojectCode.filter(
-            (find) => find !== item
+            (find) => find !== item,
           );
         } else if (type === "kuyu" && this.selectlogno) {
           this.selectlogno = this.selectlogno.filter((find) => find !== item);
@@ -680,7 +689,7 @@ export default {
           this.selectgeono = this.selectgeono.filter((find) => find !== item);
         } else if (type === "derleme" && this.selectderleme) {
           this.selectderleme = this.selectderleme.filter(
-            (find) => find !== item
+            (find) => find !== item,
           );
         } else if (type === "cd" && this.selectcd) {
           this.selectcd = this.selectcd.filter((find) => find !== item);
@@ -754,7 +763,7 @@ export default {
       this.$store.commit("searchParam/updateWorkDate", this.selectWorkDate);
       this.$store.commit(
         "searchParam/updateProjectCode",
-        this.selectprojectCode
+        this.selectprojectCode,
       );
       this.$store.commit("searchParam/updateLogNo", this.selectlogno);
       this.$store.commit("searchParam/updateGeoNo", this.selectgeono);
@@ -1192,7 +1201,10 @@ export default {
 
     $route: function () {
       // Check if given route is true, if it is then hide Nav.
-      if (this.$route.query.tab === "harita-gorunumu") {
+      if (
+        this.$route.query.tab === "harita-gorunumu" ||
+        this.$route.query.tab === "liste-gorunumu"
+      ) {
         this.showNavelement = true;
       } else {
         this.showNavelement = false;

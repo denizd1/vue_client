@@ -331,7 +331,7 @@ export default {
 
       try {
         const ids = this.selected.map((item) =>
-          typeof item === "object" ? item.id : item
+          typeof item === "object" ? item.id : item,
         );
 
         await TutorialDataService.bulkDelete({ ids });
@@ -357,7 +357,7 @@ export default {
         const params = this.getRequestParams(
           this.page,
           this.tutorialCount || 10000,
-          this.methodarr
+          this.methodarr,
         );
         const response = await TutorialDataService.getAll(params);
         const allIds = response.data.tutorials.map((t) => t.id);
@@ -424,7 +424,7 @@ export default {
       const params = this.getRequestParams(
         this.page,
         this.pageSize,
-        this.methodarr
+        this.methodarr,
       );
 
       // Eğer geojson seçildiyse ekle
@@ -536,7 +536,7 @@ export default {
           // Optionally, do any other necessary post-download actions here
         } else {
           throw new Error(
-            `Failed to fetch XLSX file. Status: ${response.status}`
+            `Failed to fetch XLSX file. Status: ${response.status}`,
           );
         }
       } catch (error) {

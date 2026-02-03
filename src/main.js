@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import PerfectScrollbar from "vue2-perfect-scrollbar";
-
+import VueApexCharts from "vue-apexcharts";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
 import { router } from "./router";
@@ -14,11 +14,10 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css";
-
-Vue.config.productionTip = false;
 Vue.use(VueParticles);
 Vue.use(Vuex);
 Vue.use(PerfectScrollbar);
+Vue.component("apexchart", VueApexCharts);
 
 setupInterceptors(store, router);
 export const bus = new Vue();

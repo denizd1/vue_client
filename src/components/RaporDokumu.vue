@@ -24,25 +24,52 @@
     </v-dialog>
 
     <v-col>
-      <v-row class="mx-2">
-        <v-col
-          cols="12"
-          sm="6"
-          md="4"
-          v-for="(values, key) in uniqueValues"
-          :key="key"
-        >
-          <v-autocomplete
-            :items="values"
-            :label="key.replace(/_/g, ' ').toUpperCase()"
-            v-model="filters[key]"
-            multiple
-            dense
-            clearable
-            @change="applyFilters"
-          ></v-autocomplete>
-        </v-col>
-      </v-row>
+      <v-expansion-panels class="mb-4">
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <div class="d-flex align-center">
+              <v-icon left>mdi-filter</v-icon>
+              <span class="font-weight-bold">Filtreleme Seçenekleri</span>
+              <v-chip
+                v-if="Object.values(filters).flat().length > 0"
+                class="ml-2"
+                x-small
+                color="primary"
+              >
+                {{ Object.values(filters).flat().length }}
+              </v-chip>
+            </div>
+          </v-expansion-panel-header>
+
+          <v-expansion-panel-content>
+            <v-row class="mt-2">
+              <v-col
+                cols="12"
+                sm="6"
+                md="4"
+                v-for="(values, key) in uniqueValues"
+                :key="key"
+              >
+                <v-autocomplete
+                  :items="values"
+                  :label="key.replace(/_/g, ' ').toUpperCase()"
+                  v-model="filters[key]"
+                  multiple
+                  dense
+                  outlined
+                  chips
+                  small-chips
+                  deletable-chips
+                  clearable
+                  hide-details
+                  attach
+                  @change="applyFilters"
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
       <v-row class="justify-center mx-auto">
         <v-col cols="4" md="3">
           <v-select
@@ -305,7 +332,7 @@ export default {
           for (const key in this.uniqueValues) {
             if (Object.prototype.hasOwnProperty.call(response.data, key)) {
               this.uniqueValues[key] = response.data[key].filter(
-                (v) => v !== null
+                (v) => v !== null,
               ); // remove nulls
             }
           }
