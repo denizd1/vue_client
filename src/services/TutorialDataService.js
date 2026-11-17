@@ -17,7 +17,11 @@ class TutorialDataService {
   // ======================
   getAll(params) {
     if (!isLoggedIn()) return Promise.resolve(null);
-    return api.get("/tutorials", { params, headers: getAuthHeaders() });
+    // Headers config
+    const config = {
+      headers: getAuthHeaders(),
+    };
+    return api.post("/tutorials", params, config);
   }
 
   // ======================
@@ -47,7 +51,6 @@ class TutorialDataService {
     if (!isLoggedIn()) return Promise.resolve(null);
 
     const config = {
-      params,
       headers: getAuthHeaders(),
     };
 
@@ -56,7 +59,7 @@ class TutorialDataService {
       config.headers["Content-Type"] = "application/json";
     }
 
-    return api.get("/tutorials/findAllGeo", config);
+    return api.post("/tutorials/findAllGeo", params, config);
   }
 
   // ======================

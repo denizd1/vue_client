@@ -133,7 +133,7 @@ export default {
               centerOfMass.geometry.coordinates[1],
               centerOfMass.geometry.coordinates[0],
             ],
-            "geojsonFlag"
+            "geojsonFlag",
           );
         }
       },
@@ -157,7 +157,7 @@ export default {
       while (arr.length > 0) {
         const chunk = this.converter(
           arr.splice(0, chunkSize),
-          this.selectedDatum
+          this.selectedDatum,
         );
         res.push([chunk.lng, chunk.lat]);
       }
@@ -206,7 +206,7 @@ export default {
                       centerOfMass.geometry.coordinates[1],
                       centerOfMass.geometry.coordinates[0],
                     ],
-                    "geojsonFlag"
+                    "geojsonFlag",
                   );
                 }
                 //if linestring, calculate center of mass
@@ -229,7 +229,7 @@ export default {
                       masscenter.geometry.coordinates[1],
                       masscenter.geometry.coordinates[0],
                     ],
-                    "geojsonFlag"
+                    "geojsonFlag",
                   );
                 }
                 //center is the point if geojson is point
@@ -241,7 +241,7 @@ export default {
                       geojson.features[0].geometry.coordinates[1],
                       geojson.features[0].geometry.coordinates[0],
                     ],
-                    "geojsonFlag"
+                    "geojsonFlag",
                   );
                 }
               });
@@ -266,9 +266,9 @@ export default {
                     e.target.result
                       .split("\n")
                       .map((line) => line.split("\t")) +
-                    "]"
+                    "]",
                 ),
-                3
+                3,
               );
             };
             reader.readAsBinaryString(file);

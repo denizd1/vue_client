@@ -254,7 +254,7 @@ function onEachFeature(feature, layer) {
         // v.$store.commit("searchParam/updateCd", null);
         v.$store.commit(
           "searchParam/updateCoords",
-          v.geojson.features[0].geometry.coordinates[0]
+          v.geojson.features[0].geometry.coordinates[0],
         );
 
         let params = {};
@@ -262,7 +262,7 @@ function onEachFeature(feature, layer) {
         params["yontem"] = v.$store.state.searchParam.yontem;
         params["calisma_tarihi"] = v.$store.state.searchParam.calisma_tarihi;
         params["userStatus"] = v.$store.state.auth.user.roles.includes(
-          "ROLE_USER"
+          "ROLE_USER",
         )
           ? "user"
           : null;
@@ -322,7 +322,7 @@ function onEachFeature(feature, layer) {
       v.dataService(
         feature.properties.name,
         null,
-        v.$store.state.searchParam.yontem
+        v.$store.state.searchParam.yontem,
       );
       bus.$emit("searchParam");
       bus.$emit("geojsonSelectCity", feature.properties.name);
@@ -372,7 +372,7 @@ function onEachFeature(feature, layer) {
           // 🔧 Vuex'e koordinatları kaydet (haritada gösterim için)
           v.$store.commit(
             "searchParam/updateCoords",
-            geometryToSend.coordinates[0]
+            geometryToSend.coordinates[0],
           );
 
           // 🧩 Backend parametreleri
@@ -390,11 +390,10 @@ function onEachFeature(feature, layer) {
           params["yontem"] = v.$store.state.searchParam.yontem;
           params["calisma_tarihi"] = v.$store.state.searchParam.calisma_tarihi;
           params["userStatus"] = v.$store.state.auth.user.roles.includes(
-            "ROLE_USER"
+            "ROLE_USER",
           )
             ? "user"
             : null;
-
           // 🔄 Haritadaki layer'ları sıfırla
           v.polyline = [];
           v.markers = [];
@@ -607,7 +606,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 seismicIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -624,7 +623,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 emIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -639,7 +638,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 heliIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -654,7 +653,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 welllogIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -669,7 +668,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 gravIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -684,7 +683,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 magIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -699,7 +698,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 radioIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -714,7 +713,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 satelliteIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -732,7 +731,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 airBorneIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -748,7 +747,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 susceptibilityIcon,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -767,7 +766,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 drone_magnetic,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -786,7 +785,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 drone_ortophoto,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -805,7 +804,7 @@ export default {
               Object.assign({}, Icon.Default.prototype.options, {
                 drone_radiometric,
                 shadowUrl,
-              })
+              }),
             );
             layer.setIcon(customicon);
           }
@@ -899,7 +898,7 @@ export default {
     },
     updateCoordinates(event) {
       this.coordinates = `${event.latlng.lat.toFixed(
-        4
+        4,
       )}, ${event.latlng.lng.toFixed(4)}`;
     },
     /*
@@ -917,7 +916,7 @@ export default {
       derleme_no,
       cd_no,
       searchText,
-      requestFlag
+      requestFlag,
     ) {
       this.polyline = [];
       this.markers = [];
@@ -943,7 +942,7 @@ export default {
         params["ilce"] = district ? district : null;
         params["yontem"] = selectedMethod ? selectedMethod : null;
         params["userStatus"] = this.$store.state.auth.user.roles.includes(
-          "ROLE_USER"
+          "ROLE_USER",
         )
           ? "user"
           : null;
@@ -1150,7 +1149,7 @@ export default {
       this.markerReady = false;
       if (method !== null) {
         const hasWord = method.some((element) =>
-          element.includes("Rejyonel (2017 - 2022)")
+          element.includes("Rejyonel (2017 - 2022)"),
         );
         if (hasWord) {
           this.wordFlag = true;
@@ -1245,7 +1244,7 @@ export default {
           this.derleme_no,
           this.cd_no,
           this.searchText,
-          null
+          null,
         );
         bus.$emit("searchParam");
       }
@@ -1314,7 +1313,7 @@ export default {
         null,
         null,
         null,
-        "userSearch"
+        "userSearch",
       );
     });
   },

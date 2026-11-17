@@ -428,23 +428,42 @@ export default {
       );
 
       // Eğer geojson seçildiyse ekle
+      // Eğer areaJson doluysa işlem yap
       if (this.areaJson) {
-        const geom =
-          this.areaJson.geometry || this.areaJson[0]?.geometry || this.areaJson;
+        // 1. DURUM: Gelen veri bir ID ise (Sayı veya sadece rakamlardan oluşan String)
+        if (
+          typeof this.areaJson === "number" ||
+          (typeof this.areaJson === "string" && /^\d+$/.test(this.areaJson))
+        ) {
+          params["areaJson"] = this.areaJson;
+        }
+        // 2. DURUM: Gelen veri bir Geometri objesi ise
+        else {
+          const geom =
+            this.areaJson.geometry ||
+            this.areaJson[0]?.geometry ||
+            this.areaJson;
 
-        if (geom?.coordinates?.[0]) {
-          const coords = geom.coordinates[0];
-          const first = coords[0];
-          const last = coords[coords.length - 1];
-          if (first && last && (first[0] !== last[0] || first[1] !== last[1])) {
-            coords.push([...first]); // otomatik kapat
-            console.log("✅ Liste poligonu otomatik kapatıldı:", coords);
+          if (geom?.coordinates?.[0]) {
+            const coords = geom.coordinates[0];
+            const first = coords[0];
+            const last = coords[coords.length - 1];
+            // Poligonu kapatma kontrolü
+            if (
+              first &&
+              last &&
+              (first[0] !== last[0] || first[1] !== last[1])
+            ) {
+              coords.push([...first]);
+              console.log("✅ Liste poligonu otomatik kapatıldı:", coords);
+            }
+            // Koordinatları parametreye ekle
+            // Backend JSON.parse yaptığı için stringify olarak gönderiyoruz
+            params["areaJson"] = JSON.stringify({
+              type: "Polygon",
+              coordinates: [coords],
+            });
           }
-          // Güncellenmiş koordinatları parametreye koy
-          params["areaJson"] = JSON.stringify({
-            type: "Polygon",
-            coordinates: [coords],
-          });
         }
       }
 

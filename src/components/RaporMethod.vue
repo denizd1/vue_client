@@ -12,29 +12,59 @@
         </v-flex>
       </v-layout>
     </v-overlay>
-    <!-- ilk kolon; sol taraf. sorgulama ve filtreleme alanları burada olacak -->
-    <v-col cols="2">
-      <v-card elevation="2">
+    <!-- ikinci kolon; sağ taraf. rapor sonuçları burada gösterilecek -->
+    <v-col cols="12" md="8">
+      <v-card elevation="2" class="mb-4">
         <v-card-text>
-          <v-row>
-            <v-col cols="12" v-for="(values, key) in uniqueValues" :key="key">
-              <v-autocomplete
-                :items="values"
-                :label="key.replace(/_/g, ' ').toUpperCase()"
-                v-model="filters[key]"
-                multiple
-                dense
-                clearable
-                attach
-                @change="applyFilters"
-              ></v-autocomplete>
-            </v-col>
-          </v-row>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                <div class="d-flex align-center">
+                  <v-icon left>mdi-filter-variant</v-icon>
+                  <span class="font-weight-bold">Detaylı Filtreler</span>
+
+                  <v-chip
+                    v-if="Object.values(filters).flat().length > 0"
+                    class="ml-2"
+                    x-small
+                    color="primary"
+                  >
+                    {{ Object.values(filters).flat().length }}
+                  </v-chip>
+                </div>
+              </v-expansion-panel-header>
+
+              <v-expansion-panel-content>
+                <v-row class="mt-2">
+                  <v-col
+                    cols="12"
+                    md="6"
+                    v-for="(values, key) in uniqueValues"
+                    :key="key"
+                  >
+                    <v-autocomplete
+                      :items="values"
+                      :label="key.replace(/_/g, ' ').toUpperCase()"
+                      v-model="filters[key]"
+                      multiple
+                      dense
+                      clearable
+                      attach
+                      outlined
+                      chips
+                      small-chips
+                      deletable-chips
+                      hide-details
+                      @change="applyFilters"
+                    ></v-autocomplete>
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card-text>
       </v-card>
-    </v-col>
-    <!-- ikinci kolon; sağ taraf. rapor sonuçları burada gösterilecek -->
-    <v-col cols="6">
+
       <v-card elevation="2">
         <v-card-text>
           <v-row class="justify-center mx-auto mt-3">
@@ -47,7 +77,7 @@
               ></v-select>
             </v-col>
 
-            <v-col cols="6">
+            <v-col cols="8">
               <v-pagination
                 v-model="page"
                 :length="totalPages"
@@ -92,6 +122,7 @@
                               <th class="text-left">Yazarlar</th>
                               <th class="text-left">Yıl</th>
                               <th class="text-left">İl/İlçe</th>
+                              <th class="text-left">Kullanılan Yöntemler</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -103,6 +134,7 @@
                               <td>{{ rapor.yazarlar }}</td>
                               <td>{{ rapor.calisma_yili }}</td>
                               <td>{{ rapor.il }} / {{ rapor.ilce }}</td>
+                              <td>{{ rapor.kullanilan_yontemler }}</td>
                             </tr>
                           </tbody>
                         </template>
@@ -123,14 +155,14 @@
       </v-card>
     </v-col>
     <!-- üçüncü kolon; ekstra bilgiler veya grafikler burada gösterilebilir -->
-    <v-col cols="4">
+    <v-col cols="12" md="4">
       <v-card elevation="2">
         <v-card-text>
           <div id="chart-pie" class="mb-6">
             <apexchart
               type="pie"
               width="100%"
-              height="400"
+              height="500"
               :options="pieOptions"
               :series="methodChartData.series"
             ></apexchart>
@@ -249,7 +281,7 @@ export default {
     },
     lineOptions() {
       return {
-        chart: { type: "bar" },
+        chart: { type: "bar", toolbar: { show: false } },
         xaxis: { categories: this.yearChartData.categories },
         title: { text: "Yıllara Göre Proje Sayısı", align: "center" },
         colors: ["#F44336"], // Vuetify red rengiyle uyumlu

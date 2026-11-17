@@ -64,7 +64,7 @@
           </v-list-item-icon>
           <v-list-item-title>Rapor Dökümü</v-list-item-title>
         </v-list-item> -->
-        <v-list-item
+        <!-- <v-list-item
           v-if="isUseradmin || isUsermoderator"
           link
           :to="{ name: 'rapormethod' }"
@@ -73,7 +73,7 @@
             <v-icon>mdi-newspaper</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Proje Bilgileri</v-list-item-title>
-        </v-list-item>
+        </v-list-item> -->
         <v-list-item
           v-if="isUseradmin || isUsermoderator"
           link
